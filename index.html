@@ -1,0 +1,3939 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>桂航四年 · 大学生活模拟器</title>
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap">
+<style>
+/* ============ 基础 ============ */
+:root{
+  --bg:#070D1F; --bg2:#0A1633; --panel:#0F1C3A; --panel2:#14264B; --line:#24365F;
+  --ink:#E8EDF7; --muted:#8FA3C8; --dim:#5C6F96;
+  --blue:#3B82F6; --navy:#1D4ED8; --orange:#FF8A3D; --gold:#F5B942;
+  --p:#2DD4BF; --i:#38BDF8; --m:#FBBF24; --h:#F472B6; --s:#F87171; --so:#A78BFA; --mo:#4ADE80;
+  --good:#4ADE80; --bad:#F87171;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  font-family:"Noto Sans SC","Microsoft YaHei","PingFang SC",system-ui,sans-serif;
+  background:linear-gradient(160deg,var(--bg) 0%,var(--bg2) 55%,#0A1230 100%);
+  color:var(--ink); line-height:1.6; overflow-x:hidden;
+}
+.serif{font-family:"Noto Serif SC","SimSun","Songti SC",serif}
+.hidden{display:none!important}
+button{font-family:inherit; cursor:pointer}
+#stars{position:fixed;inset:0;pointer-events:none;z-index:0}
+.screen{position:relative;z-index:1;min-height:100vh}
+@keyframes twinkle{0%,100%{opacity:.15}50%{opacity:.9}}
+@media (prefers-reduced-motion: reduce){
+  *{animation:none!important;transition:none!important}
+  #stars{display:none}
+}
+
+/* ============ 通用组件 ============ */
+.btn{
+  display:inline-block; border:1px solid var(--line); background:var(--panel2);
+  color:var(--ink); padding:10px 22px; border-radius:8px; font-size:15px;
+  transition:border-color .2s, background .2s, transform .1s;
+}
+.btn:hover{border-color:var(--orange)}
+.btn:active{transform:translateY(1px)}
+.btn.primary{background:linear-gradient(135deg,#1D4ED8,#3B82F6);border-color:#3B82F6;color:#fff}
+.btn.primary:hover{border-color:#FF8A3D; box-shadow:0 0 18px rgba(255,138,61,.25)}
+.btn.big{font-size:17px;padding:14px 40px;font-weight:700}
+.btn:disabled{opacity:.4;cursor:not-allowed;border-color:var(--line)!important;box-shadow:none!important}
+.btn.danger{background:linear-gradient(135deg,#B91C1C,#EF4444);border-color:#EF4444;color:#fff}
+.tag{display:inline-block;padding:1px 8px;border-radius:4px;font-size:11px;border:1px solid var(--line);color:var(--muted);margin-right:4px}
+.tag.blue{color:#93C5FD;border-color:#3B82F6}
+.tag.orange{color:#FCD34D;border-color:#FF8A3D}
+.tag.gray{color:#9CA3AF}
+.tag.gold{color:#FDE68A;border-color:#F5B942}
+
+/* ============ 开始界面 ============ */
+#screen-start{
+  background:
+    linear-gradient(rgba(7,13,31,.55),rgba(7,13,31,.92)),
+    url('https://aka.doubaocdn.com/s/L6UVefZd63') center/cover no-repeat fixed;
+}
+.start-inner{max-width:1040px;margin:0 auto;padding:64px 20px 80px}
+.school{letter-spacing:.35em;color:var(--muted);font-size:14px;text-align:center}
+h1.title{
+  font-size:clamp(52px,9vw,96px); font-weight:900; text-align:center; color:#fff;
+  text-shadow:0 4px 30px rgba(59,130,246,.45); margin:14px 0 6px; letter-spacing:.12em;
+}
+.subtitle{text-align:center;color:var(--muted);max-width:560px;margin:0 auto 34px;font-weight:300}
+.name-row{display:flex;align-items:center;gap:12px;justify-content:center;margin-bottom:30px}
+.start-tools{display:flex;gap:10px;justify-content:center;margin:-16px 0 30px}
+.start-tools .btn{font-size:13.5px;padding:8px 18px}
+.start-tools .btn span{color:var(--gold);font-weight:700}
+.name-row label{color:var(--muted);font-size:14px}
+#inp-name{
+  background:rgba(15,28,58,.85);border:1px solid var(--line);border-radius:8px;color:var(--ink);
+  padding:10px 16px;font-size:15px;width:220px;outline:none;
+}
+#inp-name:focus{border-color:var(--orange)}
+.section-title{color:var(--gold);font-size:15px;letter-spacing:.3em;text-align:center;margin:8px 0 18px}
+#major-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;margin-bottom:26px}
+.major-card{
+  background:rgba(15,28,58,.72);border:1px solid var(--line);border-radius:12px;padding:16px 18px;
+  cursor:pointer;transition:border-color .2s, background .2s, transform .1s; text-align:left;
+}
+.major-card:hover{border-color:#3B82F6;background:rgba(20,38,75,.85)}
+.major-card.sel{border-color:var(--orange);background:rgba(32,22,10,.5);box-shadow:0 0 20px rgba(255,138,61,.18)}
+.v-row{display:flex;align-items:center;gap:10px;margin:8px 0}
+.v-label{width:60px;font-size:13px;color:var(--dim);flex:none}
+.v-row select{flex:1;background:#0E1B38;border:1px solid #2A3E6E;color:#E2E8F0;border-radius:8px;padding:10px 12px;font-size:14px;font-family:inherit;outline:none}
+.v-row select.v-type{flex:0 0 118px}
+.v-row select.v-major{flex:1;min-width:0}
+.v-row select:focus{border-color:var(--orange)}
+.v-row select option{background:#0E1B38;color:#E2E8F0}
+.v-tip{font-size:12px;color:var(--dim);margin-top:8px;line-height:1.7}
+#admit-box{margin-top:16px;border:1px solid var(--gold);background:linear-gradient(135deg,rgba(245,185,66,.10),rgba(255,138,61,.05));border-radius:12px;padding:18px 16px;text-align:center;box-shadow:0 0 24px rgba(245,185,66,.12)}
+#admit-box.luobang{border-color:rgba(252,165,165,.6);background:linear-gradient(135deg,rgba(252,165,165,.08),rgba(120,53,53,.05));box-shadow:0 0 24px rgba(252,165,165,.12)}
+.subject-tip{font-size:12.5px;color:var(--dim);margin:2px 0 12px;line-height:1.7}
+.subj-group{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:10px 0}
+.subj-label{font-size:13px;color:var(--gold);min-width:44px}
+.subj-fixed{display:inline-block;padding:8px 16px;border-radius:8px;background:rgba(120,150,255,.12);border:1px solid rgba(120,150,255,.35);color:#CFE0FF;font-size:14px}
+.subj-btn{display:inline-block;padding:8px 18px;border-radius:8px;background:rgba(120,150,255,.06);border:1px solid rgba(120,150,255,.25);color:#BFD4FF;font-size:14px;cursor:pointer;transition:.2s}
+.subj-btn:hover{border-color:rgba(120,150,255,.6)}
+.subj-btn.sel{background:rgba(245,185,66,.15);border-color:var(--gold);color:#FFE3A1;box-shadow:0 0 12px rgba(245,185,66,.2)}
+.subj-gap{color:#3d4a63;font-size:14px}
+#score-box{margin-top:16px;border:1px solid var(--gold);background:linear-gradient(135deg,rgba(245,185,66,.10),rgba(255,138,61,.05));border-radius:12px;padding:18px 16px;text-align:center;box-shadow:0 0 24px rgba(245,185,66,.12)}
+#score-box.low{border-color:rgba(252,165,165,.6);background:linear-gradient(135deg,rgba(252,165,165,.08),rgba(120,53,53,.05))}
+.gaokao-q{background:rgba(120,150,255,.05);border:1px solid rgba(120,150,255,.15);border-radius:10px;padding:12px 14px;margin:10px 0;text-align:left}
+.gaokao-q .gq-tag{font-size:11.5px;color:var(--gold);letter-spacing:.08em;margin-bottom:6px}
+.gaokao-q .gq-q{font-size:14.5px;line-height:1.6;margin-bottom:10px;color:#E8EEFF}
+.gaokao-q .gq-opts{display:grid;gap:8px}
+.gaokao-q .gq-opt{padding:8px 12px;border-radius:8px;background:rgba(120,150,255,.05);border:1px solid rgba(120,150,255,.2);color:#BFD4FF;font-size:13.5px;cursor:pointer;text-align:left;transition:.15s}
+.gaokao-q .gq-opt:hover{border-color:rgba(120,150,255,.55)}
+.gaokao-q .gq-opt.sel{background:rgba(245,185,66,.14);border-color:var(--gold);color:#FFE3A1}
+.admit-mode{display:inline-block;margin-top:10px;font-size:12px;color:var(--dim)}
+.admit-line{font-size:15px;color:#FFF7E6;line-height:1.9}
+.admit-mode{display:inline-block;margin-top:10px;padding:4px 14px;border-radius:99px;font-size:12.5px;background:rgba(245,185,66,.15);color:var(--gold);letter-spacing:.1em}
+.admit-confirm{margin-top:16px}
+#talent-box{margin-top:20px;padding:20px 16px;background:linear-gradient(135deg,rgba(61,139,253,.08),rgba(155,92,246,.06));border:1px solid rgba(120,150,255,.35);border-radius:12px;text-align:center}
+.talent-head{font-size:21px;color:var(--gold);letter-spacing:3px}
+.talent-sub{font-size:13px;color:var(--dim);margin:8px 0 14px;line-height:1.7}
+#talent-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.talent-line{margin-top:8px;padding:6px 10px;border-left:3px solid var(--gold);background:rgba(245,185,66,.08);color:#FDE68A;font-size:12.5px;line-height:1.6}
+.tcard{position:relative;text-align:left;padding:12px 12px;border-radius:10px;background:rgba(20,28,48,.8);cursor:pointer;transition:all .18s;border:1.5px solid rgba(255,255,255,.12)}
+.tcard:hover{transform:translateY(-3px);box-shadow:0 6px 18px rgba(0,0,0,.35)}
+.tcard.sel{transform:translateY(-3px);box-shadow:0 0 0 2px var(--gold),0 6px 18px rgba(0,0,0,.4);background:rgba(35,45,75,.95)}
+.tcard .tq{display:inline-block;font-size:10.5px;letter-spacing:1px;padding:1px 8px;border-radius:20px;color:#0d1117;font-weight:700}
+.tcard .tname{display:block;margin-top:7px;font-size:15px;font-weight:700;color:#fff}
+.tcard .tdesc{display:block;margin-top:4px;font-size:12px;color:var(--dim);line-height:1.55;min-height:34px}
+.talent-confirm{margin-top:16px}
+.talent-refresh-row{margin-top:12px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.major-name{font-size:17px;font-weight:700;color:#fff;display:flex;align-items:center;gap:8px}
+.major-diff{font-size:12px;color:var(--dim)}
+.major-type{font-size:11px;color:#93C5FD}
+.major-desc{font-size:12.5px;color:var(--muted);margin-top:6px;line-height:1.55}
+.btn-start-row{text-align:center}
+details.rules{
+  margin:26px auto 0;max-width:680px;background:rgba(15,28,58,.6);border:1px dashed var(--line);
+  border-radius:10px;padding:14px 18px;color:var(--muted);font-size:13.5px;
+}
+details.rules summary{cursor:pointer;color:#CBD5E1;font-size:14px}
+details.rules ul{margin:10px 0 4px 20px}
+details.rules li{margin:5px 0}
+details.rules b{color:#FDE68A}
+
+/* ============ 游戏界面头部 ============ */
+#screen-game{max-width:1460px;margin:0 auto;padding:14px 16px 30px;user-select:none;-webkit-user-select:none;touch-action:pan-y}
+.g-header{
+  display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+  background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 18px;margin-bottom:14px;
+}
+.g-name{font-size:21px;font-weight:900;letter-spacing:.14em;color:#fff}
+.g-motto{font-size:11px;color:var(--dim);letter-spacing:.4em;margin-left:10px}
+.g-cal{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--muted)}
+.g-cal b{color:var(--ink);font-size:15px}
+.phase-badge{
+  display:inline-block;padding:2px 10px;border-radius:999px;font-size:12px;border:1px solid var(--orange);
+  color:#FCD34D;background:rgba(255,138,61,.12);letter-spacing:.1em;
+}
+.track{
+  position:relative;width:min(420px,60vw);height:26px;border:1px solid var(--line);border-radius:999px;
+  background:rgba(7,13,31,.7);overflow:visible;margin-top:4px;
+}
+.track-fill{position:absolute;left:2px;top:2px;bottom:2px;border-radius:999px;width:0%;background:linear-gradient(90deg,#1D4ED8,#3B82F6);transition:width .5s}
+.rocket{
+  position:absolute;top:-7px;left:0%;transform:translateX(-50%);transition:left .5s;width:26px;height:26px;color:#FF8A3D;
+  filter:drop-shadow(0 0 6px rgba(255,138,61,.7));
+}
+.track-num{position:absolute;right:8px;top:3px;font-size:11px;color:var(--dim)}
+
+/* ============ 布局 ============ */
+.layout{display:grid;grid-template-columns:252px minmax(0,1fr) 300px;gap:14px;align-items:start}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.panel h3{
+  font-size:12px;color:var(--dim);letter-spacing:.3em;margin:16px 0 8px;font-weight:500;
+  border-bottom:1px dashed var(--line);padding-bottom:6px;
+}
+.panel h3:first-child{margin-top:0}
+
+/* 属性面板 */
+.attr-row{margin-bottom:11px}
+.study-tip{font-size:10.5px;color:var(--dim);margin-top:2px;letter-spacing:.3px}
+.attr-head{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:3px;color:var(--muted)}
+.attr-head b{color:var(--ink);font-weight:600}
+.bar{position:relative;height:10px;border-radius:999px;background:rgba(7,13,31,.8);overflow:hidden}
+.bar-fill{position:absolute;left:0;top:0;bottom:0;border-radius:999px;transition:width .45s ease}
+.bar-ticks{position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0,transparent calc(10% - 1px),rgba(255,255,255,.07) calc(10% - 1px),rgba(255,255,255,.07) 10%)}
+@keyframes danger{0%,100%{opacity:1}50%{opacity:.35}}
+.danger .bar-fill{animation:danger 1s infinite}
+.money-line{margin-top:14px;padding-top:10px;border-top:1px dashed var(--line);font-size:14px;color:var(--muted)}
+.money-line b{color:var(--mo);font-size:16px}
+.flag-list{margin-top:10px;font-size:12px;color:var(--gold)}
+.flag-list div{margin:3px 0}
+
+/* 事件面板 */
+.event-panel{min-height:520px;display:flex;flex-direction:column}
+#event-box{flex:1}
+.ev-phase{font-size:12px;color:var(--orange);letter-spacing:.3em;margin-bottom:6px}
+.ev-title{font-size:24px;font-weight:900;color:#fff;margin-bottom:10px;line-height:1.35}
+.ev-desc{color:#B7C4DE;font-size:14.5px;margin-bottom:20px;white-space:pre-wrap}
+.opt{
+  display:flex;align-items:flex-start;gap:12px;width:100%;text-align:left;
+  background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:13px 14px;margin-bottom:10px;
+  color:var(--ink);font-size:14.5px;transition:border-color .15s, background .15s;
+}
+.opt:hover{border-color:var(--orange);background:#1A2F5C}
+.opt .key{
+  flex:none;width:30px;height:30px;border-radius:7px;border:1px solid var(--orange);color:#FCD34D;
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;margin-top:1px;
+}
+.opt .opt-txt{flex:1;line-height:1.5}
+.result-box{background:rgba(7,13,31,.55);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:14px}
+.result-box .r-title{color:var(--gold);font-size:13px;letter-spacing:.2em;margin-bottom:6px}
+.result-box .r-text{color:#D7E0F2;font-size:14.5px}
+.eff-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.chip{font-size:12px;padding:3px 10px;border-radius:999px;border:1px solid var(--line);background:rgba(15,28,58,.8);color:var(--muted)}
+.chip.up{color:var(--good);border-color:rgba(74,222,128,.4)}
+.chip.down{color:var(--bad);border-color:rgba(248,113,113,.4)}
+.banner{
+  border:1px solid var(--orange);background:rgba(255,138,61,.1);color:#FCD34D;border-radius:10px;
+  padding:12px 16px;margin-bottom:10px;font-size:14px;
+}
+.banner.bad{border-color:#EF4444;background:rgba(239,68,68,.12);color:#FECACA}
+.banner.good{border-color:#22C55E;background:rgba(34,197,94,.1);color:#BBF7D0}
+.flash-card{
+  margin-top:10px;border:1px solid var(--gold);background:linear-gradient(135deg,rgba(245,185,66,.10),rgba(255,138,61,.05));
+  border-radius:10px;padding:12px 16px;box-shadow:0 0 18px rgba(245,185,66,.15);
+}
+.flash-tag{font-size:11px;letter-spacing:.28em;color:var(--gold);margin-bottom:5px}
+.flash-title{font-size:16px;font-weight:700;color:#FFF7E6;margin-bottom:4px}
+.flash-desc{font-size:13.5px;color:#B7C4DE;margin-bottom:6px;line-height:1.6}
+#btn-next{margin-top:14px;align-self:flex-end}
+#btn-again{margin-top:14px;align-self:flex-end;border-color:rgba(120,150,255,.4);color:#BFD4FF}
+.next-row{display:flex;gap:12px;justify-content:flex-end;margin-top:14px}
+.next-row #btn-next{margin-top:0}
+.next-row #btn-again{margin-top:0}
+
+/* 右侧面板 */
+.course-item{display:flex;justify-content:space-between;gap:8px;font-size:13px;padding:5px 0;border-bottom:1px dashed rgba(35,54,95,.5)}
+.course-item .cname{color:#D7E0F2}
+.course-item .cstat{color:var(--dim);font-size:12px}
+.course-item .cstat.ok{color:var(--good)}
+.course-item .cstat.no{color:var(--bad)}
+.gpa-line{font-size:13.5px;color:var(--muted);margin-bottom:8px}
+.gpa-line b{color:var(--gold);font-size:20px;margin:0 4px}
+.gpa-sems{font-size:11px;color:var(--dim)}
+.honor-item{font-size:12.5px;color:#FDE68A;padding:4px 0;border-bottom:1px dashed rgba(35,54,95,.5)}
+#log-list{max-height:280px;overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;gap:0;padding-right:4px}
+#log-list::-webkit-scrollbar{width:5px}
+#log-list::-webkit-scrollbar-thumb{background:#24365F;border-radius:99px}
+.log-item{font-size:12px;color:var(--muted);padding:4px 0;border-bottom:1px dashed rgba(35,54,95,.4);line-height:1.45}
+.log-item b{color:#CBD5E1;font-weight:500}
+
+/* ============ 弹窗 ============ */
+.overlay{position:fixed;inset:0;background:rgba(4,8,20,.78);z-index:50;display:flex;align-items:center;justify-content:center;padding:18px}
+.modal{
+  background:linear-gradient(165deg,#101E3E,#0B1730);border:1px solid #2A3E6E;border-radius:16px;
+  max-width:640px;width:100%;max-height:88vh;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:26px 28px;box-shadow:0 20px 60px rgba(0,0,0,.5);
+}
+.modal::-webkit-scrollbar{width:6px}
+.modal::-webkit-scrollbar-thumb{background:#2A3E6E;border-radius:99px}
+.modal h2{font-size:22px;color:#fff;margin-bottom:14px;letter-spacing:.06em}
+.modal h3{font-size:14px;color:var(--gold);margin:16px 0 8px;letter-spacing:.15em}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
+table.grades{width:100%;border-collapse:collapse;font-size:13.5px}
+table.grades th{color:var(--dim);font-weight:500;text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);font-size:12px;letter-spacing:.1em}
+table.grades td{padding:7px 8px;border-bottom:1px dashed rgba(35,54,95,.5);color:#D7E0F2}
+table.grades .no{color:var(--bad);font-weight:700}
+table.grades .ok{color:var(--good)}
+.report-line{margin-top:12px;font-size:14px;color:var(--muted)}
+.report-line b{color:var(--gold);font-size:17px}
+.grade-hero{text-align:center;padding:8px 0 4px}
+.grade-letter{font-size:clamp(84px,20vw,140px);font-weight:900;line-height:1;font-family:"Noto Serif SC",serif}
+.grade-S{color:#FDE68A;text-shadow:0 0 40px rgba(245,185,66,.55)}
+.grade-A{color:#93C5FD;text-shadow:0 0 40px rgba(59,130,246,.5)}
+.grade-B{color:#6EE7B7;text-shadow:0 0 40px rgba(45,212,191,.45)}
+.grade-C{color:#FCA5A5;text-shadow:0 0 40px rgba(248,113,113,.4)}
+.grade-D{color:#9CA3AF;text-shadow:0 0 40px rgba(156,163,175,.35)}
+.grade-note{color:var(--muted);font-size:14px;margin-top:8px}
+.bd-row{display:flex;align-items:center;gap:10px;margin:7px 0;font-size:13px;color:var(--muted)}
+.bd-row .bd-label{width:58px;flex:none}
+.bd-row .bd-bar{flex:1;height:9px;background:rgba(7,13,31,.8);border-radius:99px;overflow:hidden}
+.bd-row .bd-fill{height:100%;border-radius:99px;background:var(--orange)}
+.grade-remark{font-size:14px;color:#D7E0F2;background:rgba(7,13,31,.55);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-top:12px;line-height:1.75}
+.grade-outcome{margin-top:12px;font-size:14.5px;color:#FDE68A}
+.ending-sub{margin-top:6px;font-size:12.5px;color:var(--dim);line-height:1.7}
+.ach-title{font-size:20px;font-weight:800;color:#fff;letter-spacing:.08em;margin-bottom:4px;text-align:center}
+.ach-count{text-align:center;font-size:12.5px;color:var(--gold);margin-bottom:12px;letter-spacing:.1em}
+.ach-item{border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:8px 0;background:rgba(15,28,58,.5)}
+.ach-item.got{border-color:rgba(74,222,128,.4);background:rgba(74,222,128,.06)}
+.ach-item.locked{opacity:.55}
+.ach-item.rare{border-color:var(--gold);box-shadow:0 0 14px rgba(245,185,66,.12)}
+.ach-name{font-size:14.5px;font-weight:700;color:#fff}
+.ach-item.got .ach-name{color:#86EFAC}
+.ach-star{color:var(--gold);margin-left:6px;font-size:13px}
+.ach-desc{font-size:12px;color:var(--muted);margin-top:2px}
+.ach-foot{text-align:center;font-size:12px;color:var(--dim);margin-top:14px;line-height:1.7}
+.save-item{border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:8px 0;background:rgba(15,28,58,.5)}
+.save-main{font-size:14.5px;color:#fff;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.save-grade{font-size:12px;font-weight:800;padding:1px 8px;border-radius:99px}
+.save-grade.ok{color:#86EFAC;background:rgba(74,222,128,.12);border:1px solid rgba(74,222,128,.4)}
+.save-grade.no{color:#FCA5A5;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.35)}
+.save-sub{font-size:12px;color:var(--muted);margin:4px 0 8px}
+.save-actions{display:flex;gap:8px}
+.save-actions .btn{font-size:12.5px;padding:6px 14px}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;font-size:13px;color:var(--muted)}
+.stats-grid b{color:var(--ink)}
+.death-title{font-size:26px;font-weight:900;color:#FECACA;margin-bottom:10px;letter-spacing:.1em}
+.death-desc{color:#E5E7EB;font-size:14.5px;line-height:1.8;white-space:pre-wrap}
+
+/* ============ 终章 ============ */
+#screen-end{
+  background:
+    linear-gradient(rgba(7,13,31,.6),rgba(7,13,31,.95)),
+    url('https://aka.doubaocdn.com/s/wmVI3sKSfJ') center/cover no-repeat fixed;
+}
+.end-wrap{max-width:820px;margin:0 auto;padding:60px 20px 80px}
+.end-hero{text-align:center;margin-bottom:22px}
+.end-hero .big{font-size:clamp(40px,7vw,66px);font-weight:900;color:#fff;letter-spacing:.14em}
+.end-hero .sub{color:var(--muted);margin-top:8px;font-size:15px}
+.end-card{
+  background:linear-gradient(165deg,#101E3Ecc,#0B1730e6);border:1px solid #2A3E6E;border-radius:18px;
+  padding:34px 36px;box-shadow:0 24px 70px rgba(0,0,0,.5);
+}
+.best-line{text-align:center;font-size:13px;color:var(--gold);margin-top:16px}
+.best-line b{font-size:16px}
+.end-actions{display:flex;gap:14px;justify-content:center;margin-top:26px;flex-wrap:wrap}
+
+/* ============ Toast ============ */
+#toast-root{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:60;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;width:max-content;max-width:92vw}
+.toast{background:rgba(15,28,58,.96);border:1px solid var(--line);border-radius:10px;padding:10px 18px;font-size:14px;color:#D7E0F2;box-shadow:0 8px 30px rgba(0,0,0,.45);transition:opacity .4s, transform .4s;text-align:center}
+.toast.good{border-color:#22C55E;color:#BBF7D0}
+.toast.bad{border-color:#EF4444;color:#FECACA}
+.toast.out{opacity:0;transform:translateY(-8px)}
+
+/* ============ 响应式 ============ */
+@media (max-width:1180px){
+  .layout{grid-template-columns:220px minmax(0,1fr);}
+  #panel-info{grid-column:1 / -1;display:grid;grid-template-columns:1fr 1fr;gap:0 22px}
+  #panel-info h3{grid-column:1 / -1}
+  #log-list{max-height:150px}
+}
+@media (max-width:760px){
+  .layout{grid-template-columns:1fr}
+  #panel-info{display:block}
+  .track{width:100%}
+  .g-header{flex-direction:column;align-items:flex-start}
+  .event-panel{min-height:0}
+  .modal{padding:20px 18px}
+  .end-card{padding:24px 18px}
+  .v-row select.v-type{flex:0 0 96px;padding:10px 8px;font-size:13px}
+  .start-tools{flex-wrap:wrap}
+}
+</style>
+</head>
+<body>
+<div id="stars"></div>
+
+<!-- ===== 开始界面 ===== -->
+<section id="screen-start" class="screen">
+  <div class="start-inner">
+    <p class="school">桂林航天工业学院 · 大学生活模拟器</p>
+    <h1 class="title serif">桂航四年</h1>
+    <p class="subtitle">尧山脚下，问天楼前。四学年八个学期，四十八个月的选择，塑造一个属于你的大学生涯。</p>
+    <div class="name-row">
+      <label>你的名字</label>
+      <input id="inp-name" maxlength="8" placeholder="（可不填，默认“同学”）" autocomplete="off">
+    </div>
+    <div class="start-tools">
+      <button class="btn" onclick="showSaves()">我的存档（<span id="save-count">0</span>）</button>
+      <button class="btn" onclick="showAch()">成就 <span id="ach-count">0/32</span></button>
+    </div>
+    <h2 class="section-title">— ① 觉醒天赋 · 三选 —</h2>
+    <div id="talent-box">
+      <div class="talent-head serif">✦ 觉醒天赋 ✦</div>
+      <div class="talent-sub">入学体检时，教务系统为你随机点亮了 <b style="color:var(--gold)">10 个天赋</b>。<br>品质从低到高：<span style="color:#d6d6d6">普通</span> → <span style="color:#5ec73e">优秀</span> → <span style="color:#3d8bfd">稀有</span> → <span style="color:#9b5cf6">史诗</span> → <span style="color:#ff9f1a">传说</span>。请选择 <b style="color:#fff">3 个</b> 带走。<br><span style="color:var(--dim);font-size:12.5px">部分天赋会影响模拟高考发挥。</span></div>
+      <div id="talent-grid"></div>
+      <div class="talent-refresh-row">
+        <button id="btn-refresh-n" class="btn" onclick="refreshNormal()">换一批（普通 3）</button>
+        <button id="btn-refresh-g" class="btn" style="border-color:#ff9f1a;color:#ffce7a" onclick="refreshGold()">金色刷新（1）· 必出紫/橙</button>
+      </div>
+      <div class="talent-confirm"><span id="talent-picked" style="color:var(--dim);font-size:13px;margin-right:10px">已选 0 / 3</span><button id="btn-talent" class="btn primary big" disabled>确认天赋 · 进入选科</button></div>
+    </div>
+    <h2 class="section-title">— ② 科目选择 · 3+1+2 新高考 —</h2>
+    <div id="subject-box" class="hidden">
+      <div class="subject-tip">语文、数学、英语为必选；再从「物理/历史」二选一、「化学/政治」二选一、「生物/地理」二选一。选科决定你可报考的专业大类。</div>
+      <div class="subj-group"><span class="subj-label">必选</span>
+        <span class="subj-fixed">语文</span><span class="subj-fixed">数学</span><span class="subj-fixed">英语</span>
+      </div>
+      <div class="subj-group"><span class="subj-label">首选</span>
+        <button class="subj-btn" data-g="p" data-v="wuli" onclick="pickSubj(this)">物理</button>
+        <button class="subj-btn" data-g="p" data-v="lishi" onclick="pickSubj(this)">历史</button>
+      </div>
+      <div class="subj-group"><span class="subj-label">再选</span>
+        <button class="subj-btn" data-g="c" data-v="chem" onclick="pickSubj(this)">化学</button>
+        <button class="subj-btn" data-g="c" data-v="pol" onclick="pickSubj(this)">政治</button>
+        <span class="subj-gap">·</span>
+        <button class="subj-btn" data-g="b" data-v="bio" onclick="pickSubj(this)">生物</button>
+        <button class="subj-btn" data-g="b" data-v="geo" onclick="pickSubj(this)">地理</button>
+      </div>
+      <div class="talent-confirm"><span id="subject-picked" style="color:var(--dim);font-size:13px;margin-right:10px">未选完</span><button id="btn-subject" class="btn primary big" disabled>确认选科 · 开始模拟高考</button></div>
+    </div>
+    <h2 class="section-title">— ③ 模拟高考 · 每科三题 —</h2>
+    <div id="gaokao-box" class="hidden">
+      <div class="subject-tip" id="gaokao-subj-line"></div>
+      <div id="gaokao-qlist"></div>
+      <div class="talent-confirm"><span id="gaokao-picked" style="color:var(--dim);font-size:13px;margin-right:10px">已答 0 / 18</span><button id="btn-gaokao" class="btn primary big" disabled>交卷 · 查询成绩</button><button id="btn-baosong" class="btn big" style="margin-left:10px;border-color:rgba(245,185,66,.5);color:#FFE3A1">保送桂航 · 跳过答题</button></div>
+    </div>
+    <h2 class="section-title">— ④ 高考出分 · 填报志愿 —</h2>
+    <div id="score-box" class="hidden"></div>
+    <div id="volunteer-box" class="hidden">
+      <div class="v-row"><span class="v-label">第一志愿</span><select id="t1" class="v-type"></select><select id="v1" class="v-major"></select></div>
+      <div class="v-row"><span class="v-label">第二志愿</span><select id="t2" class="v-type"></select><select id="v2" class="v-major"></select></div>
+      <div class="v-row"><span class="v-label">第三志愿</span><select id="t3" class="v-type"></select><select id="v3" class="v-major"></select></div>
+      <div class="v-tip">按你的选科大类（<span id="vol-cat" style="color:var(--gold)"></span>），从可报考专业中选 3 个。出分后按志愿顺序录取（第一→第二→第三）；三个志愿均未达线，将在大类内调剂；调剂无果则落榜。</div>
+    </div>
+    <div id="admit-box" class="hidden"></div>
+    <div class="btn-start-row hidden" id="btn-start-row">
+      <button id="btn-start" class="btn primary big" disabled>提交志愿 · 查询录取</button>
+    </div>
+    <details class="rules">
+      <summary>玩法说明</summary>
+      <ul>
+        <li><b>入学前</b>：① 三选天赋 → ② 3+1+2 选科 → ③ 模拟高考（六科十八题，300~750 分）→ ④ 出分后按物理/历史大类填报志愿；分数过低会落榜。</li>
+        <li>四学年共八学期，每学期四个月；寒暑假各两个月，共 48 个月，每月一个事件、四个选项。每月结算后可「再做一件」额外推进事件（心情 -5）。</li>
+        <li>属性：<b>体质</b>过低会生病甚至猝死；<b>智力</b>不高又不用功就可能挂科；<b>道德</b>过低会惹祸甚至犯罪；<b>心情</b>低于 0 会彻底崩溃、无法继续。</li>
+        <li>科目分<b>专业课</b>与<b>选修课</b>，期末按智力与平时投入结算成绩，挂科可补考，补考不过计入挂科记录。</li>
+        <li>每年体测、四六级、竞赛、奖学金等事件按属性结算，荣誉会写进毕业档案。</li>
+        <li>毕业时按学业、体质、道德、心情社交、荣誉与惩罚综合评定 <b>S / A / B / C / D</b>。</li>
+        <li>键盘 A/B/C/D 或 1-4 可快速选择选项，Enter 进入下个月。</li>
+      </ul>
+    </details>
+  </div>
+</section>
+
+<!-- ===== 游戏界面 ===== -->
+<section id="screen-game" class="screen hidden">
+  <header class="g-header">
+    <div class="g-title">
+      <span class="g-name serif">桂航四年</span>
+      <span class="g-motto">尚德 · 博学 · 慎思 · 笃行</span>
+    </div>
+    <div class="g-meta">
+      <div class="g-cal">
+        <b id="cal-year"></b>
+        <span id="cal-month"></span>
+        <span id="cal-phase" class="phase-badge"></span>
+      </div>
+      <div class="track" id="track">
+        <div class="track-fill" id="track-fill"></div>
+        <div class="rocket" id="rocket">
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c3 2.5 5 6 5 10 0 2.5-1 4.5-2 6H9c-1-1.5-2-3.5-2-6 0-4 2-7.5 5-10z"/><circle cx="12" cy="11" r="2"/><path d="M9 18h6M10.5 21h3"/></svg>
+        </div>
+        <span class="track-num" id="track-num">1/48</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="panel" id="panel-attrs">
+      <h3>状态面板</h3>
+      <div id="attr-list"></div>
+      <div class="money-line">生活费：<b id="money-val">¥0</b></div>
+      <div id="flag-list" class="flag-list"></div>
+    </aside>
+
+    <section class="panel event-panel" id="panel-event">
+      <div id="event-box"></div>
+      <div class="next-row">
+        <button id="btn-again" class="btn hidden">再做一件（心情 -5）</button>
+        <button id="btn-next" class="btn primary hidden">进入下一个月</button>
+      </div>
+    </section>
+
+    <aside class="panel" id="panel-info">
+      <h3>本学期课程</h3>
+      <div id="course-list"></div>
+      <h3>学业成绩</h3>
+      <div class="gpa-line">累计GPA <b id="gpa-total">0.00</b><span class="gpa-sems" id="gpa-sems"></span></div>
+      <h3>荣誉档案</h3>
+      <div id="honor-list"></div>
+      <h3>生涯日志</h3>
+      <div id="log-list"></div>
+    </aside>
+  </main>
+</section>
+
+<!-- ===== 终章界面 ===== -->
+<section id="screen-end" class="screen hidden">
+  <div class="end-wrap">
+    <div class="end-hero">
+      <div class="big serif">四年，落幕</div>
+      <div class="sub">从尧山脚下出发，你交出了自己的答卷</div>
+    </div>
+    <div class="end-card" id="end-card"></div>
+  </div>
+</section>
+
+<div id="modal-root"></div>
+<div id="toast-root"></div>
+
+<script>
+/* ================================================================
+   数据：专业 / 课程 / 事件
+   ================================================================ */
+const MAJORS = [
+  {id:'hkzz', name:'飞行器制造工程', type:'工科', cat:'wl', diff:1.15, line:530,
+   desc:'桂航王牌，自治区级一流本科专业。面向航空装备智能制造与航天器精密制造，制图、力学、工艺、数控一条龙。',
+   pool:['画法几何与机械制图','理论力学','航空航天概论','材料力学','航空材料学','飞机钣金成形原理','机械制造工艺学','数控加工技术','飞行器装配工艺','复合材料成型工艺','飞行器结构设计基础','数字化制造技术']},
+  {id:'jx', name:'机械设计制造及其自动化', type:'工科', cat:'wl', diff:1.05, line:512,
+   desc:'机电大类主干专业。画图、力学、工艺、数控样样精通，就业面最广的老牌工科。',
+   pool:['画法几何与机械制图','理论力学','材料力学','机械原理','机械设计','互换性与技术测量','机械制造工艺学','数控编程与加工','液压与气压传动','机电传动控制','机械CAD/CAM','金工实习']},
+  {id:'jsj', name:'计算机科学与技术', type:'工科', cat:'wl', diff:1.10, line:526,
+   desc:'敲代码、调 bug、肝项目。专业课多且硬，自学能力决定你的上限。',
+   pool:['C语言程序设计','离散数学','数据结构','计算机组成原理','操作系统','计算机网络','数据库原理','Java程序设计','软件工程','算法设计与分析','编译原理','人工智能导论']},
+  {id:'dz', name:'电子信息工程', type:'工科', cat:'wl', diff:1.10, line:520,
+   desc:'模电数电两座大山，焊板子、写嵌入式，是电子设计竞赛的主力军。',
+   pool:['电路分析','模拟电子技术','数字电子技术','信号与系统','电磁场与电磁波','通信原理','单片机原理','嵌入式系统','数字信号处理','高频电子线路','电子工艺实习','传感器技术']},
+  {id:'zdh', name:'自动化', type:'工科', cat:'wl', diff:1.05, line:515,
+   desc:'控制理论为主，万物皆可 PID。从电机拖动到过程控制，一应俱全。',
+   pool:['电路分析','模拟电子技术','数字电子技术','自动控制原理','现代控制理论','电机与拖动','电力电子技术','过程控制','运动控制','计算机控制技术','PLC原理与应用','传感器与检测技术']},
+  {id:'cw', name:'财务管理', type:'经管', cat:'wl', diff:0.95, line:506,
+   desc:'会计、财管、税法。证书是命根子，练就一双看穿报表的火眼金睛。',
+   pool:['会计学原理','中级财务会计','财务管理','成本会计','管理会计','审计学','税法','财务分析','资产评估','公司战略与风险管理','会计电算化','财务报表分析']},
+  {id:'sc', name:'市场营销', type:'经管', cat:'ls', diff:0.90, line:500,
+   desc:'策划、路演、拉赞助。社交属性加成高，嘴皮子就是生产力。',
+   pool:['管理学原理','市场营销学','消费者行为学','市场调查与预测','广告学','品牌管理','电子商务概论','商务谈判','销售管理','渠道管理','客户关系管理','网络营销']},
+  {id:'wl', name:'物流管理', type:'经管', cat:'ls', diff:0.90, line:496,
+   desc:'供应链、仓储、运筹。从校园快递点到全国物流网络，都是你的主场。',
+   pool:['管理学原理','物流学概论','供应链管理','运筹学','仓储与配送管理','运输管理','物流系统规划','采购管理','物流信息技术','国际物流','物流成本管理','第三方物流']},
+  {id:'syyw', name:'商务英语', type:'文科', cat:'ls', diff:0.90, line:492,
+   desc:'听说读写译，专四专八是门槛。外贸、外企、跨境电商的敲门砖。',
+   pool:['综合英语','英语听力','英语口语','英语阅读','英语写作','商务英语精读','商务英语翻译','国际贸易实务','外贸函电','商务谈判英语','跨文化交际','第二外语']},
+  {id:'sj', name:'视觉传达设计', type:'艺术', cat:'ls', diff:0.95, line:490,
+   desc:'PS/AI/手绘，审美即生产力。肝图到凌晨是常态，作品集就是简历。',
+   pool:['设计素描','设计色彩','三大构成','Photoshop图形图像','Illustrator插画','字体设计','版式设计','标志设计','海报设计','包装设计','UI设计','品牌形象设计']},
+  {id:'jd', name:'机电一体化技术', type:'工科', cat:'wl', diff:1.00, line:508,
+   desc:'机、电、液、气样样通。会画图、会接线、会编程，车间里最全能的存在。',
+   pool:['机械制图','电工电子技术','机械设计基础','液压与气压传动','机电一体化系统设计','PLC原理与应用','传感器与检测技术','数控加工技术','单片机原理','机器人技术基础','机电设备故障诊断','工业机器人编程']},
+  {id:'zzn', name:'智能制造工程', type:'工科', cat:'wl', diff:1.05, line:518,
+   desc:'“中国制造2025”的核心专业。数字孪生、工业互联网、智能工厂，都是你的战场。',
+   pool:['机械制图','工程力学','智能制造导论','工业机器人技术','数控加工技术','MES系统应用','工业互联网基础','人工智能基础','数字孪生技术','增材制造技术','智能工厂规划','生产系统仿真']},
+  {id:'dq', name:'电气工程及其自动化', type:'工科', cat:'wl', diff:1.05, line:514,
+   desc:'强电弱电通吃。从变电站到芯片，电在哪儿，电气人就在哪儿。',
+   pool:['电路分析','电机学','电力电子技术','电力系统分析','继电保护原理','高电压技术','供配电技术','PLC原理与应用','自动控制原理','电气CAD','电机与拖动','工厂供电']},
+  {id:'fd', name:'飞行器动力工程', type:'工科', cat:'wl', diff:1.10, line:518,
+   desc:'航空发动机是“工业皇冠上的明珠”。热力学、流体力学、燃烧学，一门比一门硬。',
+   pool:['工程热力学','流体力学','航空发动机原理','燃烧学','航空材料学','机械设计基础','飞机结构与强度','航空测试技术','发动机控制系统','叶轮机械原理','热工测量技术','航空维修工程']},
+  {id:'ai', name:'人工智能', type:'工科', cat:'wl', diff:1.15, line:528,
+   desc:'机器学习、深度学习、大模型。桂航最卷的新工科，代码量和数学量双高。',
+   pool:['Python程序设计','线性代数','概率论与数理统计','机器学习','深度学习','神经网络原理','自然语言处理','计算机视觉','数据结构','算法设计与分析','数学建模','智能系统设计']},
+  {id:'bigdata', name:'数据科学与大数据技术', type:'工科', cat:'wl', diff:1.08, line:522,
+   desc:'从海量数据里挖金子。Hadoop、Spark、数据挖掘，毕业就是“数据分析师”。',
+   pool:['Python程序设计','数据库原理','数据结构','统计学','数据挖掘','大数据技术基础','分布式计算','机器学习','数据可视化','NoSQL数据库','云计算技术','数据仓库与ETL']},
+  {id:'kj', name:'会计学', type:'经管', cat:'wl', diff:0.95, line:502,
+   desc:'有借必有贷，借贷必相等。从记账员到财务总监，证书一路升级。',
+   pool:['会计学原理','中级财务会计','成本会计','管理会计','审计学','税法','财务管理','会计电算化','财务报表分析','经济法','高级财务会计','会计综合实训']},
+  {id:'gs', name:'工商管理', type:'经管', cat:'ls', diff:0.90, line:498,
+   desc:'什么都学一点，什么都懂一点。未来的管理者，从管好自己开始。',
+   pool:['管理学原理','微观经济学','宏观经济学','组织行为学','人力资源管理','运营管理','战略管理','市场营销学','财务管理','公司治理','创业管理','管理信息系统']},
+  {id:'hy', name:'汉语言文学', type:'文科', cat:'ls', diff:0.92, line:496,
+   desc:'诗书礼乐，落笔成章。读万卷书，写天下文，中文系自有乾坤。',
+   pool:['现代汉语','古代汉语','中国古代文学','中国现当代文学','外国文学','文学理论','基础写作','语言学概论','中国文学批评史','民间文学','比较文学','应用文写作']},
+  {id:'sm', name:'数字媒体艺术', type:'艺术', cat:'ls', diff:0.98, line:494,
+   desc:'技术+艺术双修。建模、剪辑、交互、特效，一人顶一个工作室。',
+   pool:['设计基础','数字绘画','摄影基础','三维建模','动画原理','视频剪辑','交互设计','UI/UX设计','动态图形设计','虚拟现实技术','游戏美术','影视后期合成']}
+];
+
+const ELECTIVES = {
+  y1:['高等数学A','大学英语','思想道德与法治','体育Ⅰ','军事理论','计算机应用基础'],
+  y2:['高等数学B','毛泽东思想和中国特色社会主义理论体系概论','体育Ⅱ','大学生心理健康教育','大学物理','中国近现代史纲要'],
+  y3:['线性代数','概率论与数理统计','马克思主义基本原理','体育Ⅲ','创新创业基础','Python数据分析入门'],
+  y4:['形势与政策','就业指导','航天史话','桂林山水文化','工程伦理','跨文化沟通']
+};
+
+/* 事件：t标题 d描述 o四选项 {la选项文本 r结果文本 e效果 p体质 i智力 m道德 h心情 s压力 so社交 mo金钱 st学习投入} f标记 */
+const EVENTS = {
+
+kai:{t:'报到日 · 初入桂航', d:'九月，你拖着行李箱走进桂航大门。尧山在远处沉默地绿着，问天楼图书馆的玻璃幕墙反着晨光。校门口“尚德、博学、慎思、笃行”八个字下，迎新帐篷一字排开，学长学姐举着各学院的牌子。你即将在这里度过四年。',
+o:[
+ {la:'听学长的，办了张“校园卡”', r:'学长拍胸脯说这是学校指定校园卡，充 200 送 200 还送新生礼包。一个月后你发现话费扣得飞快，套餐里全是没用的“校园权益”。学长早就不回消息了。', e:{mo:-300,m:-2,s:-2}},
+ {la:'想办但先上官网查了查', r:'你翻遍学校官网，根本没找到“指定办卡”通知。网上还有人说这是外包推销，你躲过一劫。', e:{i:3,m:2}},
+ {la:'礼貌拒绝，转身就走', r:'学长不死心追了两步：“学弟再考虑考虑？名额有限！”你走得飞快。', e:{i:1,m:1}},
+ {la:'反手把推销行为举报给辅导员', r:'原来这个“学长”是校外推销员冒充的，被保卫处请去喝茶。辅导员在班群里点名表扬了你。', e:{m:3,so:2,h:2}}
+]},
+
+junxun:{t:'军训 · 烈日下的桂航', d:'军训第七天，太阳把操场晒得发烫。教官的口令在尧山脚下回荡，你盯着被晒得发白的跑道，汗水顺着脖子往下淌。旁边有人脸色发白，被扶去了医务室。',
+o:[
+ {la:'咬牙坚持，动作做到标准', r:'教官记住了你，结营时你站在队列最前面。', e:{p:4,s:6,m:2}, f:['honor:军训标兵']},
+ {la:'偷懒划水，找树荫摸鱼', r:'你躲过了一下午，代价是脚上磨出的水泡。', e:{p:-2,h:2,s:-3,m:-1}},
+ {la:'申请病号连，躲过大部分训练', r:'你坐在树荫下看别人流汗，有点心虚。', e:{p:-3,h:3,s:-4}},
+ {la:'和教官顶嘴，觉得凭什么都要听他的', r:'你被罚站军姿两小时，全连都看着你。', e:{m:-4,s:3,so:-3}}
+]},
+
+bujie:{t:'补考通知', d:'开学第一周，教务系统弹出一行红字：上学期有科目未通过，补考安排在本周周末。你盯着屏幕，叹了口气。',
+o:[
+ {la:'泡在问天楼，把教材从头啃一遍', r:'你两天啃完一本书，脑子像被塞满了浆糊。', e:{st:25,s:8,i:2}},
+ {la:'找学霸室友划重点突击', r:'学霸给你画了满满三页重点，够意思。', e:{st:15,so:3,s:5}},
+ {la:'裸考，赌一把运气', r:'你决定把命运交给抛硬币。', e:{s:-2,h:2}},
+ {la:'在群里试探有没有代考', r:'你发出消息又赶紧撤回，心跳得厉害。', e:{m:-8,s:6}, f:['daikao']}
+]},
+
+tice:{t:'体测 · 一年一度', d:'体测来了：50 米、立定跳远、引体向上（仰卧起坐）、1000 米。操场边围了一圈加油的同学，校医院的帐篷搭在终点旁边。',
+o:[
+ {la:'提前两周每晚夜跑备战', r:'你跑过教学楼、跑过操场，跑出了节奏感。', e:{p:6,s:-3,st:-3}},
+ {la:'正常发挥，能过就行', r:'你喘着粗气冲过终点，成绩中规中矩。', e:{p:1}},
+ {la:'申请免测，说自己膝盖疼', r:'你填了免测单，心里有点虚。', e:{p:-3,m:-2}},
+ {la:'找人代跑，塞了一包烟', r:'替跑的同学跑完脸色发白，你假装什么都没发生。', e:{m:-6,p:-1}, f:['daiti']}
+]},
+
+exam1:{t:'期末周 · 高数之劫', d:'期末周逼近，高数的极限、导数、积分在你脑子里互相打架。问天楼图书馆的自习位要提前一天预约，宿舍里弥漫着咖啡味。你翻开复习提纲，第一页写着：极限与连续。',
+o:[
+ {la:'早就开始复习，按部就班做题', r:'你翻着写满的笔记，心里有底。', e:{st:22,s:-4}},
+ {la:'突击一晚，背重点题型', r:'凌晨两点的咖啡让你的脑子嗡嗡作响。', e:{st:10,s:8,p:-2}},
+ {la:'摆烂，及格就行', r:'你合上书，决定把命运交给平时分。', e:{h:3,s:-3,st:-10}},
+ {la:'瞄一眼学霸的答题卡', r:'你心跳加速，手有点抖。', e:{m:-10,s:8,st:-2}, f:['cheat']}
+]},
+
+exam2:{t:'期末周 · 专业第一战', d:'期末周来了。专业课的题库厚得像块砖，老师笑眯眯地说“重点都在书上”。你摸了摸只写了一半的笔记本，叹了口气。',
+o:[
+ {la:'按计划复习，劳逸结合', r:'你每天固定六小时复习，身体没垮。', e:{st:20,s:-2,p:1}},
+ {la:'抱佛脚，通宵刷往年题', r:'往年的卷子刷到第三套，你开始分不清题型。', e:{st:12,s:8,p:-2}},
+ {la:'划水，指望同学带飞', r:'同学发来一个“加油”的表情包，就没下文了。', e:{st:-8,h:2}},
+ {la:'托人搞“内部题库”', r:'你花了两百块，买了一沓真假难辨的题。', e:{mo:-200,m:-3,st:6}}
+]},
+
+exam3:{t:'期末周 · 专业课地狱', d:'又是期末。这学期的专业课难度直接拉满，实验室的示波器和仿真软件比你更懂这门课。图书馆通宵区已经坐满了人。',
+o:[
+ {la:'泡实验室，啃透实验报告', r:'你把每个实验数据都验算了一遍。', e:{st:20,i:2,p:-1}},
+ {la:'刷题+网课双线突击', r:'你看了四集网课，笔记记了两本。', e:{st:13,s:6,mo:-100}},
+ {la:'抄师兄师姐的作业应付', r:'你祈祷老师认不出这份笔迹。', e:{m:-4,st:-2}},
+ {la:'让 AI 代写课程论文', r:'你检查了一遍错别字，提心吊胆地交了。', e:{m:-5,st:-2,s:-3}}
+]},
+
+exam4:{t:'期末周 · 抉择叠加', d:'期末与抉择叠加的学期收尾：课程论文、结课设计、考研或求职的焦虑一起压过来。你坐在问天楼靠窗的位置，看着尧山的晚霞发呆。',
+o:[
+ {la:'分优先级，一项项啃完', r:'你列了张清单，划掉一项的瞬间很爽。', e:{st:18,s:-2,i:1}},
+ {la:'先处理最难的，其他放一放', r:'最难的项目做完，你瘫在椅子上。', e:{st:12,s:6,p:-1}},
+ {la:'摆烂到最后一晚', r:'凌晨四点的宿舍，只有你的台灯亮着。', e:{st:-6,h:2,s:5}},
+ {la:'和同学对答案“互助”，抄一部分', r:'你抄得很隐晦，希望没人看出来。', e:{m:-7,st:-1}}
+]},
+
+exam5:{t:'期末周 · 大四收尾', d:'大四上学期结束：毕业设计开题报告和中期检查摆在面前，秋招的余波还没散。导师在群里@你：进度如何？',
+o:[
+ {la:'认真推进毕设，按期交稿', r:'你把开题报告改到第七版，导师终于回了“可以”。', e:{st:18,i:2,s:4}},
+ {la:'先忙招聘，毕设往后放', r:'简历投了十几家，毕设停在第一章。', e:{st:-4,so:4,s:5}},
+ {la:'复制师兄的框架改一改', r:'你换了标题和插图，希望能蒙混过关。', e:{m:-4,st:2}},
+ {la:'已经找人代做，坐等成品', r:'钱付了一半，你心里七上八下。', e:{m:-8,mo:-1000,st:2}}
+]},
+
+biye:{t:'毕业典礼 · 凤凰花开', d:'六月，凤凰花把尧山脚下的桂航染成一片火红。学士服、拨穗、集体合照，四年像一场很长的梦。你站在操场上，听见校长念出最后一句：“祝你们前程似锦。”',
+o:[
+ {la:'和每一个朋友用力拥抱', r:'有人哭了，有人笑着给你戴正学士帽。', e:{so:6,h:8}},
+ {la:'一个人上教学楼天台看校园', r:'你安静地看完整片校园，像看一部倒放的电影。', e:{h:5,i:2}},
+ {la:'疯狂拍照发朋友圈', r:'九宫格配一句“毕业快乐”，点赞破百。', e:{h:6,so:3}},
+ {la:'提前离场，觉得没什么大不了', r:'走出校门时你回头看了一眼，又转了回去。', e:{m:-2,h:-3}}
+]},
+
+/* ---- 校园生活 ---- */
+sushe:{t:'宿舍夜谈', d:'熄灯后，宿舍卧谈会准时开场：从高中糗事聊到“毕业以后干什么”，最后变成谁先脱单的赌局。',
+o:[
+ {la:'认真参与，和舍友打成一片', r:'你们宿舍成了全层最热闹的一间。', e:{so:5,h:3}},
+ {la:'早睡，保持规律作息', r:'你在鼾声中睡着了，梦里都是明天的课。', e:{p:2,s:-2,so:-2}},
+ {la:'借夜谈推销自己的微商产品', r:'舍友尴尬地转移了话题，你赚了一单。', e:{m:-3,mo:100}},
+ {la:'偷听隔壁宿舍八卦并传播', r:'八卦传到当事人耳朵里，气氛微妙起来。', e:{m:-5,h:1}}
+]},
+
+shitang:{t:'食堂 · 螺蛳粉之约', d:'食堂新开了螺蛳粉窗口，队伍排到门外，酸笋的味道飘出十米远。',
+o:[
+ {la:'尝鲜，顺便帮同学带饭', r:'同学连声道谢，你收获了一天的好人缘。', e:{h:4,so:2,mo:-50}},
+ {la:'清淡老三样，营养均衡', r:'阿姨多给你打了一勺青菜。', e:{p:2,mo:-20}},
+ {la:'点炸鸡奶茶犒劳自己', r:'热量拉满，快乐也拉满。', e:{h:5,mo:-120,p:-2}},
+ {la:'混在人群里逃单', r:'你溜出食堂时差点被阿姨叫住。', e:{m:-8,mo:15}}
+]},
+
+wentiang:{t:'问天楼图书馆', d:'问天楼图书馆新馆开了：瀑布流电子屏、研讨间、自助借还机，两千多个座位都带插座。你站在门口，闻到新书和咖啡的味道。',
+o:[
+ {la:'办张卡，每周固定来自习', r:'你成了问天楼自习区的常客。', e:{st:8,i:1,h:1}},
+ {la:'打卡拍照发朋友圈', r:'“在问天楼学习的一天”，配图很文艺。', e:{h:3,so:2}},
+ {la:'找个角落睡午觉', r:'阳光正好，你睡得格外香。', e:{p:2,s:-3}},
+ {la:'偷撕书页带回去', r:'你心虚地把书页夹进笔记本。', e:{m:-8}}
+]},
+
+gaoshu:{t:'高数课堂', d:'高数课讲到泰勒展开，你感觉自己和黑板之间存在一条无法逾越的鸿沟。',
+o:[
+ {la:'课后追着老师答疑', r:'老师讲了两遍，你终于点了点头。', e:{st:10,i:2,s:-2}},
+ {la:'和同学组队啃习题集', r:'三个人对一道题吵了半小时，最后谁也没说服谁。', e:{st:8,so:3}},
+ {la:'先放着，考前再说', r:'你合上教材，眼不见心不烦。', e:{s:-2,st:-5}},
+ {la:'翘课去打游戏', r:'你打完一局又一局，快乐是暂时的。', e:{st:-8,h:3,s:-3}}
+]},
+
+zhuanye:{t:'专业课 · 难度拉满', d:'专业课难度陡增。老师在黑板上写写画画，你低头看自己的笔记，只记下了“重点”两个字。',
+o:[
+ {la:'泡实验室，动手实践', r:'你把电路板焊了三遍，终于点亮了 LED。', e:{st:10,i:2,p:1}},
+ {la:'买网课自学', r:'你花了两百块，课才看了两节。', e:{mo:-200,st:9}},
+ {la:'抄作业应付', r:'抄完你都没看懂自己写了什么。', e:{m:-4,st:-3}},
+ {la:'用 AI 生成作业交上去', r:'老师批注：内容空洞，下次注意。', e:{m:-5,st:-2,s:-3}}
+]},
+
+tongxiao:{t:'深夜 · 通宵抉择', d:'凌晨一点，室友的台灯还亮着。你盯着没写完的作业，打了个哈欠。',
+o:[
+ {la:'熬夜到两点，明天再说', r:'你关灯时室友还在敲键盘。', e:{st:6,p:-4,s:4}},
+ {la:'按时睡，明天早起效率更高', r:'你睡了个好觉，早上神清气爽。', e:{p:2,st:4}},
+ {la:'通宵到天亮，咖啡续命', r:'天亮时你写完了，但人快没了。', e:{st:8,p:-6,s:8}},
+ {la:'拉着室友开黑到天亮', r:'你上了个段位，也付出了黑眼圈的代价。', e:{p:-4,st:-8,h:4}}
+]},
+
+ketang:{t:'课堂 · 昏昏欲睡', d:'下午第一节课，老师的声音像催眠曲。窗外尧山的云慢慢飘过。',
+o:[
+ {la:'认真记笔记，跟上思路', r:'你记了两页笔记，思路清晰了些。', e:{st:6,i:1}},
+ {la:'偷偷刷手机，偶尔抬头', r:'你刷完整个热搜榜，抬头装模作样点头。', e:{h:2,st:-3}},
+ {la:'直接趴桌上睡', r:'下课铃响，你被同桌拍醒，嘴角还挂着口水。', e:{p:2,st:-6,s:-2}},
+ {la:'和同学在底下开黑', r:'你躲在书后操作，差点被老师点名。', e:{st:-8,h:3,so:1}}
+]},
+
+qizhong:{t:'期中周', d:'期中考试与课程设计周：图书馆爆满，打印店前排着长队。',
+o:[
+ {la:'提前两周规划复习', r:'你按计划走完复习，期中稳了。', e:{st:12,s:3}},
+ {la:'抱佛脚，刷往年题', r:'你刷了三套题，心里还是没底。', e:{st:8,s:6}},
+ {la:'觉得期中不重要，划水', r:'你玩了一下午手机，心安理得。', e:{st:-6,h:2}},
+ {la:'花钱买“内部资料”', r:'资料到手，你发现就是教材目录。', e:{mo:-300,m:-3,st:5}}
+]},
+
+jingsai:{t:'学科竞赛 · 报名', d:'数学建模、电子设计、无人机大赛开始报名，班群里热火朝天。',
+o:[
+ {la:'组队报名，全力冲刺', r:'你们小组通宵建模，最后拿了奖。', e:{st:12,i:3,s:8}, f:['honor:学科竞赛获奖']},
+ {la:'报名打酱油，混参与奖', r:'你坐在考场里，大部分时间在发呆。', e:{st:3,so:2}},
+ {la:'不参加，专心课内', r:'你省下了时间，也错过了热闹。', e:{s:-3,st:2}},
+ {la:'找枪手代做作品', r:'作品交了，你的良心也空了。', e:{m:-8,mo:-500}}
+]},
+
+kechuang:{t:'创新创业训练', d:'大学生创新创业训练计划开始申报。辅导员在班群里连发三条消息。',
+o:[
+ {la:'认真申报并完成项目', r:'项目结题那天，你发了条朋友圈庆祝。', e:{st:8,i:2,so:3}, f:['honor:大创项目结题']},
+ {la:'挂名蹭项目混学分', r:'你名字在上面，活儿都是别人干的。', e:{m:-2,st:2}},
+ {la:'觉得没用，不参加', r:'你把时间留给了自己。', e:{s:-2}},
+ {la:'编造结题材料', r:'你照着模板编了一份报告，希望没人细看。', e:{m:-7}}
+]},
+
+yanjiu:{t:'科研课题组', d:'导师问你：“要不要进课题组，跟着师兄做点东西？”',
+o:[
+ {la:'加入，跟着做实验', r:'你第一次独立跑通实验，兴奋到半夜。', e:{st:10,i:3,s:6}},
+ {la:'婉拒，先稳住课业', r:'你觉得自己还没准备好。', e:{s:-3,st:3}},
+ {la:'满口答应却一直鸽', r:'导师问进度时，你支支吾吾。', e:{m:-4,s:3}},
+ {la:'拿课题经费偷偷报账', r:'你多报了一笔打车费，心里发虚。', e:{m:-9,mo:500}}
+]},
+
+kaoyan1:{t:'考研 or 就业', d:'大三了，宿舍夜谈的话题变成了：考研还是就业？你盯着天花板想了一夜。', requires:s=>s.goal==='kaoyan',
+o:[
+ {la:'决定考研，开始规划复习', r:'你买齐了资料，列了张时间表。', e:{st:10,s:8,i:2}, f:['goal:kaoyan']},
+ {la:'决定就业，准备简历和实习', r:'你把简历改了三遍，投出了第一份。', e:{so:3,st:3,s:3}, f:['goal:work']},
+ {la:'先玩一年再说', r:'你决定把抉择推迟到明年。', e:{h:4,s:-4,st:-5}},
+ {la:'跟风考研，其实没想好', r:'别人买什么书你买什么书，心里空落落的。', e:{st:4,s:6}}
+]},
+
+kaoyan2:{t:'考研 · 冲刺', d:'考研专区的座位比春运车票还难抢。你抱着复习资料，在走廊的背书声里怀疑人生。', requires:s=>s.goal==='kaoyan',
+o:[
+ {la:'每天六点占座，雷打不动', r:'你的黑眼圈和复习进度成正比。', e:{st:15,p:-3,s:8}, f:['goal:kaoyan']},
+ {la:'规律作息，张弛有度', r:'你该学学该睡睡，状态很稳。', e:{st:10,s:-2,p:1}, f:['goal:kaoyan']},
+ {la:'三天打鱼两天晒网', r:'你学着学着就拿起了手机。', e:{st:-2,h:2}},
+ {la:'花钱买“内部押题班”', r:'押题班讲的内容，教材里都有。', e:{mo:-800,m:-2,st:3}}
+]},
+
+qiuzhao:{t:'秋招 · 宣讲会', d:'秋招宣讲会开到了桂航：航天企业、车企、智能制造……体育馆里人山人海，简历像雪花一样飞。', requires:s=>s.goal==='work',
+o:[
+ {la:'精心准备简历，海投+面试', r:'你面了五家，拿到了两个二面。', e:{so:4,st:3,s:8,i:1}, f:['goal:work']},
+ {la:'只投几家大厂，精准狙击', r:'你等了一周，收到一封感谢信。', e:{s:5,st:2}, f:['goal:work']},
+ {la:'不着急，等春招再说', r:'你把秋招当成了演习。', e:{s:-3,h:2}},
+ {la:'简历造假，编实习经历', r:'面试官随口一问，你就卡壳了。', e:{m:-8,s:5}}
+]},
+
+chunzhao:{t:'春招 · 补录', d:'春招补录开始，双选会挤满了没上岸的同学。你攥着打印好的简历，深吸一口气。', requires:s=>s.goal==='work',
+o:[
+ {la:'积极投递，跑双选会', r:'你终于拿到一个还不错的 offer。', e:{st:3,s:6,so:3}, f:['goal:work']},
+ {la:'复盘秋招，补足短板', r:'你把项目经历重新梳理了一遍。', e:{i:2,st:4}, f:['goal:work']},
+ {la:'等家里安排', r:'你爸妈说“帮你问问熟人”。', e:{s:-4,m:-1}},
+ {la:'花钱买“内推渠道”', r:'你付了钱，对方把你拉黑了。', e:{mo:-600,m:-3}}
+]},
+
+bishe:{t:'毕业设计 · 攻坚', d:'毕业设计做到一半卡住了。导师的批注像天书，实验室的机器还在和你作对。',
+o:[
+ {la:'查文献、问导师，啃下来', r:'你终于跑通了仿真，长舒一口气。', e:{st:12,i:2,s:5}},
+ {la:'换个简单题目', r:'你换了个保守的方案，压力小多了。', e:{s:-4,st:-3}},
+ {la:'找师兄要往届代码改改', r:'你改了两行参数，就当自己的了。', e:{m:-3,st:2}},
+ {la:'网上找人代做', r:'你付了一千五，收到一份可疑的成品。', e:{m:-10,mo:-1500}}
+]},
+
+/* ---- 社交与情感 ---- */
+sheTuan:{t:'社团招新 · 百团大战', d:'百团大战：航模社的无人机在天上飞，机器人协会的展台前排着队，汉服社的学姐在发糖。',
+o:[
+ {la:'加入航模社，学做航模', r:'你第一次让飞机飞起来，激动到手抖。', e:{so:4,i:2,st:3}},
+ {la:'加两个社团，认识很多人', r:'你微信好友多了五十个，会也多了五十个。', e:{so:6,st:-3,s:3}},
+ {la:'不加社团，专注学业', r:'你把时间留给了图书馆。', e:{s:-2,st:3}},
+ {la:'蹭社团经费吃火锅', r:'你混进报销名单，吃了一顿免费的。', e:{m:-5,mo:100}}
+]},
+
+ganbu:{t:'班委竞选', d:'班委换届竞选。辅导员说：“有意向的同学上来讲两句。”教室里安静了一秒。',
+o:[
+ {la:'竞选班长，锻炼自己', r:'你当选了，从此多了个“班长”的头衔和无数通知。', e:{so:6,s:5}, f:['honor:优秀学生干部']},
+ {la:'竞选个轻松委员', r:'你当上了体育委员，偶尔组织打球。', e:{so:3,s:1}},
+ {la:'不竞选，当个普通同学', r:'你乐得清闲。', e:{s:-2}},
+ {la:'请客送礼拉票', r:'你请了顿烧烤，票数还是没凑够。', e:{m:-6,mo:-300}}
+]},
+
+yundong:{t:'校运会', d:'校运会开幕：方阵、广播操、加油稿。你站在看台上，看 1000 米的选手在跑道尽头冲刺。',
+o:[
+ {la:'报名长跑，拼一把', r:'你冲过终点时腿都在抖，但值了。', e:{p:5,s:4}, f:['honor:校运会获奖']},
+ {la:'当观众加油', r:'你喊到嗓子哑，快乐了一天。', e:{h:3,so:2}},
+ {la:'躺宿舍看直播', r:'你在床上刷完了整场运动会。', e:{h:1,p:-1}},
+ {la:'替跑拿名次', r:'你替人跑了 800 米，成绩还挺好，就是心虚。', e:{m:-6}}
+]},
+
+chunyou:{t:'春游 · 桂林山水', d:'周末，桂林的春天来了。宿舍群里在讨论：去漓江骑车，还是去阳朔西街？',
+o:[
+ {la:'和同学骑行游漓江', r:'山水如画，你晒黑了一圈。', e:{p:3,h:8,so:4}},
+ {la:'约朋友去阳朔西街', r:'你吃了啤酒鱼，逛了西街，拍了合照。', e:{h:7,mo:-200,so:3}},
+ {la:'宅宿舍睡到自然醒', r:'你错过了春天，睡了个痛快。', e:{h:2,p:-2}},
+ {la:'逃课去玩，回来被点名', r:'你玩得很开心，被点名也很彻底。', e:{m:-3,st:-5,h:6}}
+]},
+
+lianai1:{t:'恋爱 · 萌芽', d:'你注意到 TA 总是坐在图书馆靠窗的位置。阳光穿过树叶，落在 TA 的笔记本上。',
+o:[
+ {la:'鼓起勇气表白', r:'TA 愣了一下，然后笑了：“我等这句话很久了。”', e:{h:10,so:3,s:5}, f:['love']},
+ {la:'默默暗恋，远远看着', r:'你把这份心动藏进了日记本。', e:{h:3,s:2}},
+ {la:'觉得恋爱影响学习，不理', r:'你错过了可能的故事，成绩稳住了。', e:{st:3,h:-2}},
+ {la:'同时养几条“鱼”', r:'你周旋在几个人之间，感觉良好。', e:{m:-7,so:4}}
+]},
+
+lianai2:{t:'恋爱 · 风波', d:'你和 TA 因为一点小事冷战了。消息框里“对方正在输入”显示了很久，又消失了。', requires:s=>s.love===true,
+o:[
+ {la:'好好沟通，把话说开', r:'你们聊到深夜，误会解开了。', e:{h:6,so:4,m:2}},
+ {la:'冷战，等对方先低头', r:'你们僵了一周，谁也不理谁。', e:{h:-4,s:4}},
+ {la:'买礼物哄 TA', r:'礼物送到了，气也消了大半。', e:{mo:-300,h:4}},
+ {la:'脚踏两只船', r:'纸没包住火，你差点两边都失去。', e:{m:-8,h:2}}
+]},
+
+susheMao:{t:'宿舍 · 矛盾', d:'舍友凌晨还在外放打游戏，你已经一星期没睡好觉了。',
+o:[
+ {la:'开诚布公谈一次', r:'你们约法三章，宿舍重回和平。', e:{so:4,m:2,s:-3}},
+ {la:'戴耳机忍忍，申请换宿舍', r:'你搬去了隔壁楼，清净了。', e:{s:-2,so:-2}},
+ {la:'在群里阴阳怪气', r:'你发了条含沙射影的消息，气氛更僵了。', e:{m:-3,so:-3,h:-2}},
+ {la:'把对方路由器线拔了', r:'他打不了游戏，你也挨了一顿骂。', e:{m:-7,h:1}}
+]},
+
+/* ---- 金钱与兼职 ---- */
+jianzhi1:{t:'兼职 · 选择', d:'学校门口奶茶店招周末兼职，时薪 15 块。群里还有条家教信息：一对一辅导，80 块一小时。',
+o:[
+ {la:'去奶茶店打工', r:'你学会了摇奶茶，手指被磨出了茧。', e:{mo:500,p:-2,st:-3,so:3}},
+ {la:'接家教，时薪更高', r:'你给学生讲题讲到自己怀疑人生。', e:{mo:500,st:-2,s:3}},
+ {la:'不兼职，省着花', r:'你捂紧钱包，日子照样过。', e:{s:-2,st:2}},
+ {la:'兼职时偷偷收钱不上账', r:'你多收了 30 块，晚上翻来覆去睡不着。', e:{m:-7,mo:300}}
+]},
+
+jiajiao:{t:'兼职 · 家教专场', d:'家教群里挂出一条信息：辅导高二数学，每周两次，一次两小时。价钱 120 块一次，但家长要求试讲。',
+o:[
+ {la:'认真备课，试讲一次通过', r:'你提前备了两章课，试讲结束家长当场拍板。', e:{mo:600,st:4,so:2,p:-1}},
+ {la:'试讲被拒，但认识了机构老师', r:'家长嫌你太年轻，机构老师却看上了你。', e:{mo:200,so:3}},
+ {la:'接两单，周末全排满', r:'你教数学又接物理，钱包鼓了，人也累垮了。', e:{mo:900,p:-3,st:-3,s:4}},
+ {la:'冒充“桂航优秀毕业生”抬高价格', r:'家长托人一查，你根本没毕业。人设崩塌，一单没成。', e:{m:-8,so:-3}}
+]},
+qingong:{t:'兼职 · 勤工俭学', d:'学工处贴出勤工俭学岗位：图书馆整理书籍、教学楼保洁、食堂窗口帮工，时薪 18 块。',
+o:[
+ {la:'图书馆整理书籍', r:'你一边上书架一边蹭书看，管理员阿姨很喜欢你。', e:{mo:500,i:2,st:2}},
+ {la:'食堂窗口帮工', r:'你学会了颠勺，窗口阿姨多给你打半勺肉。', e:{mo:550,p:-2,so:3}},
+ {la:'申请了但一次没去', r:'岗位名额被取消了，学工处老师记了你一笔。', e:{mo:-100,m:-2}},
+ {la:'虚报工时多领补贴', r:'你多报了十个小时，钱到账的那晚你失眠了。', e:{mo:400,m:-6}}
+]},
+xiegao:{t:'副业 · 投稿写稿', d:'校园公众号在征稿，一篇 300 块。室友说：“你文笔还行，试试呗。”',
+o:[
+ {la:'认真写一篇校园生活稿', r:'稿子被头条推送，阅读量破万，编辑部约你长期供稿。', e:{mo:500,i:2,h:3,st:2}},
+ {la:'用 AI 洗稿别人的爆款', r:'被原作者挂到评论区，你连夜删稿。', e:{mo:200,m:-5,h:-3}},
+ {la:'写一篇校园吐槽，匿名发布', r:'文章火了，但也得罪了人。', e:{mo:400,so:2,m:-3}},
+ {la:'算了，没那个心思', r:'你把征稿链接转给了室友。', e:{st:2}}
+]},
+yingji:{t:'突发 · 消防演练', d:'半夜警报突然响起，宿舍楼浓烟弥漫（演练）。楼道里乱成一团，有人在往下冲，有人还在穿裤子。',
+o:[
+ {la:'捂住口鼻，沿墙低姿下楼', r:'你第一个到操场集合点，辅导员给你竖了个大拇指。', e:{p:2,m:2,h:2}},
+ {la:'回宿舍拿贵重物品', r:'你抱着电脑冲下楼，被教官点名批评。', e:{m:-3,s:3}},
+ {la:'躲回被窝“等警报停”', r:'警报响了半小时，辅导员挨个查寝，你被记了名字。', e:{m:-2,p:-1}},
+ {la:'顺手拍视频发朋友圈', r:'视频火了，但你也因为妨碍演练被约谈。', e:{so:2,m:-2,h:-1}}
+]},
+tushu:{t:'兼职 · 图书管理员', d:'图书馆招晚班管理员：一周三晚，工资不高，但能白嫖自习位和空调。',
+o:[
+ {la:'接下岗位，边值班边复习', r:'你守着阅览室把高数刷完了，还拿了工资。', e:{mo:300,st:5,i:2,s:-2}},
+ {la:'接下岗位，但值班时摸鱼', r:'你瘫在借阅台刷手机，管理员阿姨叹了口气。', e:{mo:300,m:-2,st:-1}},
+ {la:'只蹭空调不报名', r:'你每晚准时来占座，省了宿舍电费。', e:{st:3,so:1}},
+ {la:'帮人“改借阅记录”赚外快', r:'你帮人删了两次逾期记录，第三次被系统查出来了。', e:{mo:300,m:-7}}
+]},
+daigou:{t:'校园 · 代购风波', d:'校友群里有人发“正品代购，比官网便宜三成”，还晒了“营业执照”。有同学下单后收货却是空盒子。',
+o:[
+ {la:'转发提醒大家小心', r:'你救了几个差点下单的同学，群里给你刷了屏。', e:{m:4,so:3}},
+ {la:'自己也下单试试', r:'你收到了空盒子，钱打了水漂。', e:{mo:-300,m:-2,s:4}},
+ {la:'私下找“代购”谈合作分成', r:'你差点成了下线的下线，意识到不对赶紧跑了。', e:{m:-5,so:1}},
+ {la:'帮被骗的同学去派出所报案', r:'民警记了笔录，夸你仗义。', e:{m:3,so:2,h:2}}
+]},
+pianzi:{t:'兼职陷阱 · 刷单', d:'QQ 群里有人发广告：“刷单兼职，日入三百，一单一结。”你有点心动。',o:[
+ {la:'直接拉黑', r:'天上不会掉馅饼，你继续刷题。', e:{m:2,i:2}},
+ {la:'试一单，发现是骗局及时止损', r:'你亏了两百块，买了个教训。', e:{mo:-200,i:2,s:3}},
+ {la:'深信不疑，垫付刷单', r:'你垫了一千块，对方人间蒸发。', e:{mo:-1000,s:8,m:-2}},
+ {la:'拉同学一起下水', r:'同学也亏了钱，你们的关系出现了裂缝。', e:{m:-6,mo:-500}}
+]},
+
+wangdai:{t:'网贷 · 诱惑', d:'手机弹出一条广告：“无抵押秒到账，学生专享。”你正好看中了一部新手机。',
+o:[
+ {la:'直接卸载', r:'你关掉广告，把旧手机擦干净继续用。', e:{m:2,i:1}},
+ {la:'借 500 应急，下月就还', r:'你拆东墙补西墙，还上了。', e:{mo:500,s:4}},
+ {la:'借 5000 换新手机', r:'新手机很香，利息也很“香”。', e:{mo:5000,s:8,m:-2}},
+ {la:'借了就没打算还', r:'催收电话打来那天，你把手机关机了。', e:{m:-10,mo:3000}}
+]},
+
+jianzhi3:{t:'暑期 · 实习', d:'暑假，你投的专业实习终于有了回音，两家公司让你二选一。',
+o:[
+ {la:'去专业相关的实习', r:'你第一次走进车间/写字楼，学到了课本外的东西。', e:{st:8,i:2,so:3,s:4}},
+ {la:'随便找个厂打工', r:'流水线的日子让你深刻理解了“读书有用”。', e:{mo:1500,p:-4,st:-2}},
+ {la:'家里蹲休息', r:'你歇了一整个夏天。', e:{h:2,s:-3,st:-4}},
+ {la:'实习证明造假', r:'你花钱买了个章，章是假的。', e:{m:-7,mo:300}}
+]},
+
+/* ---- 健康 ---- */
+aoye:{t:'深夜 · 新剧开播', d:'新剧开播，热搜刷屏。你瞄了一眼时间：晚上十一点半。',
+o:[
+ {la:'看两集就睡，自律', r:'你看完两集，心满意足地关了灯。', e:{h:3,p:-1}},
+ {la:'熬夜追完一季', r:'天亮时你眼睛通红，剧情却真香。', e:{h:8,p:-5,s:4,st:-4}},
+ {la:'不看，早点睡', r:'你睡了个整觉，第二天精神很好。', e:{p:3,h:-1}},
+ {la:'边熬夜边骂自己起不来', r:'你看完剧，又刷了两小时短视频。', e:{p:-4,h:3,s:3}}
+]},
+
+ganmao:{t:'换季 · 感冒', d:'桂林的天说变就变，你淋了一场雨，第二天嗓子开始疼。',
+o:[
+ {la:'多喝热水，早睡', r:'你睡了一天，缓过来大半。', e:{p:2,s:-2}},
+ {la:'去校医院开药', r:'校医院的药便宜又管用。', e:{mo:-100,p:3}},
+ {la:'硬扛着不休息', r:'你扛了三天，课也没听进去。', e:{p:-4,s:3}},
+ {la:'逃课去网吧通宵', r:'你的感冒更严重了，人也更虚了。', e:{p:-3,st:-5,h:2}}
+]},
+
+jianshen:{t:'傍晚 · 操场夜跑', d:'傍晚的操场很热闹：跑步的、踢球的、散步的情侣。广播站放着歌。',
+o:[
+ {la:'加入夜跑队伍', r:'你跑完三公里，汗出得痛快。', e:{p:5,s:-4,so:2}},
+ {la:'独自快走两圈', r:'你走得很慢，脑子放空。', e:{p:2,s:-2}},
+ {la:'躺平不动', r:'你摸了摸肚子上新长的肉。', e:{p:-2,h:1}},
+ {la:'跑步时插队抢跑道', r:'你和一个跑者吵了起来，场面尴尬。', e:{m:-3,p:1,s:3}}
+]},
+
+/* ---- 道德 ---- */
+qianbao:{t:'图书馆门口 · 钱包', d:'问天楼门口，你捡到一个钱包。里面有身份证、饭卡和几百块现金。',
+o:[
+ {la:'交到失物招领处', r:'失主找到你道谢，你心里很暖。', e:{m:5,h:3}},
+ {la:'在原地等一会儿', r:'你等到失主急匆匆跑回来。', e:{m:4,h:2}},
+ {la:'拿钱，证件扔垃圾桶', r:'你拿了钱，第二天就后悔了。', e:{m:-8,mo:300}},
+ {la:'发朋友圈找失主，顺便要酬谢', r:'失主转了 50 块红包，你收了。', e:{m:1,so:2,mo:50}}
+]},
+
+zuobi:{t:'考场 · 一念之间', d:'期末考试，监考老师转身的瞬间，你的余光看到前排同学的答题卡。',
+o:[
+ {la:'低头做题，当作没看见', r:'你靠自己的脑子写完了卷子。', e:{m:3}},
+ {la:'抄一题，心里发虚', r:'你抄了一题，手心全是汗。', e:{m:-6,st:-2,s:5}},
+ {la:'传纸条帮同学', r:'纸条传到一半，老师回头了。', e:{m:-5,so:2}},
+ {la:'用手机拍试卷', r:'你刚举起手机，就瞥见监控的红灯。', e:{m:-10}, f:['cheat']}
+]},
+
+daixie:{t:'群里 · 代写广告', d:'群里有人高价收课程论文，也有人接单。你看着那个“一篇 800”的报价，有点动摇。',
+o:[
+ {la:'拒绝并举报', r:'你点了举报，心里舒坦。', e:{m:4,s:2}},
+ {la:'不理，专心自己的事', r:'你继续写自己的论文。', e:{m:1}},
+ {la:'接单赚钱', r:'你赚了 800，论文却写得越来越敷衍。', e:{m:-6,mo:800,st:-3}},
+ {la:'找别人代写自己的', r:'你交了钱，收到一份东拼西凑的文章。', e:{m:-7,mo:-600}}
+]},
+
+/* ---- 假期 ---- */
+huijia:{t:'寒假 · 回家', d:'你抢到了回家的票。推开门，厨房里飘出熟悉的味道。',
+o:[
+ {la:'帮爸妈做年夜饭', r:'你切菜笨手笨脚，爸妈笑得很开心。', e:{m:3,h:6,p:1}},
+ {la:'陪爷爷奶奶聊天', r:'爷爷讲起年轻时的故事，眼里有光。', e:{m:3,h:5,so:2}},
+ {la:'天天躺沙发刷手机', r:'你过了三天“沙发土豆”生活。', e:{h:2,p:-3}},
+ {la:'跟亲戚吹牛说自己成绩很好', r:'你吹完牛，妈妈在一边咳嗽提醒。', e:{m:-3,h:2}}
+]},
+
+zouqinqi:{t:'寒假 · 走亲戚', d:'七大姑八大姨围坐一圈：“学什么的呀？”“航天啊？以后造火箭？”',
+o:[
+ {la:'礼貌应对，聊专业和未来', r:'你讲起航天事业，亲戚们连连点头。', e:{so:3,m:1,i:1}},
+ {la:'躲房间里打游戏', r:'你躲过了尴尬，也错过了红包。', e:{h:2,so:-3}},
+ {la:'不耐烦怼回去', r:'你把亲戚怼得哑口无言，场面很冷。', e:{m:-4,h:-2}},
+ {la:'编故事说自己当上学生会主席', r:'你吹了个大牛，被表哥当场戳穿。', e:{m:-6,so:2}}
+]},
+
+hanjiaGong:{t:'寒假 · 打工', d:'寒假闲不住，你想找点事做。',
+o:[
+ {la:'进超市/工厂打工', r:'你赚了钱，也体验了社会的毒打。', e:{mo:800,p:-3,s:3}},
+ {la:'做线上兼职/家教', r:'你在家接单，时间灵活。', e:{mo:500,st:-1}},
+ {la:'在家休息养精蓄锐', r:'你养足了精神，为下学期充电。', e:{p:2,h:2,s:-3}},
+ {la:'谎报工时多领钱', r:'你多报了 20 小时，老板没发现，你心里发虚。', e:{m:-6,mo:300}}
+]},
+
+yansui:{t:'春节 · 压岁钱', d:'过年收压岁钱，数了数，小两千。',
+o:[
+ {la:'存起来当生活费', r:'你把钱放进余额宝，心里踏实。', e:{mo:600,m:1}},
+ {la:'给爸妈买礼物', r:'爸妈嘴上说浪费，嘴角却压不住。', e:{m:3,h:3,mo:-200}},
+ {la:'全充进游戏', r:'你抽卡抽了个爽，钱包瘪了。', e:{h:5,mo:-600,p:-1}},
+ {la:'借给同学收利息', r:'同学拖了三个月才还，关系尴尬了。', e:{m:-2,mo:200,so:-2}}
+]},
+
+sanxia:{t:'暑假 · 三下乡', d:'暑期“三下乡”社会实践报名：去桂北的乡村学校支教一周。',
+o:[
+ {la:'报名参加，认真支教', r:'孩子们喊你“老师”时，你鼻子一酸。', e:{m:5,so:4,p:1,s:-2}, f:['honor:三下乡优秀个人']},
+ {la:'只想混个实践章', r:'你去了三天，拍了些照片。', e:{m:-1,st:1}},
+ {la:'不去，在家休息', r:'你错过了山里的星空。', e:{s:-3}},
+ {la:'伪造实践报告', r:'你照着模板编了篇报告，心里没底。', e:{m:-7}}
+]},
+
+xueche:{t:'寒假 · 学车（必修）', d:'爸妈早给你报了名：这个寒假必须把驾照拿到手。教练车已经在校门口等你了，学费家里出一半，剩下的从你生活费里扣。',
+o:[
+ {la:'一次过，速战速决', r:'你科目二科目三一把过，教练难得夸了人。驾照到手。', e:{mo:-1500,p:1,s:8}, f:['honor:机动车驾驶证']},
+ {la:'周末班，慢慢学', r:'你学两周停一周，进度感人，好在驾照还是拿到了。', e:{mo:-1200,h:2,s:4}, f:['honor:机动车驾驶证']},
+ {la:'分期付款，含利息', r:'你办了分期，月供从生活费里扣，肉疼。', e:{mo:-2000,s:6}, f:['honor:机动车驾驶证']},
+ {la:'塞钱求“保过”', r:'钱塞了，科目三还是挂了，重考费自理。', e:{m:-6,mo:-3000}}
+]},
+
+lvyou:{t:'假期 · 桂林山水', d:'假期，桂林的山水在召唤：漓江、阳朔、龙脊梯田。',
+o:[
+ {la:'穷游阳朔，住青旅', r:'你看了日出，认识了一路的朋友。', e:{h:8,mo:-600,p:3}},
+ {la:'桂林市区深度游', r:'你逛了两江四湖，拍了无数照片。', e:{h:6,mo:-300}},
+ {la:'家里蹲，云旅游', r:'你在手机上看别人拍的视频。', e:{h:1}},
+ {la:'逃票进景区', r:'你省了门票，被保安追了两百米。', e:{m:-5,h:4,mo:80}}
+]},
+
+jiazhai:{t:'假期 · 家里蹲', d:'假期过半，你发现自己已经三天没出过门了。',
+o:[
+ {la:'适度游戏，每天运动', r:'你打游戏也运动，假期过得很健康。', e:{h:4,p:1,s:-3}},
+ {la:'通宵开黑上分', r:'你上了个段位，人也快废了。', e:{h:6,p:-5,st:-3,s:3}},
+ {la:'卸载游戏，预习下学期的课', r:'你提前翻开了教材，赢在起跑线。', e:{st:8,i:2,h:-1}},
+ {la:'游戏里骂人被举报', r:'你被禁言七天，心情复杂。', e:{m:-3,h:2}}
+]},
+
+kaoyanJi:{t:'暑假 · 考研集训', d:'暑假考研集训营开营。教室里坐满了和你一样目光坚定的同学。', requires:s=>s.goal==='kaoyan',
+o:[
+ {la:'报集训营，系统复习', r:'你每天学习十小时，进步肉眼可见。', e:{st:15,mo:-2000,s:6,p:-2}, f:['goal:kaoyan']},
+ {la:'在家自学，按计划走', r:'你按自己的节奏推进，稳稳当当。', e:{st:10,s:3}, f:['goal:kaoyan']},
+ {la:'边玩边学，进度落后', r:'你玩两天学一天，进度条卡住了。', e:{st:2,h:3}},
+ {la:'骗爸妈说在集训，其实在玩', r:'你人没去，钱也没省，心里发虚。', e:{m:-6,h:4,st:-5}}
+]},
+
+/* ---- 四六级 ---- */
+cet:{t:'四六级 · 冲刺', d:'四六级考试快到了。你翻了翻单词书，还停在“abandon”。',
+o:[
+ {la:'裸考，靠高中老本', r:'你走进考场，全靠感觉。', e:{st:-2,s:2}},
+ {la:'刷真题，认真备考两周', r:'你把近五年的真题刷了个遍。', e:{st:12,s:5}},
+ {la:'报个冲刺班', r:'老师讲了三个小时技巧，你记了半本笔记。', e:{mo:-600,st:8}},
+ {la:'找人代考', r:'你把准考证拍给对方，心提到了嗓子眼。', e:{m:-8}, f:['daikao']}
+]},
+
+/* ---- 毕业后 ---- */
+hou1:{t:'毕业之后 · 第一个月', d:'毕业后第一个月，你正式踏上新的旅程。称呼从“同学”变成了“同事”或“同门”。出租屋、工位或实验室，一切都是新的。',
+o:[
+ {la:'提前到岗/到校，认真准备', r:'你给新环境留了个好印象。', e:{i:2,s:3,so:3,st:5}},
+ {la:'正常节奏，慢慢适应', r:'你按部就班，日子开始稳定下来。', e:{s:-2,st:2}},
+ {la:'摸鱼混日子', r:'你混过了第一周，心里有点慌。', e:{m:-3,s:-4}},
+ {la:'简历水分被识破', r:'主管随口一问，你的经历就露馅了。', e:{m:-5,s:8}}
+]},
+
+hou2:{t:'毕业之后 · 第二个月', d:'新生活步入正轨。周末，老同学在群里喊话：“什么时候回桂林聚一聚？”',
+o:[
+ {la:'泡图书馆/实验室，开新局', r:'你给自己定了新目标，干劲十足。', e:{st:6,i:2,s:3}},
+ {la:'和新朋友聚餐认识人', r:'你融入了新圈子，笑声变多了。', e:{so:4,h:4}},
+ {la:'焦虑失眠，担心未来', r:'你盯着天花板，想了一夜。', e:{s:6,h:-4}},
+ {la:'混日子等发工资', r:'你上班摸鱼，下班躺平。', e:{m:-3,st:-4}}
+]},
+
+xinqi:{t:'开学季 · 立 Flag', d:'新学期第一周，你又立了一堆 flag：“这学期一定不熬夜、不挂科、不摆烂。”',
+o:[
+ {la:'制定计划，认真执行', r:'你把计划贴在书桌前，坚持了两周。', e:{st:8,s:-3,m:1}},
+ {la:'立完就忘', r:'flag 立得快，倒得也快。', e:{st:-2,h:1}},
+ {la:'每天早起跑步加自习', r:'你成了宿舍里起得最早的人。', e:{p:4,st:6,s:-4}},
+ {la:'发朋友圈求监督，转身就躺', r:'你收获了一堆“哈哈哈”的评论。', e:{m:-2,h:2}}
+]},
+
+shuang11:{t:'双十一 · 零点', d:'双十一零点，宿舍里此起彼伏的“抢到了！”你看着购物车里的 18 件商品。',
+o:[
+ {la:'理性清单，只买刚需', r:'你抢到了打折的生活用品，够用半年。', e:{mo:-200,i:1,h:2}},
+ {la:'管住手，一分不花', r:'你熬过了零点，守住了钱包。', e:{s:-2,h:1}},
+ {la:'冲动消费，花呗分期', r:'快递堆满了桌角，账单也堆上了心头。', e:{h:8,mo:-1200,s:5}},
+ {la:'借室友的钱买，拖着不还', r:'室友委婉提醒了两次，你假装没听懂。', e:{m:-6,mo:-600,s:3}}
+]}
+,
+/* ---- 学年专属事件（扩充池子，降低重复） ---- */
+shetuan2:{t:'社团 · 换届', d:'百团大战之后又是一年换届。老部长问你：要不要接手航模社？',
+o:[
+ {la:'接手当部长，把社团扛起来', r:'你带着社团拿了年度十佳，熬了不少夜。', e:{so:6,s:6}, f:['honor:优秀社团干部']},
+ {la:'当个普通骨干，帮忙干活', r:'你打打下手，轻松自在。', e:{so:3,s:2}},
+ {la:'退出社团，专心课业', r:'你把时间还给了图书馆。', e:{s:-3,st:3}},
+ {la:'挪用社团经费吃烧烤', r:'账目对不上那天，你手心全是汗。', e:{m:-6,mo:200}}
+]},
+wentiang2:{t:'问天楼 · 自习区', d:'你在问天楼找了个靠窗的固定座位。旁边坐着个每天比你早到的陌生人。',
+o:[
+ {la:'主动打招呼，交个研友', r:'你们交换了课程表，成了固定同桌。', e:{so:4,st:5,h:2}},
+ {la:'各学各的，互不打扰', r:'两个月后你们才第一次说话。', e:{st:6,i:1}},
+ {la:'用书占座，人却常溜', r:'你回来时书被人挪到了角落。', e:{m:-2,st:2}},
+ {la:'偷看别人的复习资料', r:'你记下几个考点，心里发虚。', e:{m:-6,st:3}}
+]},
+cet2:{t:'四六级 · 六级冲刺', d:'四级过了之后，六级报名表在你桌上躺了一周。',
+o:[
+ {la:'认真刷题备考', r:'真题刷到第三套，你的正确率终于上来了。', e:{st:10,s:4}},
+ {la:'报个冲刺班', r:'老师讲了三个小时技巧，你记了半本笔记。', e:{mo:-500,st:8}},
+ {la:'裸考练手', r:'你走进考场，准备"感受一下氛围"。', e:{s:-2}},
+ {la:'找人代考', r:'你把准考证拍给对方，心提到了嗓子眼。', e:{m:-8}, f:['daikao']}
+]},
+qizhong2:{t:'期中 · 大二', d:'大二的期中周：专业课小测、课程设计中期检查，忙得脚不沾地。',
+o:[
+ {la:'提前两周开始准备', r:'你按计划走完，心里有底。', e:{st:12,s:3}},
+ {la:'熬几个夜赶工', r:'你顶着黑眼圈交了设计，差点迟到。', e:{st:8,p:-3,s:7}},
+ {la:'随便应付，及格万岁', r:'你交了个半成品，祈祷老师心软。', e:{st:-5,h:2}},
+ {la:'甩锅给小组同学', r:'组员在群里@你，气氛尴尬。', e:{m:-6,so:-3}}
+]},
+jingsai3:{t:'挑战杯 · 报名', d:'挑战杯 / 互联网+ 大赛报名，项目团队在招人。',
+o:[
+ {la:'加入强队，冲国奖', r:'你们熬了三个通宵，项目终于立住了。', e:{st:12,i:3,s:9}, f:['honor:挑战杯获奖']},
+ {la:'自己拉队伍，小打小闹', r:'你们做到校级奖，也算有了收获。', e:{st:6,so:3,s:5}},
+ {la:'不折腾，专心考研', r:'你把时间留给了真题。', e:{st:4,s:-2}},
+ {la:'买份现成方案参赛', r:'答辩时评委一问，你答不上来。', e:{m:-8,mo:-400}}
+]},
+chuangye:{t:'校园 · 摆摊', d:'学校门口的夜市有人卖手冲咖啡和手作，生意不错。你有点心动。',
+o:[
+ {la:'小成本试试，摆摊卖东西', r:'你赚了第一笔"创业"收入，也累得够呛。', e:{mo:600,so:4,s:5,st:-3}},
+ {la:'先观察市场，写个计划', r:'你分析了三条街的客流量，决定再等等。', e:{i:2,st:3}},
+ {la:'算了，学业为重', r:'你摸了摸钱包，还是回图书馆了。', e:{s:-2,st:3}},
+ {la:'进三无产品低价卖', r:'有人吃坏了肚子，你吓得撤了摊。', e:{m:-6,mo:800}}
+]},
+lianai3:{t:'恋爱 · 见家长', d:'恋爱快两年了。TA 试探着问：寒假要不要去我家看看？', requires:s=>s.love===true,
+o:[
+ {la:'认真考虑未来', r:'你们聊了一夜，关于以后。', e:{h:6,so:3,s:4,m:1}},
+ {la:'含糊其辞，拖一拖', r:'TA 有点失落，但没追问。', e:{h:-3,s:3}},
+ {la:'礼物攻势，回避话题', r:'礼物收了，问题还在。', e:{mo:-400,h:3}},
+ {la:'同时和别人暧昧', r:'TA 撞见你回消息的瞬间，空气凝固了。', e:{m:-8,h:1}}
+]},
+qizhong3:{t:'期中 · 大三', d:'大三的期中：课程设计、论文提纲、考研摸底考一起砸下来。',
+o:[
+ {la:'排好优先级，逐个击破', r:'你列了张清单，划掉一项的瞬间很爽。', e:{st:12,s:-2}},
+ {la:'通宵赶设计', r:'你交了设计，人也快散架了。', e:{st:9,p:-4,s:7}},
+ {la:'只保考研科目，其他划水', r:'你的设计小组默默把你踢出了群。', e:{st:2,h:1,so:-2}},
+ {la:'让组员多做，自己躺赢', r:'答辩时你支支吾吾，评委皱了皱眉。', e:{m:-5,so:-3}}
+]},
+jianzhi4:{t:'兼职 · 咖啡店', d:'学校后街新开的咖啡店招兼职，环境不错，就是忙。',
+o:[
+ {la:'周末去，锻炼人脉', r:'你学会拉花，也认识了不少常客。', e:{mo:450,so:4,st:-3,p:-1}},
+ {la:'做线上代购攒钱', r:'你跑腿跑得腿软，小赚一笔。', e:{mo:350,st:-2}},
+ {la:'不赚这个钱，专心学业', r:'你捂紧钱包，继续卷绩点。', e:{st:3,s:-2}},
+ {la:'偷师配方出去自己卖', r:'老板发现后，你的兼职黄了。', e:{m:-6,mo:500}}
+]},
+kaoyan3:{t:'考研 · 倒计时', d:'考研倒计时 60 天。走廊里全是背书的人，你背完一轮忘一轮。', requires:s=>s.goal==='kaoyan',
+o:[
+ {la:'每天 12 小时，死磕到底', r:'你的笔芯换了一根又一根。', e:{st:16,p:-4,s:10}, f:['goal:kaoyan']},
+ {la:'稳住节奏，查漏补缺', r:'你按计划推进，心态平稳。', e:{st:11,s:-2}, f:['goal:kaoyan']},
+ {la:'心态崩了，摆烂几天', r:'你在宿舍躺了两天，更焦虑了。', e:{st:-6,h:-3,s:6}},
+ {la:'买"内部真题"', r:'你花了大价钱，拿到一沓手写复印纸。', e:{mo:-1000,m:-3,st:3}}
+]},
+bishe1:{t:'毕设 · 开题', d:'毕设开题答辩：你站上讲台，PPT 第一页的题目被导师圈了个问号。',
+o:[
+ {la:'反复打磨，重新选题', r:'你换了三个题目，终于过关。', e:{st:12,i:2,s:6}},
+ {la:'沿用师兄课题，修修补补', r:'你把师兄的方案换了个壳，顺利开题。', e:{st:6,m:-1,s:2}},
+ {la:'网上扒一篇改改题目', r:'开题过了，你心里却一直发虚。', e:{m:-7,st:2}},
+ {la:'导师说啥是啥，混过去', r:'你领了个最省事的题目，也最没意思。', e:{st:2,s:-3}}
+]},
+zhuanye4:{t:'大四 · 收尾课', d:'大四的课程很少，但每一门都在为工作铺路：生产实习、职业素养、航天企业文化。',
+o:[
+ {la:'认真上，为求职攒谈资', r:'面试时你引用了一段课堂案例，面试官点了点头。', e:{st:8,so:3,i:1}},
+ {la:'选课划水，多投简历', r:'你翘了两节课，多投了三家。', e:{st:-2,so:4,s:3}},
+ {la:'能翘就翘', r:'期末你看着陌生的课件，有点慌。', e:{st:-6,h:1}},
+ {la:'让室友帮点名，自己去面试', r:'室友帮你答了到，你面完回来请他吃饭。', e:{m:-4,st:-3,so:3}}
+]},
+shesu4:{t:'宿舍 · 散伙饭前', d:'毕业倒计时，宿舍墙皮快被照片贴满了。有人在商量散伙饭去哪吃。',
+o:[
+ {la:'组织一次宿舍毕业旅行', r:'你们在阳朔的民宿里聊到天亮。', e:{so:6,h:8,mo:-400}},
+ {la:'把四年合照整理成相册', r:'你翻到军训的照片，笑出了声。', e:{h:5,so:3}},
+ {la:'各自忙各自的，随缘', r:'散伙饭那天，有人加班没来。', e:{h:-2}},
+ {la:'卖掉室友的东西赚一笔', r:'室友发现后，气氛降到了冰点。', e:{m:-8,mo:300}}
+]},
+bishe2:{t:'毕设 · 盲审意见', d:'盲审意见回来了：修改后答辩。你盯着满屏批注，深吸一口气。',
+o:[
+ {la:'逐条改，找导师确认', r:'你改了七版，导师终于点了头。', e:{st:14,i:2,s:6}},
+ {la:'改个格式敷衍了事', r:'答辩老师翻开你"改过"的论文，沉默了几秒。', e:{m:-3,st:2,s:2}},
+ {la:'找人帮忙大改', r:'改完的论文终于像样了，你松了口气。', e:{mo:-800,m:-2,st:5}},
+ {la:'摆烂，赌老师不看', r:'你赌输了，答辩被要求大改。', e:{st:-8,s:-2}}
+]},
+lianai4:{t:'毕业季 · 分岔路', d:'你拿到了远方的 offer，TA 留在了桂林。毕业季的分岔路口，你们谁都没先开口。', requires:s=>s.love===true,
+o:[
+ {la:'好好谈一次，尊重彼此', r:'你们约好：先各自努力，再谈以后。', e:{h:4,so:3,m:3,s:2}},
+ {la:'提分手，长痛不如短痛', r:'你们在操场走完最后一圈。', e:{h:-5,s:-3}},
+ {la:'异地恋试试看', r:'车票和视频，成了你们之间最长的距离。', e:{h:3,s:6}},
+ {la:'冷暴力等对方先说', r:'TA 最后发来一条很长的消息，你一个字也没回。', e:{m:-6,h:-4}}
+]},
+daixie2:{t:'论文 · 最后的诱惑', d:'群里又有人出高价收论文。这次，是你自己的论文还没写完。',
+o:[
+ {la:'自己写，再难也是自己的', r:'你写完致谢那行字，长舒一口气。', e:{st:10,i:2,s:4}},
+ {la:'找导师要方向，硬写', r:'导师给了条明路，你顺藤摸瓜写完。', e:{st:8,s:2}},
+ {la:'花钱找人代写', r:'你付了钱，收到一份不敢细看的成品。', e:{m:-9,mo:-1500,st:2}},
+ {la:'抄一篇改改查重', r:'查重率 45%，你开始后悔。', e:{m:-8,st:-3}}
+]},
+jianshen2:{t:'操场 · 最后一次夜跑', d:'傍晚操场，广播站放着熟悉的歌。这可能是你最后一次在桂航的操场夜跑了。',
+o:[
+ {la:'跑完十圈，和操场告别', r:'你跑完最后一圈，朝看台鞠了一躬。', e:{p:5,h:4,s:-3}},
+ {la:'慢慢走两圈，看看校园', r:'你走得很慢，想把每栋楼都记住。', e:{h:4,p:1}},
+ {la:'拍个视频留念', r:'视频拍得很糊，但那一刻很真。', e:{h:3}},
+ {la:'躺着看别人跑', r:'你躺了一会儿，忽然有点舍不得。', e:{p:-2,h:1}}
+]},
+tongxuehui:{t:'寒假 · 同学聚会', d:'高中同学聚会：有人保研，有人创业，有人在饭桌上炫新手机。',
+o:[
+ {la:'大方聊天，交换联系方式', r:'你加了几个微信，聊得挺开心。', e:{so:5,h:3}},
+ {la:'聊到成绩就转移话题', r:'你端起杯子，巧妙避开。', e:{h:1,s:2}},
+ {la:'吹牛说自己绩点 4.0', r:'有人起哄要看你成绩单，你打起了哈哈。', e:{m:-5,h:2}},
+ {la:'喝多了口无遮拦', r:'你第二天醒来，发现自己说了很多大话。', e:{m:-4,h:1,s:3}}
+]},
+hanjiaGong2:{t:'寒假工 · 第二年', d:'第二年寒假工，你熟门熟路地进了同一家店。老板说：干得好给你涨工钱。',
+o:[
+ {la:'踏实干，争取涨薪', r:'你拿到了涨薪的承诺，也累出了黑眼圈。', e:{mo:900,p:-3,s:3}},
+ {la:'干几天嫌累辞了', r:'你拿了几天工钱就撤了。', e:{mo:200,h:1}},
+ {la:'在家躺平，啃老本', r:'你数着余额，心里有点慌。', e:{h:2,p:1,mo:-200}},
+ {la:'偷懒摸鱼，混工时', r:'老板看在眼里，没说什么。', e:{m:-4,mo:600}}
+]},
+xueche2:{t:'假期 · 拿到驾照之后', d:'驾照到手一年，你爸把家里的车钥匙丢给你：去练练。',
+o:[
+ {la:'练熟上路，带爸妈进城', r:'你开得稳稳当当，爸妈在后座睡了一路。', e:{p:1,h:3,so:2,s:-2}},
+ {la:'和朋友租车自驾', r:'你第一次开长途，紧张又兴奋。', e:{h:6,mo:-600,so:3,s:4}},
+ {la:'不敢开，继续当乘客', r:'你爸摇头：驾照都白拿了。', e:{h:-1,p:-1}},
+ {la:'借车炫技，刮了', r:'修车花了钱，你还被家里训了一顿。', e:{mo:-800,m:-2,h:-3}}
+]},
+jiazhai2:{t:'寒假 · 家里蹲', d:'寒假过半，你刷完了三季剧，通关了两个游戏。',
+o:[
+ {la:'收心，背四级单词', r:'你背到"abandon"就停了两天。', e:{st:8,i:1,h:-1}},
+ {la:'继续躺，开学再说', r:'你躺出了颈椎病的前兆。', e:{h:3,p:-2,s:2}},
+ {la:'每天晨跑，调整作息', r:'你晨跑一周，精神好了不少。', e:{p:4,h:2,s:-3}},
+ {la:'开黑打到凌晨', r:'你的排位分上去了，黑眼圈也下来了。', e:{p:-3,h:4,s:3,st:-3}}
+]},
+jianzhi5:{t:'暑假工 · 奶茶店', d:'暑假你回到学校门口那家奶茶店。老板说：学得快就当店长助理。',
+o:[
+ {la:'认真学，争取升职', r:'你学会了全店所有饮品，老板很满意。', e:{mo:700,so:3,p:-2,st:-2}},
+ {la:'按部就班干完就走', r:'你干满一个假期，准时下班。', e:{mo:500,p:-2}},
+ {la:'回去躺平，把暑假睡过去', r:'你睡了两个月，开学胖了一圈。', e:{h:2,p:1}},
+ {la:'从收银机里摸零钱', r:'你摸了几次，账对不上时心惊肉跳。', e:{m:-7,mo:300}}
+]},
+lvyou2:{t:'暑假 · 龙脊梯田', d:'你约了两个同学去看龙脊梯田。日出时分，层层叠叠的梯田在晨雾里发光。',
+o:[
+ {la:'全程规划，玩得尽兴', r:'你们赶上了日出，照片美得可以当壁纸。', e:{h:8,so:4,p:2,mo:-500}},
+ {la:'说走就走，走到哪算哪', r:'你们迷了一次路，反而看到了意外的风景。', e:{h:6,mo:-400}},
+ {la:'嫌累，改成市里逛吃', r:'你们在东西巷吃了一天。', e:{h:4,mo:-200}},
+ {la:'借车出事故，赔了钱', r:'车刮了，你们仨凑钱赔。', e:{m:-3,mo:-800,p:-3,h:-4}}
+]},
+pianzi2:{t:'暑假 · 兼职陷阱', d:'群里有人招"打字员"，交 199 元押金。你室友差点转了钱。',
+o:[
+ {la:'劝住室友，一起举报', r:'你们点了举报，群很快被封了。', e:{m:4,so:3}},
+ {la:'自己也差点上当，及时收手', r:'你填到一半，越想越不对。', e:{i:1,h:-1}},
+ {la:'觉得"万一是真的呢"', r:'你交了押金，对方把你拉黑了。', e:{mo:-199,h:-2}},
+ {la:'拉更多人进群赚介绍费', r:'你赚了介绍费，也欠了人情债。', e:{m:-7,mo:300}}
+]},
+shixiTry:{t:'暑假 · 实习尝试', d:'大三前的暑假，你试着投了份暑期实习。',
+o:[
+ {la:'认真准备，拿到实习', r:'你第一次进公司，学到了很多。', e:{st:8,i:2,so:3,s:4,mo:600}},
+ {la:'投了几家没回音就放弃', r:'你关掉招聘 App，继续躺平。', e:{s:2,h:-2}},
+ {la:'不投了，在家休息', r:'你把实习推迟到了明年。', e:{h:2,p:1}},
+ {la:'让中介"包进"，交了钱', r:'中介收了钱，实习却遥遥无期。', e:{m:-4,mo:-800}}
+]},
+kaoyanHan:{t:'寒假 · 考研班', d:'考研机构寒假班开课。你妈说：报吧，钱不是问题。', requires:s=>s.goal==='kaoyan',
+o:[
+ {la:'报班，系统过一遍基础', r:'你跟着课程把基础过了一遍，心里有了底。', e:{st:12,mo:-1500,s:5}, f:['goal:kaoyan']},
+ {la:'自学，买齐资料在家啃', r:'你省了钱，进度靠自己推。', e:{st:9,mo:-300,s:3}, f:['goal:kaoyan']},
+ {la:'先玩，开学再说', r:'你的寒假班讲义在书桌上落灰。', e:{st:-4,h:3}},
+ {la:'报班但天天逃课', r:'你妈问起课程进度，你支支吾吾。', e:{m:-4,mo:-1500,st:-3}}
+]},
+huijia3:{t:'寒假 · 灵魂拷问', d:'过年回家，亲戚们终于从"造火箭"转向了灵魂拷问："考研还是工作？考得上吗？"',
+o:[
+ {la:'坦然回答，说说计划', r:'你讲了讲打算，亲戚们连连点头。', e:{so:3,m:1,h:2}},
+ {la:'打太极，含糊过去', r:'你笑着岔开话题，躲过一劫。', e:{h:1,s:2}},
+ {la:'被问烦了，怼回去', r:'饭桌上的气氛瞬间凝固。', e:{m:-4,h:-2,s:3}},
+ {la:'吹牛说已经内定了', r:'表哥当场掏出手机要帮你查，你慌了。', e:{m:-6,h:2}}
+]},
+hanjiaGong3:{t:'寒假工 · 攒考研钱', d:'为了攒考研资料钱，你去了寒假工。每天十小时，手都冻僵了。',
+o:[
+ {la:'咬牙干满一个月', r:'你数着工资，想着够买多少本真题。', e:{mo:1200,p:-4,s:4}},
+ {la:'干两周就撤', r:'你拿着半截工资，回了家。', e:{mo:600,p:-2}},
+ {la:'换个轻松的活', r:'你找了个理货的岗位，钱少点但轻松。', e:{mo:700,s:2}},
+ {la:'和工友合谋虚报工时', r:'老板查监控那天，你们心都凉了。', e:{m:-6,mo:900}}
+]},
+jiazhai3:{t:'寒假 · 专心备考', d:'寒假你决定不打工不聚会，专心备考。',
+o:[
+ {la:'每天固定八小时学习', r:'你完成了计划表上的每一格。', e:{st:10,i:1,s:3}},
+ {la:'学两天玩三天', r:'你的进度条卡在一半。', e:{st:3,h:2}},
+ {la:'干脆躺平，年后再说', r:'年后你发现别人都过完一轮了。', e:{st:-6,h:3,s:2}},
+ {la:'刷题时偷懒抄答案', r:'你抄得很快，心里越来越没底。', e:{m:-4,st:-2}}
+]},
+lvyou3:{t:'暑假 · 去看海', d:'最后一个暑假，你想去看看海。',
+o:[
+ {la:'穷游北海，住青旅', r:'你看了海边的日落，认识了几个背包客。', e:{h:8,mo:-700,p:2}},
+ {la:'省内短途，轻松出发', r:'你逛了一圈，拍了九宫格。', e:{h:5,mo:-300}},
+ {la:'在家备考，哪也不去', r:'你把看海的心愿留到了上岸之后。', e:{st:6,s:-2}},
+ {la:'跟团被坑，购物游', r:'你买了一堆特产，回来就后悔了。', e:{mo:-1200,h:-3}}
+]},
+jiazhai4:{t:'暑假 · 家里蹲备考', d:'暑假在家备考：空调、西瓜、真题，日子单调但充实。',
+o:[
+ {la:'自律打卡，进度拉满', r:'你的错题本越来越厚。', e:{st:12,i:1,s:4}},
+ {la:'每天六小时，劳逸结合', r:'你学得进去，也睡得着。', e:{st:8,s:-1}},
+ {la:'学着学着刷起了手机', r:'你刷了两小时短视频，罪恶感满满。', e:{st:-3,h:2}},
+ {la:'买了份"速成笔记"抄', r:'你抄完了，发现什么也没记住。', e:{m:-3,mo:-300,st:2}}
+]},
+chunzhaoZb:{t:'寒假 · 春招准备', d:'秋招没上岸，你开始改简历准备春招。', requires:s=>s.goal==='work',
+o:[
+ {la:'系统复盘，补齐短板', r:'你重新梳理了项目经历，底气足了些。', e:{i:2,st:5,s:3}, f:['goal:work']},
+ {la:'广撒网，先投再说', r:'你投了二十家，等回音等到心焦。', e:{st:3,so:3,s:4}, f:['goal:work']},
+ {la:'焦虑躺平，等开学', r:'你刷着招聘信息，越刷越慌。', e:{s:4,h:-3}},
+ {la:'简历里编一段实习', r:'面试官细问起来，你支支吾吾。', e:{m:-7,s:4}}
+]},
+huijia4:{t:'寒假 · 最后一次过年', d:'大学最后一个春节。爸妈的头发白了不少，年夜饭还是那几道你爱吃的菜。',
+o:[
+ {la:'陪爸妈多待几天', r:'你陪爸爸下棋，陪妈妈买菜，日子很慢。', e:{m:3,h:7,p:1}},
+ {la:'给爸妈包个红包', r:'爸妈嘴上说浪费，嘴角却压不住。', e:{m:4,h:5,mo:-500}},
+ {la:'同学聚会约不停', r:'你约了好几场，喝到半夜。', e:{h:5,so:3,mo:-200}},
+ {la:'天天往外跑，嫌家里闷', r:'你妈看着你的背影叹了口气。', e:{m:-2,h:1}}
+]},
+jiazhai5:{t:'寒假 · 等结果', d:'年还没过完，你已经在等春招消息和考研复试通知了。',
+o:[
+ {la:'每天刷题+练面试', r:'你把自我介绍练了二十遍。', e:{st:8,i:1,s:4}},
+ {la:'规律作息，放平心态', r:'你告诉自己：该来的总会来。', e:{h:3,s:-3}},
+ {la:'焦虑到失眠', r:'你盯着天花板，数羊数到一百只。', e:{s:8,h:-5}},
+ {la:'迷信算命，求签问卦', r:'签文说"山重水复"，你更慌了。', e:{m:-2,h:1,s:2}}
+]},
+lvyou4:{t:'毕业旅行 · 回到桂林', d:'毕业后，你和几个朋友踏上毕业旅行。最后一站，你们回到了桂林。',
+o:[
+ {la:'重走校园，见见老同学', r:'你在问天楼前拍了张和报到那天一样的照片。', e:{h:9,so:5}},
+ {la:'阳朔再疯玩三天', r:'你们在西街喝到微醺，笑到流泪。', e:{h:7,mo:-600,p:2}},
+ {la:'太累了，在家补觉', r:'你把毕业旅行睡过去了一半。', e:{h:2}},
+ {la:'旅行中一直刷招聘信息', r:'美景在你眼里都成了背景板。', e:{s:4,h:-3}}
+]},
+exam3b:{t:'期末 · 大二下', d:'大二下学期期末：专业课结课考 + 课程设计答辩。老师说：这是分水岭。',
+o:[
+ {la:'复习+设计双线推进', r:'你两线作战，都交出了满意的答卷。', e:{st:20,s:-1,p:-1}},
+ {la:'熬夜赶设计，白天补觉', r:'你交完设计，感觉身体被掏空。', e:{st:10,p:-4,s:8}},
+ {la:'抄组员的设计混过去', r:'答辩时你一问三不知，气氛尴尬。', e:{m:-5,st:-3}},
+ {la:'花钱买成品设计', r:'你递上钱包，换来一份陌生的设计。', e:{m:-7,mo:-400,st:2}}
+]},
+exam4b:{t:'期末 · 大三下', d:'大三下学期期末：考研第一轮复习撞上期末周，你恨不得一天有 48 小时。',
+o:[
+ {la:'期末为主，考研先放一放', r:'期末稳了，考研进度落下了一截。', e:{st:14,s:4}},
+ {la:'考研为主，期末靠平时分', r:'你赌期末老师心软，结果赌对了一半。', e:{st:6,s:6}},
+ {la:'双双摆烂', r:'期末和考研进度，一起躺平。', e:{st:-8,h:1,s:4}},
+ {la:'让同学代签到期中检查', r:'老师点名时你不在，名单上却有你。', e:{m:-6,st:-2}}
+]},
+jiruo:{t:'入职 · 准备', d:'入职/入学前一个月，你开始准备新生活。', requires:s=>s.goal==='work',
+o:[
+ {la:'提前学技能，买正装', r:'你对着镜子试正装，有点陌生又有点期待。', e:{st:6,i:2,mo:-500,s:3}, f:['goal:work']},
+ {la:'收拾行李，养精蓄锐', r:'你理出三大箱行李，都是四年攒下的。', e:{h:3,p:1,s:-2}},
+ {la:'能拖就拖，最后一刻再说', r:'报到前一天，你还在收拾。', e:{s:3,h:-1}},
+ {la:'把旧东西高价卖给学弟', r:'学弟砍价砍到一半，你俩都笑了。', e:{m:-3,mo:400}}
+]},
+dianzi:{t:'数码 · 装备升级', d:'室友换了个新平板，画画做笔记都流畅。你的旧电脑开机要三分钟。',
+o:[
+ {la:'省吃俭用，全款拿下', r:'你咬牙全款拿下，未来三个月吃土。', e:{mo:-3800,i:3,h:3,s:4}},
+ {la:'免息分期，首付+月供', r:'月供六百，你的生活费开始捉襟见肘。', e:{mo:-1200,i:2,h:4,s:7}},
+ {la:'不买，用旧的', r:'你继续忍受开机三分钟，省下一笔钱。', e:{h:-2,i:-1}},
+ {la:'借花呗，逾期再说', r:'下个月账单来的时候，你笑不出来了。', e:{m:-3,mo:-4200,s:7}}
+]},
+kaozheng:{t:'考证 · 报名费', d:'证书是就业敲门砖：初级会计、计算机二级、教师资格证……报名窗口又开了。',
+o:[
+ {la:'报一门，认真备考', r:'你交了报名费，图书馆多了一个占座的你。', e:{mo:-400,st:8,s:5}, f:['honor:职业技能证书']},
+ {la:'报三门，广撒网', r:'报名费花了一千二，你一门都没复习完。', e:{mo:-1200,st:4,s:8}},
+ {la:'不考，反正用不上', r:'你省了钱，简历上也少了一行。', e:{h:1,s:-2}},
+ {la:'找人代考', r:'考场门口你被拦下，心虚得想遁地。', e:{m:-7,mo:-600,st:-2}}
+]},
+yanchang:{t:'演出 · 抢票', d:'喜欢的歌手来南宁开演唱会。抢票那天，你手心全是汗。',
+o:[
+ {la:'抢内场票，冲了', r:'你在内场蹦了三个小时，嗓子哑了。', e:{mo:-900,h:10,p:-1,s:-6}},
+ {la:'买看台票，佛系', r:'看台视角不错，你跟着合唱了一整晚。', e:{mo:-400,h:7,s:-4}},
+ {la:'蹲二手黄牛票', r:'你付了钱，对方失联了。', e:{mo:-1500,h:-6,m:-2}},
+ {la:'不去了，宿舍看直播', r:'你在宿舍看直播，感受氛围。', e:{h:2}}
+]},
+jianshenka:{t:'健身 · 办卡', d:'学校旁边的健身房开业大酬宾：年卡 1500，送两节私教课。',
+o:[
+ {la:'办年卡，坚持练', r:'你练出一点线条，也开始心疼钱了。', e:{mo:-1500,p:5,s:-4}},
+ {la:'办月卡试试水', r:'你练了两周，卡就吃灰了。', e:{mo:-300,p:2}},
+ {la:'不办，操场跑', r:'免费的跑道，你跑得也挺开心。', e:{p:2,h:1}},
+ {la:'办卡后转手倒卖', r:'卡没卖出去，还压了一笔钱。', e:{m:-4,mo:-1500}}
+]},
+keqian:{t:'网课 · 知识焦虑', d:'“三小时学会 Python”“考研数学速成班”，你收藏了二十个课程链接。',
+o:[
+ {la:'买两门，认真学完', r:'你学完一门，发现值回票价。', e:{mo:-800,i:3,st:8}},
+ {la:'买十门，全部吃灰', r:'你的网盘塞满了课，一门都没看完。', e:{mo:-2500,h:2,st:-2}},
+ {la:'B站白嫖，免费学', r:'你跟着免费教程，也学了不少。', e:{st:4,i:1}},
+ {la:'买课却转卖盗版', r:'你被警告了一次，账号差点没了。', e:{m:-6,mo:600}}
+]},
+fangzu:{t:'实习 · 租房押金', d:'暑期实习确定下来了，公司在市中心。你开始找房子。',
+o:[
+ {la:'租近的，贵点就贵点', r:'你租了公司隔壁，通勤十分钟，房租肉疼。', e:{mo:-2500,p:2,s:-4,st:3}},
+ {la:'租远的，便宜', r:'你每天通勤一小时，人快散架了。', e:{mo:-1200,p:-3,s:6}},
+ {la:'蹭朋友宿舍', r:'你省了钱，欠了人情。', e:{mo:-300,so:2,h:1}},
+ {la:'二房东转租，押金被扣', r:'退租时押金一分没退，你气了一周。', e:{mo:-1800,h:-5,m:-1}}
+]},
+zhengzhuang:{t:'求职 · 行头', d:'秋招季，大家都开始置办正装、拍证件照。你看着衣柜里的卫衣，陷入沉思。',
+o:[
+ {la:'定制一套正装', r:'你对着镜子，第一次觉得自己像大人了。', e:{mo:-1500,h:3,so:3,s:-3}},
+ {la:'买件入门款西装', r:'几百块的行头，撑撑场面够了。', e:{mo:-600,h:1,so:1}},
+ {la:'借室友的', r:'你借到了，尺码差点意思。', e:{h:1,so:-1}},
+ {la:'买高仿撑场面', r:'懂行的一眼就看出料子不对。', e:{m:-4,mo:-800}}
+]},
+keyin:{t:'假期 · 游戏氪金', d:'新年活动皮肤返场，你盯着充值界面看了半小时。',
+o:[
+ {la:'氪了，快乐最重要', r:'你穿着新皮肤上分，输了两把。', e:{mo:-600,h:5,s:3,p:-1}},
+ {la:'小氪一把', r:'你充了个月卡，意思意思。', e:{mo:-100,h:2}},
+ {la:'忍住，白嫖到底', r:'你看着别人的新皮肤，羡慕但不氪。', e:{h:-1}},
+ {la:'借同学号狂花', r:'同学发现账单时，友谊出现了裂痕。', e:{m:-7,mo:-900,so:-4}}
+]},
+gongkao:{t:'考公 · 抉择', d:'室友在刷行测，另一个在投简历。考公，还是找工作？', requires:s=>s.goal==='civil',
+o:[
+ {la:'全职备考，报协议班', r:'你报了个笔面协议班，行测刷了两千题。', e:{st:10,mo:-1500,s:6}, f:['goal:civil','gk:1']},
+ {la:'边求职边备考', r:'两条腿走路，哪边先成算哪边。', e:{st:6,so:3,s:5}, f:['goal:civil','gk:1']},
+ {la:'放弃考公，专心求职', r:'你收起了行测教材，打开了招聘软件。', e:{st:3,so:4,s:2}, f:['goal:work']},
+ {la:'托“包过”中介', r:'对方收了三万，考完就失联了。', e:{m:-9,mo:-3000,s:8}}
+]},
+daerjue:{t:'暑假 · 人生岔路', d:'大二结束的那个夏夜，你躺在宿舍床上，风扇吱呀转着。四年已过一半：考研、考公、直接工作……还是自己干？同学有的报好了暑期集训营，有的开始找实习。这个假期，你必须做出选择——它会决定你毕业后的路。',
+o:[
+ {la:'考研——去更远的地方', r:'你买齐了资料，把问天楼的自习区占座密码写进了备忘录。', e:{i:1,st:8,s:5}, f:['goal:kaoyan']},
+ {la:'考公——端上铁饭碗', r:'你下载了行测题库，决定从今往后每天刷题。', e:{i:1,st:6,s:3}, f:['goal:civil']},
+ {la:'工作——早点自立', r:'你打开了招聘软件，开始把经历一点点写进简历。', e:{so:3,st:4,s:2}, f:['goal:work']},
+ {la:'创业——自己当老板（需 ¥3000）', r:'你盯着银行卡余额，心里盘算着启动资金。', e:{so:2,st:6,s:6}, f:['goal:chuangye']}
+]},
+kaoyan4:{t:'考研 · 真题刷题', d:'集训结束，你开始刷英语真题。错题本越来越厚，你的信心也一点点长出来。', requires:s=>s.goal==='kaoyan',
+o:[
+ {la:'每天精读一篇阅读', r:'你逐句翻译、标注生词，正确率肉眼可见地涨了。', e:{i:3,st:8,s:7}},
+ {la:'计时刷两套真题', r:'你连着错了一片，但错题本记满了。', e:{i:4,st:10,s:8}},
+ {la:'只背单词', r:'你背了三百个单词，阅读还是看不懂。', e:{i:2,st:5,s:5}},
+ {la:'摸鱼一整天', r:'你刷了一天手机，晚上愧疚得睡不着。', e:{h:2,s:-3,st:-2}}
+]},
+kaoyan5:{t:'考研 · 心态崩了', d:'距离考试还有两个月，你发现自己前面的复习全忘了。走廊里背书的人越来越多，你开始失眠。', requires:s=>s.goal==='kaoyan',
+o:[
+ {la:'稳住，按计划重来一遍', r:'你把基础过了一遍，心里踏实了不少。', e:{i:4,st:12,s:8}},
+ {la:'找研友互相打气', r:'你们约定一起上岸，走廊里多了一个背书搭子。', e:{so:4,st:7,s:5,h:3}},
+ {la:'熬夜硬刷', r:'你熬到凌晨两点，第二天头痛欲裂。', e:{p:-2,i:2,st:9,s:9}},
+ {la:'想放弃，去投简历', r:'你投了几份简历，心里更乱了。', e:{s:4,st:-2,so:2}, f:['goal:work']}
+]},
+gongkao2:{t:'考公 · 行测日常', d:'你每天雷打不动刷两百道行测，数量关系让你怀疑人生。', requires:s=>s.goal==='civil',
+o:[
+ {la:'死磕数量关系', r:'你啃下了排列组合，正确率上来了一截。', e:{i:3,st:8,s:6}, f:['gk:1']},
+ {la:'刷言语和判断', r:'你发挥稳定，资料分析又快又准。', e:{i:3,st:7,s:5}, f:['gk:1']},
+ {la:'做一套完整模考', r:'你掐着时间做完，发现申论写不完。', e:{i:4,st:10,s:9}, f:['gk:1']},
+ {la:'刷到一半去打游戏', r:'你输了排位回来继续刷，心情更差了。', e:{h:-2,s:3,st:2}}
+]},
+gongkao3:{t:'考公 · 报岗纠结', d:'国考公告出了。岗位表三百多行，你从晚上八点看到凌晨。', requires:s=>s.goal==='civil',
+o:[
+ {la:'报市区好单位，冲', r:'你填了报名表，竞争比 1:387。', e:{st:8,s:7}, f:['gk:1']},
+ {la:'报基层岗位，稳', r:'你选了乡镇岗位，上岸概率大了不少。', e:{st:5,s:3}, f:['gk:1']},
+ {la:'国考省考多线准备', r:'你国考省考两手抓，资料堆了一桌。', e:{st:9,s:6,i:1}, f:['gk:1']},
+ {la:'找“内部渠道”改分', r:'你付了定金，对方消失得无影无踪。', e:{m:-8,mo:-2000,s:5}}
+]},
+gongzuo1:{t:'求职 · 实习offer', d:'你收到两个实习 offer：本地小厂给 3000，深圳大厂无薪但有转正机会。', requires:s=>s.goal==='work',
+o:[
+ {la:'去深圳大厂，搏转正', r:'你收拾行李南下，出租屋很小，心很大。', e:{mo:-1500,so:3,st:6,s:6,i:1}},
+ {la:'本地小厂，攒经验', r:'你每天通勤一小时，学到了不少实操。', e:{mo:300,i:2,st:4,s:3}},
+ {la:'都不去，接远程散单', r:'你接了几个零散的单子，钱不多但自由。', e:{mo:600,st:3,s:2}},
+ {la:'买一份“实习证明”', r:'你花了两千，拿到一张盖着章的纸。', e:{m:-6,mo:-2000,s:2}}
+]},
+gongzuo2:{t:'求职 · 秋招冲刺', d:'金九银十，宣讲会一场接一场。你的简历改到第十七版。', requires:s=>s.goal==='work',
+o:[
+ {la:'海投 50 家，重点跟进', r:'你收到五个面试通知，行程排满。', e:{so:4,st:8,s:6}},
+ {la:'瞄准航天系企业', r:'你投了航天科技集团，专业对口。', e:{i:2,st:7,s:5}},
+ {la:'请学长内推', r:'学长帮你递了简历，多了一个机会。', e:{so:3,st:4,s:3}},
+ {la:'简历造假“镀金”', r:'面试官追问细节，你支支吾吾。', e:{m:-8,i:-1,s:5}}
+]},
+chuangye2:{t:'创业 · 找合伙人', d:'你的小项目需要一个技术合伙人。你想起实验室那个闷头写代码的学长。', requires:s=>s.goal==='chuangye',
+o:[
+ {la:'画大饼，拉他入伙', r:'学长犹豫了一晚，还是辞了实习来帮你。', e:{so:3,mo:-500,st:7,s:6}},
+ {la:'分股份，一起干', r:'你分出去 20% 股份，换来了一个靠谱的技术负责人。', e:{so:5,mo:-800,st:6,s:5}},
+ {la:'自己一个人硬扛', r:'你写代码、跑市场、做客服，快散架了。', e:{p:-2,st:10,s:8}},
+ {la:'找“天使投资人”被坑', r:'对方要你先交“尽调费”，你交了钱人没了。', e:{m:-7,mo:-3000,s:7}}
+]},
+chuangye3:{t:'创业 · 资金周转', d:'公司账上只剩三个月的房租，下个月的工资还没着落。', requires:s=>s.goal==='chuangye',
+o:[
+ {la:'参加创业大赛拉投资', r:'你的路演打动了评委，拿到一笔种子投资。', e:{mo:5000,i:3,h:6,s:-4,so:3}},
+ {la:'接外包项目续命', r:'你通宵赶工，但账上终于有钱了。', e:{mo:2000,p:-2,st:6,s:5}},
+ {la:'找家里要钱', r:'爸妈把积蓄转给你，你鼻子一酸。', e:{mo:1500,so:1,s:-3}},
+ {la:'高息借款周转', r:'利息滚起来的时候，你才明白什么叫深渊。', e:{mo:3000,m:-6,s:8}}
+]},
+};
+
+/* 体测年度变体文案 */
+const TICE_TEXTS=[
+ '体测来了：50 米、立定跳远、引体向上（仰卧起坐）、1000 米。操场边围了一圈加油的同学，校医院的帐篷搭在终点旁边。',
+ '又是一年体测。你去年跑 1000 米的样子还历历在目，今年你决定……先跑再说。',
+ '大三体测，操场上多了些"老年人"的哀嚎。你做了两组热身，深吸一口气。',
+ '最后一次体测。跑完这一千米，你就能和桂航的操场正式告别了。'
+];
+
+/* 突发事件池：只有结果，没有选择 */
+const FLASH=[
+ {id:'f1', t:'突发 · 宿管查寝', d:'晚上十点，宿管阿姨突然敲门查寝，目光扫过你的桌面……', r:'你藏在床底的违禁小电器被没收了。', e:{mo:-150,s:5,m:-1}},
+ {id:'f2', t:'突发 · 桂林暴雨', d:'傍晚的桂林说变脸就变脸，暴雨倾盆。你从教学楼跑回宿舍，还是被淋成了落汤鸡。', r:'你打了三个喷嚏，把空调调高了两度。', e:{p:-4,h:-3}},
+ {id:'f3', t:'突发 · 食堂涨价', d:'食堂窗口换了新告示：素菜涨五毛，荤菜涨一块。', r:'你的饭卡余额又薄了一截。', e:{mo:-60,h:-2}},
+ {id:'f4', t:'突发 · 快递失踪', d:'你收到短信说快递已签收，可快递架上翻了半天也没找到。', r:'客服说帮你查，三天后赔了你一半钱。', e:{mo:-80,h:-4}},
+ {id:'f5', t:'突发 · 食堂抽奖', d:'食堂搞活动，你随手一抽，中了箱牛奶。', r:'你抱着牛奶回宿舍，舍友眼睛都亮了。', e:{h:5,p:1}},
+ {id:'f6', t:'突发 · 被点名提问', d:'老师突然走下讲台："你来回答一下这个问题。"全班目光齐刷刷转向你。', r:'（视智力而定）', e:{}},
+ {id:'f7', t:'突发 · 助学金到账', d:'银行卡短信：一笔小额助学金到账。', r:'你数了数余额，心里踏实了一点。', e:{mo:400,h:4}, minY:2},
+ {id:'f8', t:'突发 · 米粉节', d:'学校门口办起米粉节，螺蛳粉、桂林米粉、酸辣粉一字排开。', r:'你连吃三家，撑得走不动路。', e:{h:6,mo:-40,p:-1}},
+ {id:'f9', t:'突发 · 室友生日', d:'今天是你室友生日，大家凑份子订了个蛋糕。', r:'蛋糕分到你手里，甜得眯起眼。', e:{mo:-60,so:4,h:3}},
+ {id:'f10', t:'突发 · 手机碎屏', d:'手机从桌上滑落，屏幕裂开一道蜘蛛网。', r:'你换了块屏，钱包瘪了一圈。', e:{mo:-220,h:-5}},
+ {id:'f11', t:'突发 · 宿舍停电', d:'晚自习回来，整栋楼停电了。', r:'你借着手机光洗漱，摸黑上了床。', e:{s:5,h:-2,st:-2}},
+ {id:'f12', t:'突发 · 表白墙', d:'学校的表白墙发了条消息，评论区一片"哈哈哈哈"。', r:'你点开一看，居然有人夸你打球帅。', e:{h:6,so:3}},
+ {id:'f13', t:'突发 · 流感季节', d:'换季流感来袭，你身边倒下一片。', r:'你咳嗽了两声，赶紧灌了杯板蓝根。', e:{p:-4,h:-2,mo:-80}},
+ {id:'f14', t:'突发 · 妈妈的电话', d:'妈妈打来电话，问你钱够不够花，有没有好好吃饭。', r:'你鼻子一酸，说了句"够花，放心吧"。', e:{h:7,s:-5}},
+ {id:'f15', t:'突发 · 校园网瘫痪', d:'校园网突然断了，你的课件下载到 98% 卡住。', r:'你折腾到半夜，网才恢复。', e:{s:6,h:-3}},
+ {id:'f16', t:'突发 · 满减券', d:'外卖 App 弹出一张满 30 减 10 的券，只限今天。', r:'你点了份夜宵，感觉赚到了。', e:{mo:-20,h:3}},
+ {id:'f17', t:'突发 · 被舍友吐槽', d:'你打游戏的声音太大，舍友忍无可忍。', r:'你被联合"约谈"，戴上了耳机。', e:{so:-3,s:3}},
+ {id:'f18', t:'突发 · 面试通知', d:'手机一震：你投的简历有了回音，面试约在下周三。', r:'你赶紧翻出正装，开始准备自我介绍。', e:{s:9,h:5,st:3}, minY:4},
+ {id:'f19', t:'突发 · 考研出分', d:'考研初试出分。你颤抖着输入准考证号，屏幕缓缓加载……', r:'（视成绩而定）', e:{}, minY:4},
+ {id:'f20', t:'突发 · 体检报告', d:'校医院体检报告出来了。', r:'（视体质而定）', e:{}, minY:2}
+];
+
+/* 天赋系统：品质 白/绿/蓝/紫/橙 */
+const TALENT_QUALITY = {
+  white:{name:'普通', color:'#d6d6d6'},
+  green:{name:'优秀', color:'#5ec73e'},
+  blue:{name:'稀有', color:'#3d8bfd'},
+  purple:{name:'史诗', color:'#9b5cf6'},
+  orange:{name:'传说', color:'#ff9f1a'}
+};
+const TALENTS = [
+  /* ---- 白色（18） ---- */
+  {id:'t_baitan', q:'white', name:'饭堂战士', d:'每月伙食开销 -80 元，体质 +1'},
+  {id:'t_nightowl', q:'white', name:'宿舍夜猫子', d:'熬夜类事件心情扣减 -10%，体质 -1'},
+  {id:'t_jizhang', q:'white', name:'记账小能手', d:'每月生活费额外 +5%'},
+  {id:'t_wendun', q:'white', name:'心态平稳', d:'心情下降幅度 -10%'},
+  {id:'t_xiaoxi', q:'white', name:'小确幸', d:'每月有 15% 概率白捡 ¥100'},
+  {id:'t_renyuan', q:'white', name:'好人缘', d:'社交 +2，求职就业薪资 +2 万'},
+  {id:'t_guangai', q:'white', name:'校园百事通', d:'校园事件收益小幅加成'},
+  {id:'t_zaodushu', q:'white', name:'早读狂魔', d:'学习投入效果 +20%（同图书馆常客）', fx:['t_tushuguan']},
+  {id:'t_yexing', q:'white', name:'夜行侠', d:'熬夜不垮，突发伤病风险降低（同铁打的身体）', fx:['t_tieda']},
+  {id:'t_mianbao', q:'white', name:'面包胃', d:'吃得起苦，伙食开销 -80（同饭堂战士）', fx:['t_baitan']},
+  {id:'t_jieyue', q:'white', name:'节约标兵', d:'每月生活费额外 +5%（同记账小能手）', fx:['t_jizhang']},
+  {id:'t_maiyou', q:'white', name:'卖萌小能手', d:'社交 +2，人见人爱（同好人缘）', fx:['t_renyuan']},
+  {id:'t_laoshi', q:'white', name:'老实巴交', d:'心情波动更小（同心态平稳）', fx:['t_wendun']},
+  {id:'t_xiaoqingxin', q:'white', name:'小清新', d:'每月 15% 概率收到小礼物折现 ¥100（同小确幸）', fx:['t_xiaoxi']},
+  {id:'t_zhonger', q:'white', name:'中二少年', d:'内心世界丰富，心情更稳定（同心态平稳）', fx:['t_wendun']},
+  {id:'t_laofei', q:'white', name:'老肥宅', d:'宅家省钱（伙食 -80），熬夜也不怕（同饭堂战士+夜猫子）', fx:['t_baitan','t_nightowl']},
+  {id:'t_tietou', q:'white', name:'铁头娃', d:'死磕到底，学习受影响减半（同自制力）', fx:['t_zizhili']},
+  {id:'t_kongtiao', q:'white', name:'空调房战士', d:'天塌下来心情也不崩（同心态平稳）', fx:['t_wendun']},
+
+  /* ---- 绿色（20） ---- */
+  {id:'t_paobu', q:'green', name:'晨跑达人', d:'体质 +3，体测成绩 +5 分'},
+  {id:'t_tushuguan', q:'green', name:'图书馆常客', d:'学习投入效果 +20%'},
+  {id:'t_yueguang', q:'green', name:'月光宝盒', d:'每月生活费 +250 元'},
+  {id:'t_jianzhi', q:'green', name:'兼职快手', d:'打工收入 +50%'},
+  {id:'t_guangshe', q:'green', name:'快门爱好者', d:'突发坏事件概率 -10%'},
+  {id:'t_zizhili', q:'green', name:'自制力', d:'心情低落对学习的负面影响减半'},
+  {id:'t_zhuanke', q:'green', name:'专磕一科', d:'期末考试 +3 分（同过目不忘）', fx:['t_guomuwang']},
+  {id:'t_tijie', q:'green', name:'题海战术', d:'期末考试 +3 分（同过目不忘）', fx:['t_guomuwang']},
+  {id:'t_xiaozhuan', q:'green', name:'小抄大师', d:'期末保底提分 +3（同过目不忘）', fx:['t_guomuwang']},
+  {id:'t_yangsheng', q:'green', name:'养生达人', d:'体质更抗造（同铁打的身体）', fx:['t_tieda']},
+  {id:'t_dianmian', q:'green', name:'泡面战神', d:'省钱（伙食 -80）+ 熬夜不怕（同饭堂战士+夜猫子）', fx:['t_baitan','t_nightowl']},
+  {id:'t_zhuanqian', q:'green', name:'赚钱狂魔', d:'每月生活费 +250（同月光宝盒）', fx:['t_yueguang']},
+  {id:'t_shetuan', q:'green', name:'社团活动家', d:'打工收入 +50%（同兼职快手）', fx:['t_jianzhi']},
+  {id:'t_duoyi', q:'green', name:'多才多艺', d:'社交 +2，人气爆棚（同好人缘）', fx:['t_renyuan']},
+  {id:'t_lanzhang', q:'green', name:'篮球队长', d:'体质 +3 体测 +5（同晨跑达人）', fx:['t_paobu']},
+  {id:'t_zhengzhi', q:'green', name:'正直少年', d:'心情更稳（同心态平稳）', fx:['t_wendun']},
+  {id:'t_zuowang', q:'green', name:'座位之王', d:'学习投入效果 +20%，每月白捡小确幸（同图书馆常客+小确幸）', fx:['t_tushuguan','t_xiaoxi']},
+  {id:'t_yinyang', q:'green', name:'阴阳怪气', d:'嘴上不饶人但内心强大（同夜猫子+心态平稳）', fx:['t_nightowl','t_wendun']},
+  {id:'t_zaoligui', q:'green', name:'早起利己', d:'体质 +3 体测 +5，学习稳（同晨跑达人+自制力）', fx:['t_paobu','t_zizhili']},
+  {id:'t_zhengjiu', q:'green', name:'学委', d:'期末 +3 分，学习稳（同过目不忘+自制力）', fx:['t_guomuwang','t_zizhili']},
+
+  /* ---- 蓝色（14） ---- */
+  {id:'t_guomuwang', q:'blue', name:'过目不忘', d:'智力 +4，期末考试 +3 分'},
+  {id:'t_tieda', q:'blue', name:'铁打的身体', d:'体质 +5，猝死风险大幅降低'},
+  {id:'t_fugui', q:'blue', name:'富贵命', d:'入学即得 ¥3000 生活费'},
+  {id:'t_liaojie', q:'blue', name:'恋爱脑', d:'社交 +3，恋爱事件有特殊加成'},
+  {id:'t_zonghe', q:'blue', name:'综合学霸', d:'学习效率 +15%，期末 +3（同天赋异禀+过目不忘）', fx:['t_tianfu','t_guomuwang']},
+  {id:'t_lianxiang', q:'blue', name:'联想记忆', d:'期末考试 +3（同过目不忘）', fx:['t_guomuwang']},
+  {id:'t_bingshan', q:'blue', name:'冰水浴勇士', d:'体质 +5，猝死风险大幅降低（同铁打的身体）', fx:['t_tieda']},
+  {id:'t_wushu', q:'blue', name:'武术社骨干', d:'体质 +5 体测 +5（同铁打的身体+晨跑达人）', fx:['t_tieda','t_paobu']},
+  {id:'t_touzi', q:'blue', name:'理财初哥', d:'每月 +250，入学 +3000（同月光宝盒+富贵命）', fx:['t_yueguang','t_fugui']},
+  {id:'t_diangong', q:'blue', name:'电工小能手', d:'打工 +50%，每月 +250（同兼职快手+月光宝盒）', fx:['t_jianzhi','t_yueguang']},
+  {id:'t_huiy', q:'blue', name:'社交悍匪', d:'社交 +2，校园事件收益加成（同好人缘+百事通）', fx:['t_renyuan','t_guangai']},
+  {id:'t_zuzhi', q:'blue', name:'组织委员', d:'社交 +2，打工 +50%（同好人缘+兼职快手）', fx:['t_renyuan','t_jianzhi']},
+  {id:'t_haoyun', q:'blue', name:'好运连连', d:'20% 坏事变好事，每月白捡 ¥100（同锦鲤+小确幸）', fx:['t_jinli','t_xiaoxi']},
+  {id:'t_jingji', q:'blue', name:'竞赛狂人', d:'期末 +3，学习稳（同过目不忘+自制力）', fx:['t_guomuwang','t_zizhili']},
+
+  /* ---- 紫色（6） ---- */
+  {id:'t_tianfu', q:'purple', name:'天赋异禀', d:'智力 +6，学习效率 +15%，考研考公判定加成'},
+  {id:'t_jinli', q:'purple', name:'锦鲤附体', d:'20% 概率将坏事变好事，创业启动金门槛降低'},
+  {id:'t_yanjiu', q:'purple', name:'科研萌芽', d:'学习效率 +15%，期末 +3（同天赋异禀+过目不忘）', fx:['t_tianfu','t_guomuwang']},
+  {id:'t_zhongjiang', q:'purple', name:'彩票锦鲤', d:'20% 坏事变好事，每月 +250（同锦鲤+月光宝盒）', fx:['t_jinli','t_yueguang']},
+  {id:'t_yin', q:'purple', name:'隐士', d:'心情极稳，学习投入效果 +20%（同心态平稳+图书馆常客）', fx:['t_wendun','t_tushuguan']},
+  {id:'t_sifang', q:'purple', name:'四方来财', d:'入学 +3000，每月 +250，20% 坏事变好事（同富贵命+月光宝盒+锦鲤）', fx:['t_fugui','t_yueguang','t_jinli']},
+
+  /* ---- 橙色（2） ---- */
+  {id:'t_tianming', q:'orange', name:'天命之子', d:'全属性 +3，每月 +300 元，毕业评级提升一档'},
+  {id:'t_fu2', q:'orange', name:'天选富二代', d:'入学 +3000，每月 +300，全属性 +3（同富贵命+天命之子）', fx:['t_fugui','t_tianming']}
+];
+
+/* 固定事件表：月份索引(0-47) -> 事件id */
+const FIXED = {
+  0:'kai', 1:'junxun', 3:'exam1', 5:'xueche', 6:'bujie', 7:'tice', 9:'exam2',
+  12:'bujie', 15:'exam3', 19:'tice', 21:'exam3b', 22:'daerjue',
+  24:'bujie', 27:'exam4', 31:'tice', 33:'exam4b',
+  36:'bujie', 39:'exam5', 42:'bujie', 45:'biye'
+};
+
+/* 天赋专属事件：每个天赋 1 个，大一大二优先触发 */
+const TALENT_EVENTS={
+  'te_t_baitan':{t:'食堂新品试吃', d:'食堂二楼的窗口新出了螺蛳粉味火锅，你的饭堂雷达疯狂报警。', o:[
+    {la:'冲！排第一份',r:'你第一个尝鲜，味道居然不错，饭堂阿姨还多给了你一个卤蛋。',eff:{mo:80,hm:5}},
+    {la:'先观望，等风评',r:'你按兵不动，结果晚上就听说吃坏了好几个人，你逃过一劫。',eff:{mo:50,hm:3}},
+    {la:'拉着室友一起冲',r:'室友被你说服，结果他吃不了辣，你只好帮他解决，倒是吃饱了。',eff:{so:4,mo:40}},
+    {la:'自己带饭',r:'你掏出保温盒，在螺蛳粉味的包围中默默吃完了自己的饭。',eff:{mo:10,i:2}}
+  ]},
+  'te_t_nightowl':{t:'凌晨四点的宿舍', d:'半夜一点，你还在床上刷手机，室友的呼噜声震天响。', o:[
+    {la:'继续刷，反正睡不着',r:'你刷到凌晨三点，第二天上课眼皮打架，但夜晚的快乐是真的。',eff:{hm:6,st:6,i:-2}},
+    {la:'数羊入睡',r:'数到第两百只羊你终于睡着，第二天精神尚可。',eff:{hm:2}},
+    {la:'爬起来看书',r:'夜深人静反而效率高，你背了一章英语单词。',eff:{i:4,hm:3}},
+    {la:'给室友录呼噜',r:'你偷偷录下室友的呼噜声，第二天放给他听，全宿舍笑作一团。',eff:{so:5,hm:5}}
+  ]},
+  'te_t_jizhang':{t:'记账本丢了', d:'你的记账本不见了，那可是你精打细算四个月的成果。', o:[
+    {la:'翻遍宿舍找',r:'最后在床缝里找到，虚惊一场，你决定以后用手机记账。',eff:{hm:4}},
+    {la:'凭记忆重建',r:'你靠着惊人记忆重建了账本，发现上个月居然多记了 200 块的账。',eff:{mo:100,i:3}},
+    {la:'无所谓，重新开始',r:'旧账清零，你重新记账，反而更加小心花钱。',eff:{mo:150}},
+    {la:'贴寻物启事',r:'寻物启事贴了三天没人理，你被室友笑称"账房先生"。',eff:{so:3,hm:-2}}
+  ]},
+  'te_t_wendun':{t:'室友大战', d:'两个室友因为空调温度吵起来了，战火即将蔓延到你。', o:[
+    {la:'出面调解',r:'你三言两语把两人劝住，定下空调 26 度公约，室友都服你。',eff:{so:6,hm:5}},
+    {la:'默默关窗',r:'你不动声色把窗户关了，冲突的导火索没了，大家也冷静下来。',eff:{hm:4}},
+    {la:'站队',r:'你站了一边，另一边记恨你，宿舍气氛微妙了好几天。',eff:{so:-4,hm:-3}},
+    {la:'掏钱请奶茶',r:'你请全宿舍喝奶茶，一场大战消弭于无形。',eff:{mo:-60,so:4,hm:3}}
+  ]},
+  'te_t_xiaoxi':{t:'路边捡到学生卡', d:'你在去食堂的路上捡到一张学生卡，卡主人是隔壁班的同学。', o:[
+    {la:'送去失物招领',r:'你专程送到失物招领处，对方后来找到你道谢，还请你喝了杯奶茶。',eff:{m:5,so:4,mo:20}},
+    {la:'交给辅导员',r:'辅导员表扬了你，德育分 +1。',eff:{m:4}},
+    {la:'自己留着用',r:'你试了试，卡里居然有余额，刷了顿午饭，但心里有点过意不去。',eff:{mo:60,m:-4}},
+    {la:'在班群发通知',r:'班群一喊，失主秒回，你收获了一波好感。',eff:{so:5,m:3}}
+  ]},
+  'te_t_renyuan':{t:'社团纳新抢人', d:'学期初社团纳新，你被三个社团同时盯上，都想拉你入伙。', o:[
+    {la:'都加入，雨露均沾',r:'你加了三个社团，忙是忙了点，但人脉广了，处处有人打招呼。',eff:{so:7,hm:4}},
+    {la:'只选最喜欢的',r:'你专注一个社团，很快就混成了骨干。',eff:{so:5}},
+    {la:'全都不加',r:'你婉拒了所有邀请，乐得清闲。',eff:{hm:3,so:-2}},
+    {la:'收下小礼品再拒绝',r:'你拿了人家的定制帆布袋，转头就说课业忙，多少有点心虚。',eff:{mo:30,m:-2}}
+  ]},
+  'te_t_guangai':{t:'新生求助', d:'一个大一新生在群里问学校哪里能办校园卡，你正好路过。', o:[
+    {la:'热心指路',r:'你详细指路还提醒他别被推销骗，新生连声道谢。',eff:{so:4,m:3}},
+    {la:'亲自带他去',r:'你陪他跑了一趟，路上还给他科普了学校周边各种套路。',eff:{so:6,m:4,hm:3}},
+    {la:'线上解答',r:'你打字回复了详细攻略，新生收藏了。',eff:{m:3}},
+    {la:'懒得管',r:'你划走了消息，新生后来被推销的骗了 200 块，你有点愧疚。',eff:{m:-2}}
+  ]},
+  'te_t_zaodushu':{t:'晨读被鸟打断', d:'你在食堂门口晨读英语，一只小鸟落在你头顶的书上。', o:[
+    {la:'继续读，当没看见',r:'你淡定读完一页，小鸟飞走了，路过的同学给你拍了照。',eff:{i:4,hm:4}},
+    {la:'拍照发朋友圈',r:'"鸟爱学习"的图火了，你成了校园红人。',eff:{so:6,hm:5}},
+    {la:'赶走它',r:'小鸟飞走时扑了你一脸灰，周围人笑成一片。',eff:{so:2,hm:-1}},
+    {la:'喂它点面包',r:'你分给它一点早餐，它居然赖着不走了，跟着你回了教学楼。',eff:{hm:6}}
+  ]},
+  'te_t_yexing':{t:'夜跑遇流浪猫', d:'你晚上绕着操场夜跑，一只橘猫蹲在跑道边看你。', o:[
+    {la:'跑过去逗它',r:'橘猫很亲人，你撸了十分钟，心情大好。',eff:{hm:7}},
+    {la:'买了根火腿肠喂它',r:'橘猫从此记住你了，每天等你投喂，你多了个"猫主子"。',eff:{mo:-10,hm:8}},
+    {la:'继续跑，无视',r:'你心无旁骛跑完五公里，体质又涨了一点。',eff:{p:3}},
+    {la:'拍照发动态',r:'夜跑偶遇胖橘的帖子收获一堆赞，还有学姐私聊问猫在哪。',eff:{so:6}}
+  ]},
+  'te_t_mianbao':{t:'限量面包', d:'食堂面包房每天限量 20 个的芝士面包，今天正好你赶上了。', o:[
+    {la:'买两个囤着',r:'你买了两个，晚上一个当夜宵，幸福感拉满。',eff:{mo:-20,hm:6}},
+    {la:'只买一个',r:'你买了一个，把剩下让给别人，后面排队的同学投来感激目光。',eff:{so:3,mo:-8}},
+    {la:'不买了，省点钱',r:'你咽了咽口水走了，省下 8 块钱，但心情有点低落。',eff:{mo:8,hm:-2}},
+    {la:'跟师傅套近乎',r:'你夸师傅手艺好，师傅破例多给了你一个。',eff:{so:4,hm:4,mo:-8}}
+  ]},
+  'te_t_jieyue':{t:'宿舍拼单', d:'室友提议拼单买游戏皮肤，你算了算账，摇摇头。', o:[
+    {la:'劝大家别买',r:'你掏出记账本算给室友看，大家被你劝住了，省了一笔。',eff:{mo:120,so:-2}},
+    {la:'只自己拼单',r:'你买了最便宜的档位，快乐也不打折。',eff:{mo:-30,hm:4}},
+    {la:'拒绝但不扫兴',r:'你笑着拒绝，室友也没强求，你默默把省下的钱存起来。',eff:{mo:100}},
+    {la:'反手安利理财',r:'你给室友科普基金定投，室友一脸震惊，说你是"行走的财经课"。',eff:{so:5,i:3}}
+  ]},
+  'te_t_maiyou':{t:'班委求助', d:'生活委员求你去参加学院趣味运动会，凑个人数。', o:[
+    {la:'答应，卖个萌',r:'你到场比了个心，全场气氛被你带起来，生活委员请你吃饭。',eff:{so:6,hm:5}},
+    {la:'讨价还价',r:'你让生活委员帮你把德育分记上，才答应去。',eff:{so:3,hm:3}},
+    {la:'假装有事',r:'你说要去图书馆，结果被撞见在操场看热闹，尴尬。',eff:{so:-2,hm:-2}},
+    {la:'带一队人去',r:'你拉了一宿舍人去，比赛赢了，你被推举为"气氛组组长"。',eff:{so:8,hm:6}}
+  ]},
+  'te_t_laoshi':{t:'有人找你借钱', d:'隔壁宿舍的同学说有急事，想找你借 200 块，承诺下周还。', o:[
+    {la:'借了',r:'他下周真还了，还多还了 20 块当利息，说你人实在。',eff:{mo:-200,so:4,m:3}},
+    {la:'借一半',r:'你借了 100，说自己也不宽裕，对方表示理解。',eff:{mo:-100,so:2}},
+    {la:'不借，但帮他想办法',r:'你帮他联系了勤工助学中心，他找到了兼职，直夸你靠谱。',eff:{m:6,so:4}},
+    {la:'委婉拒绝',r:'你说生活费都花完了，他只好找别人。',eff:{so:-1}}
+  ]},
+  'te_t_xiaoqingxin':{t:'桌上的奶茶', d:'你回到座位，发现桌上多了一杯没贴标签的奶茶，还温着。', o:[
+    {la:'在班群问谁送的',r:'原来是闺蜜随手带的，你回赠了一盒草莓，友谊升温。',eff:{so:5,hm:6}},
+    {la:'默默喝了',r:'你喝了，还挺甜，心里也甜。',eff:{hm:7}},
+    {la:'不敢喝，怕下药',r:'你放到第二天，发现就是一杯普通奶茶，自己吓自己。',eff:{hm:-1}},
+    {la:'拍照发朋友圈',r:'"神秘人的奶茶"收获一堆评论，室友起哄让你去表白墙表白。',eff:{so:5,hm:4}}
+  ]},
+  'te_t_zhonger':{t:'中二发言现场', d:'你在社团例会上一时激动，喊出了"我将以高达形态出击"，全场安静。', o:[
+    {la:'淡定坐下',r:'你面不改色坐下，反而显得很有范，有人偷偷说你有梗。',eff:{hm:6,so:3}},
+    {la:'尬笑着解释',r:'你越描越黑，场面一度失控，但气氛倒是活跃了。',eff:{so:4,hm:-2}},
+    {la:'乘胜追击，继续中二',r:'你接着念了一段台词，把大家都整笑了，例会变成相声现场。',eff:{so:8,hm:8}},
+    {la:'低头假装无事发生',r:'你沉默了，但大家笑得更欢了。',eff:{so:3}}
+  ]},
+  'te_t_laofei':{t:'肥宅快乐日', d:'周末，室友都出去玩了，宿舍只剩你和一箱零食。', o:[
+    {la:'躺平一整天',r:'刷剧、零食、睡觉，彻底放空，周一满血复活。',eff:{hm:10,p:-1}},
+    {la:'边躺边背单词',r:'你躺着背了两章单词，躺平学习两不误。',eff:{i:4,hm:6}},
+    {la:'约游戏开黑',r:'你拉网友开黑一下午，晚上发现作业还没写。',eff:{hm:8,st:-8}},
+    {la:'大扫除',r:'你把宿舍打扫了一遍，还洗了衣服，成就感满满。',eff:{so:3,p:2,hm:4}}
+  ]},
+  'te_t_tietou':{t:'死磕高数', d:'一道高数证明题卡了你两小时，室友都劝你放弃。', o:[
+    {la:'继续死磕',r:'第三小时你终于做出来了，那种爽感无与伦比。',eff:{i:6,hm:6}},
+    {la:'换思路',r:'你换个角度，十分钟搞定，原来是想复杂了。',eff:{i:5}},
+    {la:'问老师',r:'老师三句话点醒你，还夸你钻研精神好。',eff:{i:5,so:3}},
+    {la:'抄答案睡觉',r:'你抄完就睡，第二天讲题被点名，当场社死。',eff:{i:-3,so:-3}}
+  ]},
+  'te_t_kongtiao':{t:'停电的下午', d:'图书馆突然停电，一片哗然，很多人收拾书包走了。', o:[
+    {la:'换到窗边继续看',r:'你借着自然光看了两小时书，心态稳如老狗。',eff:{st:8,hm:4}},
+    {la:'趁机睡一觉',r:'你在椅子上眯了一觉，来电后神清气爽。',eff:{hm:6}},
+    {la:'回宿舍',r:'你回宿舍躺平，顺便补了个番。',eff:{hm:4,st:-4}},
+    {la:'手机开手电筒',r:'你用手电筒给旁边的同学照明，两人一起学，气氛意外的好。',eff:{so:5,st:6}}
+  ]},
+  'te_t_paobu':{t:'晨跑偶遇体育老师', d:'你晨跑时撞见体育老师也在跑步，他冲你点了点头。', o:[
+    {la:'跟上他的配速',r:'你咬牙跟了三圈，老师说你底子不错，期末体测可以放水。',eff:{p:5,hm:5}},
+    {la:'打个招呼继续跑',r:'你礼貌问好，然后按自己的节奏跑完，舒服。',eff:{p:4}},
+    {la:'停下来聊两句',r:'你陪老师慢走了两圈，听他讲了年轻时当运动员的故事。',eff:{so:4,hm:4}},
+    {la:'假装没看见',r:'你绕了个弯避开，跑了半天发现绕回原点。',eff:{p:2,hm:-1}}
+  ]},
+  'te_t_tushuguan':{t:'占座风波', d:'你早上八点来图书馆占的座，被人占了，对方还理直气壮。', o:[
+    {la:'出示你留的书',r:'你拿出自己留的书，对方讪讪让座，你赢得了座位也守住了规矩。',eff:{hm:5,m:3}},
+    {la:'换一个座位',r:'你懒得争，换到三楼角落，反而更安静，效率更高。',eff:{st:6,hm:2}},
+    {la:'找管理员',r:'管理员出面调解，占座的人被教育了一顿，你顺利入座。',eff:{m:4,so:2}},
+    {la:'坐他对面瞪他',r:'你面无表情坐他对面，他受不了你的气场，自己走了。',eff:{hm:6,so:2}}
+  ]},
+  'te_t_yueguang':{t:'月底钱包告急', d:'月底了，生活费只剩 50 块，还有 4 天才发钱。', o:[
+    {la:'顿顿食堂最便宜的',r:'你靠馒头和豆浆过了四天，瘦了但活下来了。',eff:{mo:-40,hm:-3,p:2}},
+    {la:'找室友蹭饭',r:'你厚着脸皮蹭了四天，室友笑骂你"月光战士"。',eff:{mo:-20,so:3,hm:2}},
+    {la:'临时接个兼职',r:'你跑了一单同城跑腿，赚了 120，顺利度过。',eff:{mo:100,hm:4}},
+    {la:'花呗顶上',r:'你用花呗顶了四天，下个月拆东墙补西墙。',eff:{mo:-60,hm:-2}}
+  ]},
+  'te_t_jianzhi':{t:'奶茶店急招', d:'校门口奶茶店急招周末兼职，时薪 15，你的兼职雷达响了。', o:[
+    {la:'报名',r:'你周末忙了两天，赚了 240，虽然累但钱包鼓了。',eff:{mo:240,p:-2,hm:2}},
+    {la:'介绍室友去',r:'你把这个机会给了室友，室友请你喝了奶茶，人情 +1。',eff:{so:5,mo:30}},
+    {la:'先问清楚再决定',r:'你问清楚排班和待遇，发现要上夜班，果断放弃。',eff:{mo:20}},
+    {la:'兼职+上课连轴转',r:'你周末兼职、周中上课，两周后累趴了，成绩也下滑。',eff:{mo:240,p:-5,st:-6,hm:-4}}
+  ]},
+  'te_t_guangshe':{t:'校园摄影赛', d:'校团委搞了个"桂航四季"摄影赛，一等奖奖金 300 元。', o:[
+    {la:'投稿你的作品',r:'你拍的尧山晨雾拿了二等奖，奖金 150，还上了校报。',eff:{mo:150,so:4,hm:5}},
+    {la:'拍一组参赛',r:'你花了一下午拍了一组，拿了个优秀奖，美滋滋。',eff:{mo:50,hm:4}},
+    {la:'帮别人拍',r:'你帮参赛的同学拍了一组，他拿奖后请你吃饭。',eff:{so:5,mo:30}},
+    {la:'不参加',r:'你觉得没意思，错过了 300 块奖金。',eff:{mo:-50}}
+  ]},
+  'te_t_zizhili':{t:'室友开黑邀请', d:'室友叫你开黑打排位，说就差你一个，而你还有作业没写。', o:[
+    {la:'拒绝，写作业',r:'你写完作业，看了一眼他们连跪的战绩，庆幸自己没上。',eff:{st:10,i:3,hm:4}},
+    {la:'打一把就收',r:'说好一把，结果三连跪到凌晨，第二天上课钓鱼。',eff:{st:-8,hm:4,i:-3}},
+    {la:'边写边开黑',r:'你一心二用，作业质量堪忧，排位也输了。',eff:{st:-4,hm:-2,i:-3}},
+    {la:'看着他们打',r:'你边写作业边当观众，白嫖了快乐，作业也写完了。',eff:{st:8,hm:6}}
+  ]},
+  'te_t_zhuanke':{t:'啃下高数硬骨头', d:'这学期的高数第三章是全书的难点，你决定死磕它。', o:[
+    {la:'逐题刷透',r:'你把课后题全刷了一遍，期末考试高数部分直接碾压。',eff:{i:6,st:8}},
+    {la:'请教老师',r:'老师给你开了小灶，你醍醐灌顶。',eff:{i:6,so:3}},
+    {la:'找网课自学',r:'你刷完一套名师网课，整理了一本笔记。',eff:{i:5,st:6}},
+    {la:'放弃，赌不考',r:'你赌它不考，结果期末大题就是它，你当场傻眼。',eff:{i:-4,hm:-4}}
+  ]},
+  'te_t_tijie':{t:'绝版习题集', d:'二手群里有人出绝版高数习题集，带详解，只要 20 块。', o:[
+    {la:'秒拍',r:'你抢到了，刷完发现考点全在里面，期末稳了。',eff:{mo:-20,i:5,st:6}},
+    {la:'砍价到 15',r:'你砍价成功，卖家直呼你狠，省了 5 块。',eff:{mo:-15,i:4}},
+    {la:'借来复印',r:'你借来复印了一份，省了 20，但被卖家发现后有点尴尬。',eff:{mo:-5,m:-1,i:4}},
+    {la:'不买，用电子版',r:'你在网上找到电子版，零成本拿到手，白嫖的快乐。',eff:{i:4}}
+  ]},
+  'te_t_xiaozhuan':{t:'考场风云', d:'期末考场上，前桌的小抄掉在地上，刚好滚到你脚边。', o:[
+    {la:'捡起来交给监考老师',r:'你如实上交，老师夸你诚实，前桌恨你但不敢发作。',eff:{m:6,so:-2}},
+    {la:'假装没看见',r:'你没动它，但心里七上八下，影响了答题。',eff:{i:-2,hm:-3}},
+    {la:'还给前桌',r:'你悄悄踢回去，前桌感激得差点哭出来。',eff:{so:5,m:-2}},
+    {la:'自己留着',r:'你内心挣扎了半天，最后也没敢看，还差点被老师发现。',eff:{m:-4,hm:-5}}
+  ]},
+  'te_t_yangsheng':{t:'室友邀你熬夜', d:'室友约你通宵赶大作业，还点了炸鸡外卖，而你明天早八有课。', o:[
+    {la:'拒绝，早点睡',r:'你十点半睡下，室友通宵到四点，第二天你精神奕奕。',eff:{p:4,hm:4,st:4}},
+    {la:'陪到十二点就撤',r:'你帮忙改了两个小时，十二点准时睡觉，两全其美。',eff:{st:4,so:3,hm:2}},
+    {la:'一起通宵',r:'你跟着熬到四点，第二天一整天都是废的。',eff:{p:-5,st:-4,so:4,hm:-2}},
+    {la:'炸鸡就寝',r:'你吃了两块炸鸡就睡了，梦里都是香的。',eff:{mo:-15,hm:6}}
+  ]},
+  'te_t_dianmian':{t:'深夜泡面', d:'十一点半，你饿了，宿舍楼下小卖部还开着，泡面+火腿肠是标配。', o:[
+    {la:'经典老坛酸菜',r:'一碗下肚，心满意足，罪恶感略超标。',eff:{mo:-12,hm:7}},
+    {la:'加蛋加肠豪华版',r:'你加了个蛋和一根肠，这顿宵夜堪称完美。',eff:{mo:-20,hm:9}},
+    {la:'忍住不吃',r:'你喝了两口水硬忍过去，第二天早餐吃得特别香。',eff:{mo:12,p:2,hm:-2}},
+    {la:'分室友一半',r:'你煮了两包，分给同样饿的室友，感情 +1。',eff:{mo:-18,so:4,hm:5}}
+  ]},
+  'te_t_zhuanqian':{t:'二手平台倒卖', d:'毕业季，学长学姐甩卖旧书旧货，价格低得离谱，你嗅到了商机。', o:[
+    {la:'低价收，转手卖',r:'你收了 50 块的货，转手在新生群里卖了 200，第一桶金到手。',eff:{mo:200,hm:5}},
+    {la:'只淘自己用的',r:'你淘了两本考研书和一个小台灯，省了 60。',eff:{mo:60}},
+    {la:'收太多砸手里',r:'你收了 200 块的货，结果滞销，只能自用送人。',eff:{mo:-150,hm:-3}},
+    {la:'帮学姐代卖抽成',r:'你帮学姐代卖，抽 10% 佣金，赚了 40，学姐还夸你靠谱。',eff:{mo:40,so:4}}
+  ]},
+  'te_t_shetuan':{t:'社团拉赞助', d:'社团要办晚会，主席让你去校外拉赞助，跑了一下午一无所获。', o:[
+    {la:'换策略，做策划案',r:'你连夜做了份赞助方案，第二天打动了一家奶茶店，拉到 800 块。',eff:{mo:150,so:6,i:4}},
+    {la:'磨破嘴皮子',r:'你磨了一家理发店三天，老板终于答应赞助 300。',eff:{mo:80,so:5,hm:-2}},
+    {la:'找校友企业',r:'你联系上毕业的学长开的公司，轻松拉到 1000。',eff:{mo:200,so:5}},
+    {la:'放弃，众筹',r:'你改用众筹，结果只筹到 60 块，晚会差点开天窗。',eff:{mo:-30,so:-2}}
+  ]},
+  'te_t_duoyi':{t:'迎新晚会缺人', d:'迎新晚会筹备组急缺主持人，文艺部长看中了你的台风。', o:[
+    {la:'接下主持',r:'你主持了整场晚会，虽然紧张但效果炸裂，收获一片掌声。',eff:{so:8,hm:6}},
+    {la:'推荐别人',r:'你推荐了室友，还帮室友排练，室友请你吃了顿饭。',eff:{so:5}},
+    {la:'报名表演节目',r:'你上台弹了首吉他，迷倒一片新生。',eff:{so:7,hm:7}},
+    {la:'拒绝',r:'你社恐发作拒绝了，后来听说现场很嗨，有点后悔。',eff:{so:-1,hm:-2}}
+  ]},
+  'te_t_lanzhang':{t:'院队招新', d:'学院篮球队招新，队长看你运球不错，想拉你进队。', o:[
+    {la:'加入，好好打',r:'你进了院队，训练很累但球技大涨，还拿了院际赛亚军。',eff:{p:6,so:6,hm:4}},
+    {la:'加入但打替补',r:'你进了队但主力太多，你成了气氛组成员，跟队混了个奖。',eff:{p:3,so:4}},
+    {la:'婉拒',r:'你说要专注学业，队长表示理解。',eff:{i:3,st:4}},
+    {la:'当经理',r:'你申请当球队经理，管后勤记数据，也混熟了整个队。',eff:{so:6,p:2}}
+  ]},
+  'te_t_zhengzhi':{t:'代点名诱惑', d:'室友让你帮他代点名，说老师查得松，还答应请你喝奶茶。', o:[
+    {la:'拒绝，劝他自己去',r:'你说这是诚信问题，室友悻悻去了，事后想想觉得你说得对。',eff:{m:6,hm:3}},
+    {la:'帮一次',r:'你帮他点了名，结果老师正好抽查学号，你俩双双被记缺勤。',eff:{m:-4,so:-2}},
+    {la:'让他请病假',r:'你建议他走正规流程请病假，他照做了，老师批了。',eff:{m:4,so:3}},
+    {la:'反手举报',r:'你举报了代点名，室友被谈话，关系降到冰点。',eff:{m:5,so:-8}}
+  ]},
+  'te_t_zuowang':{t:'自习室座位', d:'你常去的自习室那个靠窗座位，今天被一个陌生同学坐了。', o:[
+    {la:'换别的座位',r:'你换了前排，发现视野更好，新座位就此固定。',eff:{st:6,hm:2}},
+    {la:'站在旁边等',r:'你站着看了二十分钟，对方不好意思地让了座。',eff:{st:4,hm:3,so:-1}},
+    {la:'放本书预约明天',r:'你放了本书占座，明天稳坐王座。',eff:{st:4}},
+    {la:'和对方拼桌',r:'你坐他对面，两人相视一笑，成了固定研友。',eff:{so:6,st:6}}
+  ]},
+  'te_t_yinyang':{t:'被怼之后', d:'社团里有人当众阴阳你"就你事多"，你平时也是个阴阳怪气惯犯。', o:[
+    {la:'正面回怼',r:'你一句"我事多我做事，你话多你干嘛"把他噎住，全场憋笑。',eff:{so:4,hm:6,m:-2}},
+    {la:'微笑点头',r:'你笑着点头说"你说得对"，反而让他下不来台。',eff:{hm:5,so:2}},
+    {la:'不理会',r:'你继续做自己的事，他自讨没趣。',eff:{hm:4,m:2}},
+    {la:'私下找他聊',r:'你私下问他对你有啥意见，两人把话说开，居然成了朋友。',eff:{so:6,m:3}}
+  ]},
+  'te_t_zaoligui':{t:'早八占座', d:'早八的课，你七点二十就到教室，占了第一排的黄金位置。', o:[
+    {la:'给室友也占两个',r:'室友踩着铃声冲进教室，看见你占的座感动得不行。',eff:{so:5}},
+    {la:'自己独享',r:'第一排听课效果拉满，你笔记记得飞起。',eff:{i:5,st:6}},
+    {la:'帮喜欢的同学占',r:'你把旁边位置留给那个同学，TA 坐下时你心跳加速。',eff:{so:6,hm:6}},
+    {la:'占完睡觉',r:'你占完第一排结果睡着了，老师讲课声成了你的白噪音。',eff:{st:-4,hm:2}}
+  ]},
+  'te_t_zhengjiu':{t:'收作业风波', d:'学委让你帮忙收作业，结果有个同学说"忘带了"。', o:[
+    {la:'如实上报',r:'你如实汇报，那同学被老师点名，他记了你一笔。',eff:{m:3,so:-2}},
+    {la:'帮他圆场',r:'你帮他打掩护说晚点交，他补交后请你喝了奶茶。',eff:{so:5,m:-1}},
+    {la:'借他抄一份',r:'你借他抄了，他感激涕零，但你知道这不对。',eff:{so:4,m:-4}},
+    {la:'等他补完再交',r:'你陪他等到下午补完才交，老师还夸你们认真。',eff:{m:4,so:4}}
+  ]},
+  'te_t_guomuwang':{t:'考前突击', d:'考试周，别人都在疯狂复习，而你因为平时过目不忘，还比较淡定。', o:[
+    {la:'带室友一起过重点',r:'你给室友划了重点，他考完请你吃了顿大餐。',eff:{so:5,i:3,hm:5}},
+    {la:'自己刷题保持手感',r:'你刷了两套卷子，手感火热。',eff:{i:5,st:4}},
+    {la:'帮隔壁班补课',r:'你收了 50 块帮隔壁班同学补了两小时课。',eff:{mo:50,i:3,so:3}},
+    {la:'躺平看剧',r:'你看了一天剧，晚上梦见自己挂科，吓出一身冷汗。',eff:{hm:4,i:-2}}
+  ]},
+  'te_t_tieda':{t:'流感季', d:'最近流感大爆发，半个班都中招了，你身边的人接二连三倒下。', o:[
+    {la:'戴口罩加锻炼',r:'你每天晨跑+口罩加持，整个流感季安然无恙。',eff:{p:5,hm:3}},
+    {la:'去探望生病的室友',r:'你给室友送了药和粥，他感动得鼻子都红了。',eff:{so:6,m:4}},
+    {la:'仗着身体好裸奔',r:'你连口罩都不戴，结果流感季快结束时还是中招了。',eff:{p:-4,mo:-100,hm:-5}},
+    {la:'当志愿者',r:'你报名了校医院志愿者，帮忙分药测温，加了志愿时长。',eff:{m:5,so:4,p:2}}
+  ]},
+  'te_t_fugui':{t:'家里又打钱', d:'家里又给你打了 2000 生活费，备注："别饿着自己"。', o:[
+    {la:'存起来',r:'你把它存进理财，钱生钱才是王道。',eff:{mo:2000,i:2}},
+    {la:'请大家吃饭',r:'你请宿舍搓了一顿火锅，气氛热烈。',eff:{mo:-600,so:6,hm:6}},
+    {la:'买新装备',r:'你换了新键盘，打游戏手感飞起。',eff:{mo:-800,hm:6}},
+    {la:'给爸妈买礼物',r:'你给爸妈各买了一件保暖衣，视频里他们笑得合不拢嘴。',eff:{mo:-400,m:6,hm:5}}
+  ]},
+  'te_t_liaojie':{t:'心动信号', d:'你在社团活动上和一个异性搭档，TA 看你的时候，你感觉心跳漏了一拍。', o:[
+    {la:'主动加微信',r:'你鼓起勇气加了微信，聊到半夜，感觉有戏。',eff:{so:6,hm:8}},
+    {la:'旁敲侧击',r:'你向 TA 的朋友打听 TA 的情况，结果传得满社团都知道了。',eff:{so:3,hm:-2}},
+    {la:'写作业转移注意力',r:'你化心动为学习，刷了一晚上题。',eff:{st:8,hm:-2}},
+    {la:'约 TA 一起自习',r:'你约 TA 去图书馆，两人并肩学习，暧昧值飙升。',eff:{so:7,hm:8,st:4}}
+  ]},
+  'te_t_zonghe':{t:'跨专业蹭课', d:'你听说隔壁电子信息专业有个老师讲课特别好，想去蹭课。', o:[
+    {la:'去蹭课',r:'你蹭了一学期，视野大开，还认识了几个工科大佬。',eff:{i:6,so:4,hm:4}},
+    {la:'带同学一起去',r:'你拉了三个同学去蹭课，你们组了个跨专业学习小组。',eff:{so:7,i:5}},
+    {la:'只蹭一节感受下',r:'你蹭了一节，发现听不懂，果断放弃。',eff:{i:1}},
+    {la:'在宿舍看网课',r:'你找了大佬的公开课自己刷，也不错。',eff:{i:5}}
+  ]},
+  'te_t_lianxiang':{t:'背单词奇招', d:'四级单词背了忘、忘了背，你决定用联想记忆法整活。', o:[
+    {la:'谐音梗记忆',r:'"ambulance——俺不能死"这类梗你记了 100 个，居然记得很牢。',eff:{i:5,st:6}},
+    {la:'编故事串联',r:'你把单词编进一个离奇故事，室友听完说你是"记忆鬼才"。',eff:{i:6,so:3}},
+    {la:'画图记忆',r:'你给每个单词配了灵魂画作，画风清奇但很有效。',eff:{i:5,hm:5}},
+    {la:'死记硬背',r:'你回归传统，背到打瞌睡。',eff:{i:2,hm:-2}}
+  ]},
+  'te_t_bingshan':{t:'冬天的冷水澡', d:'冬天了，你决定贯彻"冰水浴勇士"的人设，挑战冷水澡。', o:[
+    {la:'咬牙冲',r:'你洗完出来浑身通红，大喊"爽"，室友看你的眼神像看疯子。',eff:{p:5,hm:6,so:2}},
+    {la:'温水起步渐进',r:'你从温水逐步调冷，洗了个"勇士入门版"。',eff:{p:3,hm:3}},
+    {la:'怂了，热水澡',r:'你站在花洒下犹豫十分钟，最后开了热水，舒服。',eff:{hm:4,p:1}},
+    {la:'拉室友一起',r:'你怂恿室友一起，结果他尖叫着冲出浴室，你笑了三天。',eff:{so:6,hm:8}}
+  ]},
+  'te_t_wushu':{t:'武术社表演', d:'校庆晚会，武术社要出一个表演节目，社长请你压轴。', o:[
+    {la:'上台表演套路',r:'你一套长拳打下来虎虎生风，掌声雷动，你成了校园"武打明星"。',eff:{p:4,so:7,hm:7}},
+    {la:'表演兵器',r:'你舞了一趟剑，道具剑差点脱手，但好在稳稳接住了。',eff:{so:5,p:3,hm:4}},
+    {la:'当幕后指导',r:'你指导学弟学妹排练，节目拿了最佳表演奖。',eff:{so:5,p:2}},
+    {la:'拒绝上台',r:'你嫌麻烦，说学业忙，社长遗憾地换了人。',eff:{so:-2}}
+  ]},
+  'te_t_touzi':{t:'基金大跌', d:'你买的基金跌了 8%，群里哀嚎一片，你手里也有 1000 块在里面。', o:[
+    {la:'定投加仓',r:'你坚信长期主义，加仓 200，后来果然回暖。',eff:{mo:150,i:3,hm:2}},
+    {la:'割肉离场',r:'你止损离场，保住本金，虽然亏了 80，但睡了个好觉。',eff:{mo:-80,hm:3}},
+    {la:'装死不动',r:'你选择躺平不看，三个月后居然涨回来了。',eff:{mo:100,hm:-2}},
+    {la:'研究财报',r:'你花了两周研究这家公司，发现它基本面没问题，坚定了持有。',eff:{i:6,mo:120}}
+  ]},
+  'te_t_diangong':{t:'宿舍断电', d:'宿舍电路跳闸，全楼摸黑，宿管大爷说电工要明天才来。', o:[
+    {la:'自己修',r:'你检查了配电箱，发现是空气开关老化，跟宿管要了个新的换上，来电了。',eff:{p:3,so:5,hm:5}},
+    {la:'打电话报修',r:'你连环 call 报修，电工两小时就到了，室友夸你靠谱。',eff:{so:3}},
+    {la:'点蜡烛摆烂',r:'你们点蜡烛打牌到半夜，挺浪漫，就是第二天全宿舍都黑眼圈。',eff:{hm:5,so:4,p:-1}},
+    {la:'去图书馆蹭电',r:'你抱着电脑去图书馆自习到闭馆。',eff:{st:6,i:3}}
+  ]},
+  'te_t_huiy':{t:'火车上搭讪', d:'回家火车上，你旁边坐了个同校的学长，气氛沉默。', o:[
+    {la:'主动破冰',r:'你从学校美食聊到尧山日出，聊了一路，学长下车时加了你微信。',eff:{so:7,hm:6}},
+    {la:'分享零食',r:'你递过去一包薯片，两人就着零食聊开了。',eff:{so:6,hm:5}},
+    {la:'安静看窗外',r:'你俩沉默了一路，下车时学长给了你一张学校生存指南纸条。',eff:{so:3,i:2}},
+    {la:'睡觉',r:'你睡了一路，醒来发现靠学长肩膀上了，尴尬但暖和。',eff:{hm:3,so:3}}
+  ]},
+  'te_t_zuzhi':{t:'班级团建', d:'辅导员让你组织一次班级团建，预算只有 300 块。', o:[
+    {la:'尧山野餐',r:'你组织大家去尧山野餐，成本 250，全班玩得开心，班级凝聚力大涨。',eff:{so:8,hm:6,mo:-250}},
+    {la:'狼人杀局',r:'你在教室搞了场狼人杀，零成本，效果意外的好。',eff:{so:7,hm:7}},
+    {la:'拉赞助办烧烤',r:'你找了家烧烤店赞助，全班免费吃，老板也赚了人气。',eff:{so:8,mo:100,i:3}},
+    {la:'糊弄了事',r:'你发了条通知说"自由活动"，结果被全班吐槽。',eff:{so:-5}}
+  ]},
+  'te_t_haoyun':{t:'抽奖中奖', d:'食堂门口在做活动，扫码抽奖，人人有奖，最高奖是一学期奶茶券。', o:[
+    {la:'扫码抽',r:'你抽中了一等奖——奶茶券！室友说你手气逆天。',eff:{mo:300,hm:8}},
+    {la:'帮同学抽',r:'你帮三个同学抽，全中了小奖，他们叫你"锦鲤本鲤"。',eff:{so:7,hm:6}},
+    {la:'不凑热闹',r:'你嫌人多没抽，后来听说一等奖被人抽走了，有点小后悔。',eff:{hm:-2}},
+    {la:'抽完把券卖了',r:'你把奶茶券 8 折卖了，换了现金，精打细算。',eff:{mo:240}}
+  ]},
+  'te_t_jingji':{t:'数模赛报名', d:'全国大学生数学建模竞赛开始报名，组队费 100，队友还没着落。', o:[
+    {la:'组队参赛',r:'你和两个同学通宵三天，拿了省二等奖，简历上添了浓墨重彩的一笔。',eff:{i:7,so:5,hm:4,p:-3}},
+    {la:'当指导学长',r:'你给学弟的队伍当指导，他们拿奖后请你吃了顿好的。',eff:{i:4,so:5,mo:60}},
+    {la:'报名但摸鱼',r:'你划水三天，队友累成狗，拿了个参与奖，你有点愧疚。',eff:{m:-3,i:2}},
+    {la:'不参加',r:'你拒绝了，觉得太累，后来看别人拿奖又羡慕。',eff:{hm:-3}}
+  ]},
+  'te_t_tianfu':{t:'老师点名难题', d:'课堂上老师出了一道超纲题，全班鸦雀无声，老师看向了你。', o:[
+    {la:'站起来解答',r:'你条理清晰地讲完，全班鼓掌，老师说你"有点东西"。',eff:{i:5,so:6,hm:7}},
+    {la:'小声提示同桌',r:'你给同桌递了个思路，同桌答对了，老师表扬了你俩。',eff:{so:5,i:3}},
+    {la:'低头装死',r:'你假装在翻书，被老师点名后硬着头皮答了个七七八八。',eff:{i:2,hm:-2}},
+    {la:'下课后找老师深聊',r:'你和老师聊了半小时专业前沿，收获满满。',eff:{i:6,so:4}}
+  ]},
+  'te_t_jinli':{t:'刮刮乐', d:'彩票店门口，同学撺掇你刮一张 10 块的刮刮乐。', o:[
+    {la:'刮一张',r:'你刮出 100 块！同学眼睛都直了，你请他们喝了奶茶。',eff:{mo:90,hm:8,so:4}},
+    {la:'刮两张',r:'你刮出 20 块，勉强回本，但过程很刺激。',eff:{mo:0,hm:5}},
+    {la:'劝同学别买',r:'你拦住了要买 50 块的同学，他后来谢谢你省了钱。',eff:{m:4,so:3}},
+    {la:'不买',r:'你摇摇头走了，错过了一次暴富机会（也可能错过一次坑）。',eff:{mo:10,hm:2}}
+  ]},
+  'te_t_yanjiu':{t:'大创项目', d:'大学生创新创业项目申报开始了，你有个不成熟的想法，想试试。', o:[
+    {la:'拉团队申报',r:'你组了个 5 人队，项目获批校级立项，还有 2000 经费。',eff:{i:7,so:5,mo:500,hm:5}},
+    {la:'先做调研',r:'你花了两周调研，发现你想法太天真，但方向找到了。',eff:{i:6,st:6}},
+    {la:'蹭学姐的队',r:'你加入了学姐的项目组打下手，混了个组员署名。',eff:{so:4,i:3}},
+    {la:'算了，太麻烦',r:'你放弃了，后来听说获批的队伍经费挺多，有点后悔。',eff:{hm:-3}}
+  ]},
+  'te_t_zhongjiang':{t:'体彩店', d:'校门口新开了一家体彩店，开业活动买一送一。', o:[
+    {la:'买一张试试',r:'你中了 50 块，虽然不多，但"买一送一"的白嫖感很爽。',eff:{mo:40,hm:6}},
+    {la:'拉室友合买',r:'你和室友凑钱合买了一张 20 的，中了 100，平分。',eff:{mo:30,so:5,hm:6}},
+    {la:'只围观',r:'你看着别人中奖，手痒但忍住了，守住了钱包。',eff:{mo:20}},
+    {la:'连买五张',r:'你上头买了五张，只中了 10 块，血亏 90。',eff:{mo:-90,hm:-5,m:-2}}
+  ]},
+  'te_t_yin':{t:'拒绝无效社交', d:'一个不熟的社团约你晚上聚餐 AA，你其实想去看书。', o:[
+    {la:'婉拒，去自习',r:'你推掉聚餐，在图书馆看完了一章专业课，内心平静。',eff:{st:8,i:4,hm:4}},
+    {la:'去坐一会儿就撤',r:'你坐了半小时，喝了杯饮料就溜了，给了面子也不亏。',eff:{so:3,mo:-30}},
+    {la:'参加',r:'你全程尬聊，回来只觉得累。',eff:{so:2,mo:-60,hm:-3}},
+    {la:'在宿舍独处',r:'你窝在宿舍泡茶听歌，享受独处时光。',eff:{hm:7}}
+  ]},
+  'te_t_sifang':{t:'多个赚钱路子', d:'这学期你同时有家教、跑腿、代取快递三个兼职路子，时间冲突了。', o:[
+    {la:'都接，全都要',r:'你一周排得满满当当，月底数钱数到手软，但人也快散架。',eff:{mo:800,p:-5,hm:-3}},
+    {la:'只留最赚的家教',r:'你推掉两个，专注家教，赚得不比别人少还轻松。',eff:{mo:500,i:3,hm:3}},
+    {la:'分给室友',r:'你把跑腿单子分给室友，两人一起赚，还处好了关系。',eff:{mo:400,so:6}},
+    {la:'全推掉，休息',r:'你这周躺平了，觉得赚钱什么时候都行，身体要紧。',eff:{hm:6,p:2,mo:-300}}
+  ]},
+  'te_t_tianming':{t:'顺到离谱的一天', d:'今天你出门踩到狗屎但没踩实、食堂阿姨多打菜、捡到 10 块钱、抽奖又中了一杯奶茶。', o:[
+    {la:'享受这份幸运',r:'你把这天过成了小确幸合集，发了个"被命运眷顾"的朋友圈。',eff:{hm:10,so:4,mo:50}},
+    {la:'把幸运分给别人',r:'你把奶茶送给了没中奖的同学，他说你是"行走的锦鲤"。',eff:{so:7,m:3,hm:6}},
+    {la:'淡定，日常操作',r:'你见怪不怪，这份淡然反而让你显得很稳。',eff:{hm:6,i:2}},
+    {la:'趁运气买彩票',r:'你趁热打铁买了张彩票，没中，但也不亏心态。',eff:{mo:-10,hm:3}}
+  ]},
+  'te_t_fu2':{t:'被室友发现有钱', d:'你下单了一个两万的镜头，室友瞄到了付款页面，空气突然安静。', o:[
+    {la:'低调解释',r:'你说家里做点小生意，请大家吃饭封口，宿舍其乐融融。',eff:{mo:-500,so:6,hm:5}},
+    {la:'大大方方承认',r:'你坦荡承认，还请大家吃了顿自助，从此你就是宿舍"金主爸爸"。',eff:{mo:-800,so:8,hm:7}},
+    {la:'假装看错了',r:'你说是别人发的链接，演技拙劣，室友笑而不语。',eff:{so:2,hm:3}},
+    {la:'凡尔赛一下',r:'你凡尔赛了一句"也就一个月的零花钱"，收获一片白眼。',eff:{so:-3,hm:4}}
+  ]}
+};
+Object.assign(EVENTS, TALENT_EVENTS);
+const TALENT_IDS=Object.keys(TALENT_EVENTS).map(function(id){ return id.slice(3); });
+
+/* 四线专属事件：大三起按路线强相关（每条线 12 个，覆盖大三到大四各学期） */
+const LINE_EVENTS={
+  /* ---------------- 考研线 ---------------- */
+  'kaoyan6':{t:'择校纠结', d:'该定目标院校了：冲 985 还是稳一档？考研群里吵翻了天。', o:[
+    {la:'冲顶尖 985',r:'你报了北京那所名校，目标高了，动力也足了。',eff:{i:3,st:8,hm:3},f:'goal:kaoyan'},
+    {la:'求稳选 211',r:'你选了所稳妥的 211，压力小些，胜算更大。',eff:{st:6,hm:4}},
+    {la:'跟研友报同一所',r:'你们约好一起上岸，互相监督，进度飞快。',eff:{so:5,st:6}},
+    {la:'再纠结一周',r:'你拖了一周才定，时间白白流走，有点焦虑。',eff:{st:-3,hm:-4}}
+  ]},
+  'kaoyan7':{t:'数学强化班', d:'暑期前的数学强化班开课了，1980 块，报不报？', o:[
+    {la:'报！知识无价',r:'你肉疼地刷了卡，但老师讲得确实好，思路一下子通了。',eff:{mo:-1980,i:6,st:8}},
+    {la:'找网盘版',r:'你搞到了往期录播，省了 1980，效果打了个八折。',eff:{i:4,st:5,m:-1}},
+    {la:'自学啃教材',r:'你跟着教材死磕，进度慢但扎实。',eff:{i:4,st:6,mo:1980}},
+    {la:'跟室友拼课',r:'你和室友合报，两人凑钱各付一半，还能对答案。',eff:{mo:-990,so:4,st:6}}
+  ]},
+  'kaoyan8':{t:'暑假留校', d:'暑假的图书馆只有考研人。宿舍空荡荡，食堂只开一个窗口。', o:[
+    {la:'按计划学到闭馆',r:'你每天朝八晚十，暑假进度条拉满。',eff:{st:12,i:5,hm:-2}},
+    {la:'学三天玩一天',r:'劳逸结合，效率反而更高。',eff:{st:9,hm:4}},
+    {la:'回家待了两周',r:'回家的日子太舒服，回来发现进度落后一大截。',eff:{hm:6,st:-8}},
+    {la:'组个留校学习小组',r:'你拉了四个留校的同学，互相监督打卡。',eff:{so:6,st:10}}
+  ]},
+  'kaoyan9':{t:'研友内卷', d:'研友说他数学已经刷完三遍了，你才过一遍，心态有点崩。', o:[
+    {la:'按自己节奏来',r:'你稳住心态，质量比数量重要，按计划走。',eff:{st:6,hm:4}},
+    {la:'连夜加练',r:'你熬了两夜赶进度，进度追上但身体垮了。',eff:{st:8,p:-5,hm:-4}},
+    {la:'向他请教方法',r:'你问了他用的资料，发现他进度快是因为只刷题不总结，你吸取教训。',eff:{i:4,st:4}},
+    {la:'屏蔽他的进度',r:'你把他朋友圈屏蔽了，眼不见心不烦。',eff:{hm:6,st:3}}
+  ]},
+  'kaoyan10':{t:'秋招诱惑', d:'同学拿了华为的 offer，年薪 20 万起步，他劝你"考研风险太大，不如工作"。', o:[
+    {la:'坚定考研',r:'你笑了笑，说"我赌一次更好的自己"，继续啃书。',eff:{i:3,st:8,hm:2}},
+    {la:'投两家试试水',r:'你投了两家，拿到一个实习 offer，但最终还是决定考研。',eff:{mo:800,st:-4,hm:2}},
+    {la:'动摇了',r:'你犹豫了一周，看书都看不进去，最后想通了：先考研，失败再工作。',eff:{st:-6,hm:-5,i:2}},
+    {la:'和研友互相打气',r:'你们约好"谁先放弃谁请火锅"，继续并肩作战。',eff:{so:6,st:6,hm:4}}
+  ]},
+  'kaoyan11':{t:'冲刺营报名', d:'国庆冲刺集训营，4980 包住宿，名师全程带练，报不报？', o:[
+    {la:'报，最后搏一把',r:'集训营节奏很猛，你跟着练了十天，水平肉眼可见地涨。',eff:{mo:-4980,i:6,st:10}},
+    {la:'自己定冲刺计划',r:'你按真题规划了冲刺表，省钱但自律要求高。',eff:{st:8,i:3,mo:4980}},
+    {la:'只报政治冲刺',r:'你单报了政治押题冲刺，针对性补弱。',eff:{mo:-1500,i:3,st:4}},
+    {la:'躺平随缘',r:'你心态佛系，觉得"尽人事听天命"，进度一般。',eff:{hm:4,st:-4}}
+  ]},
+  'kaoyan12':{t:'报名确认', d:'研招网报名最后一天，你对着系统反复确认了三遍。', o:[
+    {la:'确认无误，截图留念',r:'你截图发了朋友圈："桂航到北航的距离，明年见。"',eff:{hm:7,i:2,so:3}},
+    {la:'再改一次志愿',r:'你临门一脚改了个更稳的学校，心里踏实了。',eff:{hm:4,st:3}},
+    {la:'紧张到手抖',r:'你反复核对到凌晨，第二天黑眼圈重得像熊猫。',eff:{st:2,hm:-3,p:-1}},
+    {la:'帮研友也确认',r:'研友系统出问题，你帮他确认了，他感动得快哭了。',eff:{so:6,m:4}}
+  ]},
+  'kaoyan13':{t:'政治押题', d:'政治冲刺资料满天飞，市面上至少五种"最后三套卷"。', o:[
+    {la:'全买，广撒网',r:'你买了三种，刷到脑子冒烟，但考点确实覆盖全了。',eff:{mo:-300,i:4,st:5}},
+    {la:'只买最权威的',r:'你认准一套精刷，吃透比刷多更重要。',eff:{mo:-100,i:4}},
+    {la:'看研友的',r:'你借研友的看，省了钱但心里不踏实。',eff:{mo:200,i:2,hm:-2}},
+    {la:'自己整理时政',r:'你自己总结了全年的时政热点，梳理成 10 页笔记。',eff:{i:6,st:6}}
+  ]},
+  'kaoyan14':{t:'寒假闭关', d:'过年了，家里热闹，你在房间挂上"闭关修炼"的牌子。', o:[
+    {la:'陪家人吃顿年夜饭再闭关',r:'你吃了一顿团圆饭，然后安心闭关，效率爆表。',eff:{hm:8,st:8}},
+    {la:'全程闭关',r:'你大年初一都在刷题，家人心疼但支持。',eff:{st:10,i:4,hm:-2}},
+    {la:'被亲戚问怕了',r:'"考得上吗""报的哪"问得你头皮发麻，你索性躲进图书馆。',eff:{st:5,hm:-5}},
+    {la:'和研友线上对练',r:'你们每天线上对一套题，寒假没掉队。',eff:{so:4,st:8}}
+  ]},
+  'kaoyan15':{t:'考前焦虑', d:'离考试还有两周，你开始失眠，梦见自己在考场上交了白卷。', o:[
+    {la:'调整作息，正常复习',r:'你按考试时间表作息，把生物钟调到考试模式。',eff:{p:3,st:5,hm:3}},
+    {la:'拼命刷题麻痹自己',r:'你刷题刷到凌晨，疲惫但心里稍微踏实。',eff:{st:6,p:-4,hm:-2}},
+    {la:'找心理老师聊聊',r:'你去了心理咨询室，聊完轻松不少，老师还教了呼吸法。',eff:{hm:8,p:2}},
+    {la:'和研友互相打气',r:'你们约在操场走了一圈，聊了聊考完后的计划。',eff:{hm:8,so:5}}
+  ]},
+  'kaoyan16':{t:'模拟考失利', d:'最后一次模拟考，你数学只考了 80 分，比上次低了 15 分。', o:[
+    {la:'复盘错题',r:'你发现是时间分配问题，针对性练了套题，找回手感。',eff:{i:5,st:6,hm:3}},
+    {la:'心态崩了',r:'你丧了一整天，研友拉你去吃了顿火锅，满血复活。',eff:{hm:7,so:4,st:-2}},
+    {la:'降低目标',r:'你把目标学校下调了一档，心里有底了。',eff:{hm:6,st:4}},
+    {la:'找老师诊断',r:'你拿着卷子找数学老师，他帮你分析出三个失分点。',eff:{i:6,st:5}}
+  ]},
+  'kaoyan17':{t:'考场两天', d:'两天四科，你坐在考场里，笔尖划过答题卡的声音像雨声。', o:[
+    {la:'稳定发挥',r:'你按平时节奏写完每一科，走出考场时松了口气。',eff:{i:4,hm:6},f:'gk:25'},
+    {la:'超常发挥',r:'你状态神勇，大题全都见过类似题型。',eff:{i:6,hm:8},f:'gk:40'},
+    {la:'有一科考砸了',r:'英语没写完，你出来时脸都白了，但尽力了。',eff:{hm:-5,i:1},f:'gk:10'},
+    {la:'心态躺平',r:'你抱着"考完就是胜利"的心态，反而轻松。',eff:{hm:5},f:'gk:15'}
+  ]},
+  /* ---------------- 考公线 ---------------- */
+  'gongkao4':{t:'报班纠结', d:'考公机构课从 2000 到 3 万不等，室友报了最贵的"保过班"。', o:[
+    {la:'报个 3000 的基础班',r:'你报了网课基础班，跟着系统过了一遍行测申论。',eff:{mo:-3000,i:4,st:6},f:'gk:5'},
+    {la:'自学+刷题',r:'你买了教材和真题自己啃，省钱但开头有点迷茫。',eff:{i:3,mo:3000},f:'gk:2'},
+    {la:'拼室友的课',r:'你蹭室友的课看录播，两人一起学，他请你吃饭。',eff:{so:4,mo:-500},f:'gk:3'},
+    {la:'先观望',r:'你决定先刷两周真题再决定，避免冲动消费。',eff:{i:2,hm:2}}
+  ]},
+  'gongkao5':{t:'行测刷题', d:'行测 120 题 120 分钟，你第一次模考只做了 90 题，正确率还不到一半。', o:[
+    {la:'每天一套，雷打不动',r:'你连刷 30 天，速度提上来，正确率也稳了。',eff:{i:5,st:8,hm:3},f:'gk:8'},
+    {la:'专项突破弱项',r:'你专攻资料分析和判断推理，这两块正确率冲到了 85%。',eff:{i:6,st:6},f:'gk:6'},
+    {la:'只刷不总结',r:'你刷题如流水，但错题照样错，原地踏步。',eff:{st:4,i:1}},
+    {la:'找技巧视频',r:'你看了一堆"秒杀技巧"，正确率忽高忽低。',eff:{i:2,hm:-2}}
+  ]},
+  'gongkao6':{t:'暑期集训', d:'暑假的封闭集训班在临桂开班，早七晚十，班主任盯梢。', o:[
+    {la:'报名参加',r:'你熬过了 21 天集训，行测模考从 55 提到 68。',eff:{mo:-6000,i:6,st:10,p:-3},f:'gk:12'},
+    {la:'线上跟直播',r:'你线上跟完整个暑期课，省了住宿费。',eff:{mo:-2000,i:4,st:8},f:'gk:6'},
+    {la:'自己制定魔鬼计划',r:'你给自己排了张时间表，严格执行，暑期效率拉满。',eff:{st:10,i:4,hm:-2},f:'gk:5'},
+    {la:'暑期打工赚钱',r:'你暑假去打工赚了 3000，但考公进度几乎为零。',eff:{mo:3000,st:-8,hm:2}}
+  ]},
+  'gongkao7':{t:'申论瓶颈', d:'申论大作文你写了三篇，都是 40 分上下，评语"立意平庸"。', o:[
+    {la:'背时政金句',r:'你背了 50 条金句，作文分涨到 55。',eff:{i:4,st:6},f:'gk:5'},
+    {la:'找老师精批',r:'你花 500 块请了申论批改，老师逐句帮你改，思路打开了。',eff:{mo:-500,i:5},f:'gk:6'},
+    {la:'抄范文模仿',r:'你模仿了三篇高分范文的骨架，结构明显规范了。',eff:{i:4,st:4},f:'gk:3'},
+    {la:'不写大作文了',r:'你逃避作文，只练小题，考场上肯定要吃亏。',eff:{st:-3,i:-1}}
+  ]},
+  'gongkao8':{t:'岗位选择', d:'国考岗位表出来了：好岗位竞争比 1:300，差一点的 1:20。', o:[
+    {la:'冲热门岗位',r:'你报了税务系统热门岗，150 人争一个，压力山大。',eff:{hm:-4,st:6},f:'gk:3'},
+    {la:'选竞争小的',r:'你选了个县级岗位，胜算大很多，家人也支持。',eff:{hm:5,st:5},f:'gk:5'},
+    {la:'报老家岗位',r:'你报了桂林周边县的岗位，想着"上岸离家近"。',eff:{hm:6,st:4},f:'gk:4'},
+    {la:'犹豫不决',r:'你纠结到报名截止前一天才定，白白少复习一周。',eff:{st:-4,hm:-3}}
+  ]},
+  'gongkao9':{t:'国考报名', d:'国考报名通道开启，你坐在电脑前，手指悬在"提交"键上。', o:[
+    {la:'果断提交',r:'你提交了，心怦怦跳，终于迈出第一步。',eff:{hm:5,st:4},f:'gk:5'},
+    {la:'再检查一遍材料',r:'你核对完证件照和报名表，确认无误才提交。',eff:{i:2,hm:2}},
+    {la:'被审核打回',r:'你的照片不合规被退回，你连夜重拍，有惊无险。',eff:{hm:-3,i:1}},
+    {la:'帮同学也报了',r:'同学电脑坏了，你帮他报了，他说请你吃螺蛳粉。',eff:{so:5,m:3}}
+  ]},
+  'gongkao10':{t:'国考冲刺', d:'离国考还有 10 天，你的行测模考稳定在 70 分，申论 58。', o:[
+    {la:'全真模拟',r:'你按考试时间全真模拟了 5 套卷，考场心态稳了。',eff:{i:5,st:8,hm:3},f:'gk:8'},
+    {la:'刷错题本',r:'你把三本错题本翻烂，把易错点全部回炉。',eff:{i:5,st:6},f:'gk:5'},
+    {la:'熬夜加练',r:'你熬到两点，第二天模考状态全无。',eff:{st:4,p:-4,hm:-3}},
+    {la:'放松一天',r:'你打了一天球，把脑子清空，第二天效率奇高。',eff:{p:4,hm:6,st:3}}
+  ]},
+  'gongkao11':{t:'行测模考崩了', d:'国考前最后一次模考，你的行测只考了 58 分，历史新低。', o:[
+    {la:'冷静分析',r:'你发现是涂卡顺序出错，虚惊一场，重练了涂卡速度。',eff:{i:3,st:5,hm:4}},
+    {la:'心态爆炸',r:'你emo了一晚上，室友拉着你去尧山看日出，回来就好了。',eff:{hm:7,so:4,st:-2}},
+    {la:'加题量',r:'你一天刷了三套，状态回温。',eff:{st:6,p:-2}},
+    {la:'看鸡汤文打气',r:'你看了篇"考公人考公魂"，鸡血打满，但题没刷。',eff:{hm:5,st:-1}}
+  ]},
+  'gongkao12':{t:'省考报名', d:'国考刚过，省考又开始了，广西区考岗位多多，报不报？', o:[
+    {la:'国省双考',r:'你两个都报了，多一次上岸机会，但复习量翻倍。',eff:{st:8,p:-3,hm:2},f:'gk:8'},
+    {la:'只专注省考',r:'你评估后觉得省考更适合，全力备考。',eff:{st:7,hm:3},f:'gk:5'},
+    {la:'只报不考',r:'你报了省考但没怎么复习，国考成绩出来再说。',eff:{hm:3,st:-4}},
+    {la:'跟同学组队',r:'你和两个同学互帮互助，建了个"上岸互助群"。',eff:{so:6,st:5}}
+  ]},
+  'gongkao13':{t:'面试班', d:'国考成绩出来，你进面了！面试班 1.2 万，上不上？', o:[
+    {la:'上！背水一战',r:'你报了面试班，天天模拟无领导小组，脸皮练厚了三层。',eff:{mo:-12000,so:8,i:5,hm:-2},f:'gk:10'},
+    {la:'找学长一对一',r:'你找了已上岸的学长，200 块一次模拟，性价比高。',eff:{mo:-800,so:5},f:'gk:6'},
+    {la:'自己对着镜子练',r:'你每天对着镜子练三小时，口条越练越顺。',eff:{so:6,i:3},f:'gk:4'},
+    {la:'躺平，裸面',r:'你裸着去了，紧张得把"考官好"说成"老师好"，出了考场就后悔。',eff:{hm:-5,so:-2}}
+  ]},
+  'gongkao14':{t:'政审材料', d:'你面试过了！接下来是政审，要回户籍地开一堆证明。', o:[
+    {la:'老老实实准备',r:'你跑了两趟派出所和社区，材料齐了，人也晒黑了。',eff:{p:-2,m:4,hm:3},f:'gk:8'},
+    {la:'请爸妈帮忙跑',r:'爸妈替你把材料跑齐了，你在学校专心准备体检。',eff:{so:3,hm:4,m:2}},
+    {la:'找辅导员开证明',r:'辅导员帮你办了在校表现证明，还夸你是好样的。',eff:{so:5,m:3}},
+    {la:'拖到最后',r:'你拖到截止前一天才交，差点误了政审，吓出一身汗。',eff:{hm:-5,m:-1}}
+  ]},
+  'gongkao15':{t:'上岸与落榜之间', d:'省考成绩公布，你手抖着点开查询页面。', o:[
+    {la:'稳了！',r:'你进面了，之后一路绿灯，体检政审全过，如愿穿上那身制服。',eff:{hm:10,i:4,so:4},f:'gk:35'},
+    {la:'差一点',r:'你差 0.5 分进面，心里不甘，但这份遗憾会成为你的动力。',eff:{hm:-4,i:2},f:'gk:5'},
+    {la:'国考上岸了',r:'原来国考已经录了，省考成绩对你来说只是锦上添花。',eff:{hm:10},f:'gk:45'},
+    {la:'转战事业单位',r:'你果断报名了事业单位联考，换个赛道继续冲。',eff:{i:3,hm:4},f:'gk:12'}
+  ]},
+  /* ---------------- 工作线 ---------------- */
+  'gongzuo3':{t:'简历初稿', d:'你打开一个空白的 Word 文档，标题写"个人简历"，然后就卡住了。', o:[
+    {la:'认真打磨',r:'你花三天把简历改了三版，还找了就业办的老师帮你把关。',eff:{i:4,st:5,so:3}},
+    {la:'套模板',r:'你套了个网上的模板，十分钟搞定，但一眼假。',eff:{i:1,hm:2}},
+    {la:'让学长帮忙改',r:'已工作的学长给你改了一晚上，还教了你面试技巧。',eff:{so:5,i:3}},
+    {la:'先不写，等实习再说',r:'你拖到秋招前一周才写，赶工的质量你都不敢看。',eff:{st:-3,hm:-2}}
+  ]},
+  'gongzuo4':{t:'提前批投递', d:'秋招提前批开始了，华为、大疆、比亚迪都在抢人。', o:[
+    {la:'海投 30 家',r:'你一口气投了 30 家，收到 8 个笔试邀请，火力全开。',eff:{st:6,hm:4,i:2}},
+    {la:'精准投 5 家',r:'你精挑 5 家目标公司，每份简历都定制了。',eff:{i:4,st:5}},
+    {la:'只投大厂',r:'你非大厂不投，结果 3 家笔试就被刷，心态有点崩。',eff:{hm:-4,st:3}},
+    {la:'投小公司练手',r:'你拿小公司练面试，攒了一堆实战经验。',eff:{so:5,i:3,st:3}}
+  ]},
+  'gongzuo5':{t:'暑期实习', d:'你拿到了一家公司的暑期实习 offer，月薪 1800，通勤一小时。', o:[
+    {la:'去！积累经验',r:'你实习了两个月，学会了职场规矩，还混了个"优秀实习生"。',eff:{mo:3600,i:6,so:6,p:-3,hm:2}},
+    {la:'换离家近的实习',r:'你推掉了，找了个桂林本地的，省通勤但含金量低。',eff:{mo:2400,so:3,hm:3}},
+    {la:'不去，专心秋招',r:'你觉得实习浪费时间，专注刷题背八股。',eff:{st:8,i:4,mo:-2400}},
+    {la:'远程实习',r:'你远程干活，钱少但自由，还能兼顾学习。',eff:{mo:2000,st:4}}
+  ]},
+  'gongzuo6':{t:'秋招大战', d:'金九银十，宣讲会一场接一场，你一天跑三个场子。', o:[
+    {la:'有会必去',r:'你跑了 20 场宣讲，收了 15 家笔试邀请，广撒网总有收获。',eff:{st:8,p:-3,so:5,hm:2}},
+    {la:'线上投递为主',r:'你在网上投了 40 家，省体力但竞争惨烈。',eff:{st:6,hm:2}},
+    {la:'只盯国企',r:'你认准了国企央企，投了 10 家，等消息等到花谢。',eff:{st:4,hm:-2}},
+    {la:'同学信息共享',r:'你和同学建了个秋招互助群，内推码共享，机会翻倍。',eff:{so:7,st:5}}
+  ]},
+  'gongzuo7':{t:'面试被拒', d:'你面完一家心仪的公司，等来的却是"很遗憾"的邮件。', o:[
+    {la:'复盘面试',r:'你回忆了全程，发现是技术问题答错了，针对性恶补。',eff:{i:5,hm:3,st:5}},
+    {la:'越挫越勇',r:'你把被拒当成经验包，下一场面试状态反而更好了。',eff:{hm:6,so:3}},
+    {la:'emo 了一周',r:'你丧了一周，投递也停了，白白错过几个机会。',eff:{hm:-6,st:-5}},
+    {la:'问 HR 要反馈',r:'你厚着脸皮问 HR 要了反馈，对方给了三条中肯建议。',eff:{i:4,so:2}}
+  ]},
+  'gongzuo8':{t:'春招提前批', d:'秋招颗粒无收？不，你拿到两个小公司的 offer，但春招提前批又开始了。', o:[
+    {la:'继续冲更好的',r:'你把小 offer 当保底，继续投春招，心态稳了。',eff:{st:6,hm:5}},
+    {la:'先签保底',r:'你签了一家保底，心里踏实了，结果春招来了更好的。',eff:{hm:6,mo:2000,st:-2}},
+    {la:'拒掉小公司专攻大厂',r:'你拒了保底，专心攻大厂春招，压力陡增。',eff:{hm:-4,st:8}},
+    {la:'开始准备毕业论文',r:'你想着"工作看缘分，毕业要紧"，重心转向论文。',eff:{i:5,st:6}}
+  ]},
+  'gongzuo9':{t:'春招冲刺', d:'春招进入白热化，你一周面了 6 家，嘴都说秃噜皮了。', o:[
+    {la:'每场都复盘',r:'你面完一家总结一家，第六场时已经游刃有余。',eff:{i:5,so:6,st:6,hm:3}},
+    {la:'拉满状态',r:'你咖啡续命，一周下来人瘦了三斤，但 offer 也来了。',eff:{st:8,p:-4,hm:2}},
+    {la:'佛系随缘',r:'你随缘面，反而发挥稳定，有公司当场给了口头 offer。',eff:{hm:6,so:3}},
+    {la:'只面大厂',r:'你面了 3 家大厂，两轮游，自尊心受挫。',eff:{hm:-4,st:-2}}
+  ]},
+  'gongzuo10':{t:'offer 选择', d:'你手里攥着两个 offer：深圳月薪 9 千的私企，和桂林月薪 6 千的国企。', o:[
+    {la:'去深圳拼一把',r:'你选了深圳，年轻人就该搏一搏。',eff:{mo:3000,hm:4,so:3}},
+    {la:'留桂林安逸',r:'你选了国企，离家近，日子安稳。',eff:{hm:7,mo:500}},
+    {la:'再等等其他 offer',r:'你拖着不签，想等更好的，结果两家都有点悬。',eff:{hm:-3,st:-2}},
+    {la:'问爸妈意见',r:'爸妈说"你自己拿主意"，你反而更纠结了。',eff:{hm:-1,so:2}}
+  ]},
+  'gongzuo11':{t:'毕业实习', d:'大四下的毕业实习，你一边在公司干活，一边赶毕业论文。', o:[
+    {la:'两头抓',r:'你白天实习晚上写论文，累但充实，论文还拿了优秀。',eff:{mo:2400,i:5,st:6,p:-3,hm:2}},
+    {la:'实习为主',r:'你把重心放实习上，争取转正，论文糊弄过去。',eff:{mo:3000,so:5,i:-2,hm:3}},
+    {la:'论文为主',r:'你请假憋论文，实习摸鱼，导师满意但公司不满。',eff:{i:6,so:-3,st:4}},
+    {la:'申请免实习',r:'你拿竞赛证书申请了免实习，专心论文。',eff:{i:4,st:6}}
+  ]},
+  'gongzuo12':{t:'三方协议', d:'你确定了工作，公司催你签三方协议，违约金写的是 5000。', o:[
+    {la:'仔细看完再签',r:'你逐条读了三方协议，问清了违约金和试用期条款，确认无坑才签。',eff:{i:4,m:3,hm:3}},
+    {la:'直接签了',r:'你闭眼签了，后来发现试用期六个月，工资还打八折。',eff:{mo:-500,hm:-2}},
+    {la:'咨询就业办',r:'就业办的老师帮你审了一遍，说条款没问题，你才放心签。',eff:{so:4,m:3}},
+    {la:'拖着不签',r:'你拖着想等别的 offer，公司给了你三天期限，你慌了。',eff:{hm:-5}}
+  ]},
+  'gongzuo13':{t:'毕业论文答辩', d:'毕业答辩前一晚，你的 PPT 还没做完，指导老师发了三条语音。', o:[
+    {la:'通宵搞定',r:'你熬了一夜，答辩现场对答如流，评委老师给了个"优秀"。',eff:{i:5,st:6,p:-4,hm:2}},
+    {la:'求助室友',r:'室友帮你润色了 PPT，你俩一起改到凌晨三点。',eff:{so:6,st:4,hm:2}},
+    {la:'照着稿子念',r:'你念稿子念到一半卡壳，评委皱眉，最终给了个"通过"。',eff:{i:-1,hm:-3}},
+    {la:'自信满满上场',r:'你把项目讲得有声有色，评委追问也不虚。',eff:{i:5,so:5,hm:6}}
+  ]},
+  'gongzuo14':{t:'入职报到', d:'毕业一周后，你拖着行李箱站在公司楼下，看着玻璃幕墙里的自己。', o:[
+    {la:'提前准备',r:'你提前两周学了公司用的技术栈，入职第一天就上手了。',eff:{i:5,hm:6,so:3}},
+    {la:'社交拉满',r:'你入职第一周就混熟了整个部门，还参加了团建。',eff:{so:7,hm:6}},
+    {la:'闷头干活',r:'你默默干活，领导夸你踏实，但存在感略低。',eff:{i:3,so:-2,hm:2}},
+    {la:'有点后悔没考研',r:'你看着朋友圈的读研同学，心里五味杂陈。',eff:{hm:-3,i:1}}
+  ]},
+  /* ---------------- 创业线 ---------------- */
+  'chuangye4':{t:'找合伙人', d:'你的创业项目需要人，你在社团里物色了一圈，看中两个靠谱的。', o:[
+    {la:'拉他们入伙，谈股份',r:'你拿出商业计划书，两人被你说动，公司有了草台班子。',eff:{so:6,hm:5,i:3}},
+    {la:'单干',r:'你决定一个人先跑通流程，累是累了点，但决策快。',eff:{st:5,hm:2,p:-2}},
+    {la:'招兼职',r:'你招了个兼职学弟打下手，一个月 1500。',eff:{mo:-1500,so:3}},
+    {la:'找老师指导',r:'你带着项目找创业学院的老师，老师帮你梳理了模式。',eff:{i:6,so:4}}
+  ]},
+  'chuangye5':{t:'第一单生意', d:'你的小项目接到了一个 500 块的单子，客户要求还挺多。', o:[
+    {la:'加班加点做好',r:'你熬了两个通宵，客户很满意，说下次还找你。',eff:{mo:500,p:-4,hm:3,st:4}},
+    {la:'做一半想加价',r:'你做到一半要加钱，客户不干了，单子黄了。',eff:{mo:-200,m:-3,hm:-5}},
+    {la:'外包给别人',r:'你转包给学弟做，赚了个差价 150。',eff:{mo:150,so:2}},
+    {la:'免费做换口碑',r:'你免费做了，客户帮你介绍了两单生意。',eff:{mo:-500,so:6,hm:3}}
+  ]},
+  'chuangye6':{t:'暑期地推', d:'暑假，你在桂林各大高校门口摆摊做推广，烈日当头。', o:[
+    {la:'顶着太阳干',r:'你晒成黑炭，但加了 300 个微信，业务量翻倍。',eff:{mo:1800,p:-5,so:5,hm:2}},
+    {la:'雇学生帮忙',r:'你雇了两个兼职学生，一天 100，自己当监工。',eff:{mo:1200,so:3,hm:4}},
+    {la:'转线上推广',r:'你发现线上渠道更划算，转战校园社群，成本大降。',eff:{mo:1500,i:4,hm:3}},
+    {la:'半途而废',r:'你摆了三天就嫌累撤了，错过了暑假黄金期。',eff:{hm:3,mo:-800,p:2}}
+  ]},
+  'chuangye7':{t:'资金链紧张', d:'开学季要备货，你的账上只剩 3000 块，缺口还有 5000。', o:[
+    {la:'拉投资',r:'你找了两位校友投资人，聊了三个晚上，拿到 1 万天使投资。',eff:{mo:10000,so:5,hm:6,i:3}},
+    {la:'借网贷',r:'你借了 5000 网贷应急，利息高得吓人，你肉疼。',eff:{mo:5000,hm:-6,m:-3}},
+    {la:'压缩业务',r:'你砍掉了两个不赚钱的线，专注核心业务。',eff:{mo:2000,i:3,hm:2}},
+    {la:'找爸妈借',r:'你开口找家里借了 5000，爸妈支持但叮嘱你悠着点。',eff:{mo:5000,so:3,hm:4}}
+  ]},
+  'chuangye8':{t:'转型线上', d:'线下生意越来越难做，你发现同行都在做校园线上商城。', o:[
+    {la:'果断转型',r:'你花一周搭了个小程序，线上订单三个月涨了五倍。',eff:{mo:3000,i:6,st:6,hm:4}},
+    {la:'线上线下两手抓',r:'你两条腿走路，稳扎稳打。',eff:{mo:1800,p:-3,hm:2}},
+    {la:'观望',r:'你犹豫了一个月，等想转时，红利期都过了。',eff:{mo:-500,hm:-3}},
+    {la:'找技术合伙人',r:'你拉了个计算机学院的学弟入伙，技术问题全解决。',eff:{so:5,i:4,mo:1500}}
+  ]},
+  'chuangye9':{t:'暑假冲刺', d:'暑假是校园业务的淡季，你的营收掉了 40%，团队有点慌。', o:[
+    {la:'开拓校外市场',r:'你把业务扩展到两所邻校，暑假营收反而涨了。',eff:{mo:2500,so:5,st:5,hm:3}},
+    {la:'做暑期活动',r:'你搞了"开学季早鸟价"预售，回笼资金 2000。',eff:{mo:2000,i:4}},
+    {la:'给团队放假',r:'你让大家休整，开学再战，人心稳了。',eff:{so:4,hm:3,mo:-800}},
+    {la:'焦虑内耗',r:'你天天失眠想对策，结果什么都没做。',eff:{hm:-6,p:-3}}
+  ]},
+  'chuangye10':{t:'招实习生', d:'业务起来了，你想招两个实习生，但一个月只能开 800 工资。', o:[
+    {la:'画饼+实习证明',r:'你靠"创业氛围+实习证明"招到两个肯干的学弟。',eff:{so:4,mo:-1600,hm:3}},
+    {la:'找兼职',r:'你改用按单结算的兼职，灵活还不养闲人。',eff:{mo:-1000,so:2}},
+    {la:'自己扛',r:'你一个人干三个人的活，省了钱但累到脱相。',eff:{mo:1600,p:-5,hm:-3}},
+    {la:'招有经验的',r:'你高薪挖了个有经验的学长，业务一下顺畅了。',eff:{mo:-4000,i:4,so:3}}
+  ]},
+  'chuangye11':{t:'大客户', d:'一个企业客户找上门，要订 2 万块的货，但要你先垫资。', o:[
+    {la:'接！全力做',r:'你接了这单，垫资 1 万，月底回款后净赚 6000。',eff:{mo:6000,p:-4,hm:4,st:5}},
+    {la:'谨慎评估',r:'你查了对方资质，发现信誉一般，果断放弃，避了个坑。',eff:{i:4,hm:2,m:2}},
+    {la:'谈条件',r:'你要求付 30% 定金，对方答应了，风险可控。',eff:{mo:3000,i:3}},
+    {la:'激动过度接单',r:'你没核实就接了，对方是皮包公司，垫的钱打了水漂。',eff:{mo:-10000,hm:-8,i:-2}}
+  ]},
+  'chuangye12':{t:'年终复盘', d:'年底了，你算了下账：营收 12 万，利润 2 万，但人累得够呛。', o:[
+    {la:'加大投入',r:'你决定明年加码，把利润全投进去扩规模。',eff:{mo:-20000,hm:6,st:6,i:4}},
+    {la:'稳扎稳打',r:'你决定保守经营，先跑通模式再扩张。',eff:{mo:8000,hm:4}},
+    {la:'分红犒劳团队',r:'你给团队发了年终奖，大家干劲十足。',eff:{mo:-6000,so:7,hm:5}},
+    {la:'有点想放弃',r:'你算了算时薪，发现还没打工高，开始怀疑人生。',eff:{hm:-6,i:2}}
+  ]},
+  'chuangye13':{t:'扩张还是守成', d:'有人想用 30 万收购你的项目，也有投资人想投你 50 万换 30% 股份。', o:[
+    {la:'拒绝收购，拿投资',r:'你拿了 50 万投资，扩张节奏起飞，但话语权分出去了。',eff:{mo:50000,so:5,hm:7,i:4}},
+    {la:'见好就收',r:'你 30 万卖了，落袋为安，给自己放了个长假。',eff:{mo:30000,hm:8,so:3}},
+    {la:'继续自己滚',r:'你婉拒了双方，决定自己慢慢做。',eff:{mo:8000,hm:3,st:4}},
+    {la:'咨询老师',r:'你带着条款找创业导师，老师帮你分析了利弊。',eff:{i:6,so:3}}
+  ]},
+  'chuangye14':{t:'合伙人分歧', d:'合伙人和你吵了一架：他想做直播带货，你想深耕校园市场。', o:[
+    {la:'开会表决',r:'你俩各带方案开会，最后数据说话，你的方案赢了。',eff:{so:3,i:4,hm:2}},
+    {la:'各做一块',r:'你俩一人管一块业务，互不干涉，反而都做起来了。',eff:{mo:2000,so:3,hm:3}},
+    {la:'让他试试',r:'你让步让他试了一个月直播，亏了 3000，他服了。',eff:{mo:-3000,so:2,hm:-2}},
+    {la:'闹掰了',r:'他愤而出走，带走了一半客户，你俩两败俱伤。',eff:{mo:-8000,so:-6,hm:-6}}
+  ]},
+  'chuangye15':{t:'公司周年', d:'你的小公司满一岁了，办公室从宿舍搬到了创业园。', o:[
+    {la:'庆祝+定目标',r:'你请团队搓了一顿，定下明年目标：营收 50 万。',eff:{mo:-1000,so:7,hm:8}},
+    {la:'低调周年',r:'你默默算了笔账，看着报表上的数字，心里踏实。',eff:{hm:6,i:3}},
+    {la:'招人扩张',r:'你租了个正式办公室，招了 3 个人，公司像样了。',eff:{mo:-8000,so:5,hm:5}},
+    {la:'考虑退路',r:'你开始盘算"公司黄了还能干啥"，留了个后手。',eff:{i:3,hm:-2}}
+  ]}
+};
+Object.assign(EVENTS, LINE_EVENTS);
+
+/* 四线专属池：key 与通用池一致 */
+const LINE_POOLS={
+  kaoyan:{y3s1:['kaoyan6','kaoyan7'],y3win:['kaoyan8'],y3s2:['kaoyan9','kaoyan10'],y3sum:['kaoyan11'],y4s1:['kaoyan12','kaoyan13'],y4win:['kaoyan14'],y4s2:['kaoyan15','kaoyan16'],y4sum:['kaoyan17']},
+  gongkao:{y3s1:['gongkao4','gongkao5'],y3win:['gongkao6'],y3s2:['gongkao7','gongkao8'],y3sum:['gongkao9'],y4s1:['gongkao10','gongkao11'],y4win:['gongkao12'],y4s2:['gongkao13','gongkao14'],y4sum:['gongkao15']},
+  work:{y3s1:['gongzuo3','gongzuo4'],y3win:['gongzuo5'],y3s2:['gongzuo6','gongzuo7'],y3sum:['gongzuo8'],y4s1:['gongzuo9','gongzuo10'],y4win:['gongzuo11'],y4s2:['gongzuo12','gongzuo13'],y4sum:['gongzuo14']},
+  chuangye:{y3s1:['chuangye4','chuangye5'],y3win:['chuangye6'],y3s2:['chuangye7','chuangye8'],y3sum:['chuangye9'],y4s1:['chuangye10','chuangye11'],y4win:['chuangye12'],y4s2:['chuangye13','chuangye14'],y4sum:['chuangye15']}
+};
+
+/* 随机事件池：学年+学期/假期 */
+const POOLS = {
+  y1s1:['sushe','shitang','wentiang','gaoshu','jianshen','shuang11','qianbao','jiajiao'],
+  y1win:['huijia','zouqinqi','hanjiaGong','yansui'],
+  y1s2:['xinqi','chunyou','lianai1','qizhong','ketang','cet','dianzi','qingong','yingji'],
+  y1sum:['sanxia','xueche','lvyou','jiazhai','ganmao','xiegao'],
+  y2s1:['shetuan2','wentiang2','ganbu','zhuanye','jingsai','shuang11','kaozheng','qingong','daigou'],
+  y2win:['tongxuehui','hanjiaGong2','xueche2','jiazhai2','keyin','xiegao'],
+  y2s2:['susheMao','lianai2','zuobi','pianzi','cet2','qizhong2','yanchang','jiajiao','tushu'],
+  y2sum:['jianzhi5','lvyou2','pianzi2','shixiTry','jianshenka'],
+  y3s1:['kaoyan1','jingsai3','kechuang','wangdai','daixie','chuangye','keqian','daigou'],
+  y3win:['kaoyan4','gongkao2','kaoyanHan','huijia3','hanjiaGong3','jiazhai3'],
+  y3s2:['kaoyan5','gongkao3','chuangye3','kaoyan2','yanjiu','lianai3','qizhong3','jianzhi4'],
+  y3sum:['gongzuo1','chuangye2','kaoyanJi','jianzhi3','lvyou3','jiazhai4','fangzu'],
+  y4s1:['gongzuo2','qiuzhao','kaoyan3','bishe1','zhuanye4','ganmao','gongkao','zhengzhuang'],
+  y4win:['chunzhaoZb','huijia4','jiazhai5'],
+  y4s2:['chunzhao','bishe2','lianai4','daixie2','shesu4','jianshen2'],
+  y4sum:['hou1','hou2','lvyou4','jiruo']
+};
+
+/* ================================================================
+   逻辑：状态 / 渲染 / 主流程 / 考试 / 评级
+   ================================================================ */
+const $ = id => document.getElementById(id);
+const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
+const rand = (a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const pick = arr=>arr[rand(0,arr.length-1)];
+const sleep = ms=>new Promise(r=>setTimeout(r,ms));
+const fmtMoney = v=> (v<0 ? '-¥'+Math.abs(Math.round(v)).toLocaleString('zh-CN') : '¥'+Math.round(v).toLocaleString('zh-CN'));
+
+let S = null;          /* 游戏状态 */
+let lastReport = null; /* 毕业评定 */
+let modalOpen = false;
+let selMajor = null;
+let admitInfo = null;
+
+const ATTRS = [
+  ['p','体质','var(--p)'],['i','智力','var(--i)'],['m','道德','var(--m)'],
+  ['hm','心情','var(--h)'],['so','社交','var(--so)']
+];
+const ANAMES = {p:'体质',i:'智力',m:'道德',hm:'心情',so:'社交',mo:'金钱',st:'学习投入'};
+
+/* ---------------- 状态 ---------------- */
+function newState(name, major){
+  return {
+    name:name||'同学', major,
+    p:rand(70,82), i:rand(63,76), m:rand(68,80), hm:rand(55,75), so:rand(48,66), mo:800,
+    month:1, study:0, semester:0,
+    courses:[], courseHist:[], gpaHist:[], gpa:0,
+    honors:[], fails:[], bujiePending:[], usedElec:{}, used:{},
+    logs:[], love:false, cet4:false, cet6:false, detention:0, cheat:false, debt:false, warned:false,
+    currentEvent:null, currentChoice:-1, extra:false
+  };
+}
+function gpaOf(score){ return score>=60 ? Math.min(5,(score-50)/10) : 0; }
+function weightedGPA(arr){
+  if(!arr.length) return 0;
+  let sum=0,cr=0;
+  arr.forEach(c=>{ sum+=c.credit*gpaOf(c.score); cr+=c.credit; });
+  return cr? Math.round(sum/cr*100)/100 : 0;
+}
+
+function buildCourses(s){
+  const c=[];
+  if(s===7){
+    c.push({name:'毕业设计',type:'major',credit:8,score:null,passed:null});
+    c.push({name:'专业实习',type:'major',credit:4,score:null,passed:null});
+    c.push({name:'就业指导',type:'elec',credit:1,score:null,passed:null});
+  }else{
+    const pool=S.major.pool, n=pool.length;
+    const p1=pool[s*2%n];
+    let p2=pool[(s*2+1)%n];
+    if(p2===p1) p2=pool[(s*2+2)%n];
+    c.push({name:p1,type:'major',credit:4,score:null,passed:null});
+    c.push({name:p2,type:'major',credit:4,score:null,passed:null});
+    const yb=['y1','y1','y2','y2','y3','y3','y4','y4'][s];
+    const poolE=ELECTIVES[yb];
+    let cands=poolE.filter(nm=>!S.usedElec[nm]);
+    if(cands.length<2) cands=poolE.slice();
+    const e1=cands[rand(0,cands.length-1)];
+    let e2=e1;
+    while(e2===e1 && cands.length>1) e2=cands[rand(0,cands.length-1)];
+    S.usedElec[e1]=1; S.usedElec[e2]=1;
+    c.push({name:e1,type:'elec',credit:2,score:null,passed:null});
+    c.push({name:e2,type:'elec',credit:2,score:null,passed:null});
+  }
+  S.courses=c;
+}
+
+/* ---------------- 渲染 ---------------- */
+function renderHeader(){
+  const idx=S.month-1, pos=idx%6, s=Math.floor(idx/6), y=Math.floor(idx/12)+1, semInY=(s%2)+1;
+  const mn=['9月','10月','11月','12月','1月','2月','3月','4月','5月','6月','7月','8月'][idx%12];
+  let yt, phase;
+  if(pos<=3){ yt='第'+y+'学年 · 第'+semInY+'学期'; phase=pos===0?'开学季':(pos===3?'期末周':'学期中'); }
+  else if(semInY===1){ yt='第'+y+'学年 · 寒假'; phase='寒假'; }
+  else { yt='第'+y+'学年 · 暑假'; phase='暑假'; }
+  $('cal-year').textContent=yt;
+  $('cal-month').textContent=mn;
+  $('cal-phase').textContent=phase;
+  const pct=idx/47*100;
+  $('track-fill').style.width=pct+'%';
+  $('rocket').style.left=pct+'%';
+  $('track-num').textContent=S.month+'/48';
+}
+function renderAttrs(){
+  const box=$('attr-list'); let html='';
+  ATTRS.forEach(a=>{
+    const k=a[0], v=S[k];
+    const danger=(k==='p'&&v<=30)||(k==='hm'&&v<=20);
+    html+=`<div class="attr-row${danger?' danger':''}">
+      <div class="attr-head"><span>${a[1]}</span><b>${v}</b></div>
+      <div class="bar"><div class="bar-fill" style="width:${v}%;background:${a[2]}"></div><div class="bar-ticks"></div></div>
+    </div>`;
+  });
+  box.innerHTML=html+
+    '<div class="attr-row" style="margin-top:2px">'+
+    '<div class="attr-head"><span style="color:#93C5FD">学习投入</span><b id="study-val">'+S.study+'</b></div>'+
+    '<div class="bar"><div class="bar-fill" style="width:'+Math.min(100,S.study)+'%;background:linear-gradient(90deg,#3d8bfd,#ff9f1a)"></div><div class="bar-ticks"></div></div>'+
+    '<div class="study-tip">跨学期保留 · 每学期衰减 20% · 投入 ≥70 期末必过</div></div>';
+  $('money-val').textContent=fmtMoney(S.mo);
+  $('money-val').style.color = S.mo<0 ? '#FF6B6B' : '';
+  const fl=$('flag-list'), flags=[];
+  if(S.love) flags.push('恋爱中');
+  if(S.mo<0) flags.push('负债 ¥'+Math.abs(Math.round(S.mo)));
+  if(S.detention) flags.push('记过处分 ×'+S.detention);
+  if(S.cet4) flags.push('四级已过');
+  if(S.cet6) flags.push('六级已过');
+  fl.innerHTML=flags.map(f=>'<div>· '+f+'</div>').join('')||'';
+}
+function renderCourses(){
+  const box=$('course-list');
+  if(!S.courses.length){ box.innerHTML='<div class="course-item"><span class="cname">（课程尚未开始）</span></div>'; return; }
+  box.innerHTML=S.courses.map(c=>{
+    let st='<span class="cstat">'+(c.type==='major'?'专业课':'选修')+' · '+c.credit+'学分</span>';
+    if(c.score!==null) st='<span class="cstat '+(c.passed?'ok':'no')+'">'+(c.passed?'通过':'挂科')+' · '+c.score+'分</span>';
+    return '<div class="course-item"><span class="cname">'+c.name+'</span>'+st+'</div>';
+  }).join('');
+}
+function renderGPA(){
+  $('gpa-total').textContent=S.gpa.toFixed(2);
+  $('gpa-sems').textContent=S.gpaHist.map((g,i)=>'S'+(i+1)+':'+g.toFixed(2)).join('  ');
+}
+function renderHonors(){
+  const box=$('honor-list');
+  box.innerHTML=S.honors.length ? S.honors.map(h=>'<div class="honor-item">'+h+'</div>').join('') : '<div class="honor-item" style="color:var(--dim)">暂无荣誉</div>';
+}
+function pushLog(txt){
+  S.logs.unshift(txt);
+  const box=$('log-list');
+  const d=document.createElement('div');
+  d.className='log-item';
+  d.textContent=txt;
+  box.prepend(d);
+  while(box.children.length>80) box.removeChild(box.lastChild);
+}
+function phaseLabel(){
+  const idx=S.month-1, pos=idx%6, s=Math.floor(idx/6), semInY=(s%2)+1;
+  if(pos<=3) return pos===0?'开学季':(pos===3?'期末周':'学期中');
+  return semInY===1?'寒假':'暑假';
+}
+
+/* ---------------- 事件渲染与选择 ---------------- */
+function pickEvent(forceRandom){
+  const idx=S.month-1;
+  if(!forceRandom){
+    const fx=FIXED[idx];
+    if(fx && !(fx==='bujie' && S.bujiePending.length===0)){
+      const fe=EVENTS[fx];
+      if(fe && !fe.id) fe.id=fx;
+      return fe;
+    }
+  }
+  const pos=idx%6, s=Math.floor(idx/6), y=Math.floor(idx/12)+1;
+  const key=pos<=3 ? 'y'+y+'s'+((s%2)+1) : (s%2===0?'y'+y+'win':'y'+y+'sum');
+  /* 天赋专属事件：大一大二优先（仅精确持有该天赋才解锁其专属事件） */
+  if(S.month<=18 && Math.random()<0.55){
+    const mine=TALENT_IDS.filter(function(tid){ return S.talents.some(function(t){ return t.id===tid; }) && !S.used['te_'+tid]; });
+    if(mine.length){
+      const id='te_'+mine[Math.floor(Math.random()*mine.length)];
+      S.used[id]=1; const ev=EVENTS[id];
+      if(ev && !ev.id) ev.id=id;
+      return ev;
+    }
+  }
+  /* 四线专属事件：大三起按路线强相关，75% 优先抽专属池 */
+  if(S.goal && LINE_POOLS[S.goal] && LINE_POOLS[S.goal][key]){
+    const lp=LINE_POOLS[S.goal][key].filter(function(id){ return !S.used[id]; });
+    if(lp.length && Math.random()<0.75){
+      const id=lp[Math.floor(Math.random()*lp.length)];
+      S.used[id]=1; const ev=EVENTS[id];
+      if(ev && !ev.id) ev.id=id;
+      return ev;
+    }
+  }
+  const pool=POOLS[key];
+  let cands=pool.filter(id=>!S.used[id] && (!EVENTS[id].requires || EVENTS[id].requires(S)));
+  if(!cands.length) cands=pool.filter(id=>!EVENTS[id].requires || EVENTS[id].requires(S));
+  const id=cands[Math.floor(Math.random()*cands.length)];
+  S.used[id]=1;
+  const ev=EVENTS[id];
+  if(ev && !ev.id) ev.id=id;
+  return ev;
+}
+function renderEvent(ev){
+  S.currentEvent=ev; S.currentChoice=-1;
+  const box=$('event-box');
+  let desc=ev.d;
+  if(ev.id==='bujie') desc='开学第一周，教务系统弹出一行红字：'+S.bujiePending.map(c=>c.name).join('、')+' 未通过，补考安排在本周周末。你盯着屏幕，叹了口气。';
+  else if(ev.id==='tice'){ const ty=Math.min(3,Math.floor((S.month-1)/12)); desc=TICE_TEXTS[ty]; }
+  /* 天赋剧情联动：特定天赋在特定事件里改变走向 */
+  if(S.talents&&S.talents.length){
+    const TAL_LINES={
+      kaoyan5:{t_guomuwang:'过目不忘让你把错题全印在脑子里，冲刺效率惊人。'},
+      gongzuo1:{t_renyuan:'人脉达人：学长直接把你内推给了 HR，你的简历被放在最上面。'},
+      chuangye2:{t_tianfu:'天赋异禀：你画的原型让合伙人眼睛发亮。', t_jinli:'锦鲤附体：酒桌上你无意间搭上了市里产业基金的线。'},
+      chuangye3:{t_tianming:'天命之子：债主听说你的来头，居然主动提出宽限。'},
+      lianai3:{t_liaojie:'恋爱脑：TA 的家人对你的第一印象出奇地好。'}
+    };
+    S.talents.forEach(tt=>{
+      const tl=TAL_LINES[ev.id]&&TAL_LINES[ev.id][tt.id];
+      if(tl) desc+='<div class="talent-line">✦ '+tt.name+'：'+tl+'</div>';
+    });
+  }
+  let opts='';
+  ev.o.forEach((o,i)=>{
+    opts+='<button class="opt" data-k="'+'ABCD'[i]+'" onclick="chooseOption('+i+')"><span class="key">'+'ABCD'[i]+'</span><span class="opt-txt">'+o.la+'</span></button>';
+  });
+  box.innerHTML='<div class="ev-phase">'+phaseLabel()+' · 第'+S.month+'个月</div>'+
+    '<div class="ev-title serif">'+ev.t+'</div>'+
+    '<div class="ev-desc">'+desc+'</div>'+
+    '<div id="opt-list">'+opts+'</div>'+
+    '<div id="banner-box"></div>';
+  $('btn-next').classList.add('hidden');
+  $('btn-again').classList.add('hidden');
+}
+function effectChips(eff){
+  const e=Object.assign({},eff);
+  if(e.h!==undefined || e.s!==undefined){
+    const net=(e.h||0)-(e.s||0);
+    if(net!==0) e.hm=(e.hm||0)+net;
+    delete e.h; delete e.s;
+  }
+  return Object.keys(e).filter(k=>e[k]!==0).map(k=>{
+    const v=e[k];
+    return '<span class="chip '+(v>0?'up':'down')+'">'+(ANAMES[k]||k)+' '+(v>0?'+':'')+v+'</span>';
+  }).join('');
+}
+async function chooseOption(i){
+  if(S.currentChoice!==-1 || !S.currentEvent) return;
+  S.currentChoice=i;
+  const ev=S.currentEvent, o=ev.o[i];
+  const zibao=S.hm<=10;
+  const eff=Object.assign({},o.e);
+  if(zibao && eff.st) eff.st=Math.round(eff.st*(hasTalent('t_zizhili')?0.25:0.5));
+  if(eff.st>0){
+    if(hasTalent('t_tushuguan')) eff.st=Math.round(eff.st*1.2);
+    if(hasTalent('t_tianfu')) eff.st=Math.round(eff.st*1.15);
+  }
+  /* 学习加压：只要选择投入学习的选项，压力就会显著上升（压力系统的存在感） */
+  if(eff.st>0 && eff.st>=3){
+    let sAdd=Math.max(4,Math.round(eff.st*0.6));
+    if(hasTalent('t_wendun')||hasTalent('t_nightowl')) sAdd=Math.round(sAdd*0.9);
+    eff.s=(eff.s||0)+sAdd;
+  }
+  applyEffects(eff);
+  (o.f||[]).forEach(f=>{
+    if(f.indexOf('honor:')===0) addHonor(f.slice(6));
+    else if(f==='love') S.love=true;
+    else if(f==='cheat') S.cheat=true;
+    else if(f.indexOf('goal:')===0){
+      const g=f.slice(5);
+      if(g==='chuangye'){
+        let need=2000;
+        if(hasTalent('t_jinli')) need=1500;
+        if(hasTalent('t_tianming')) need=1200;
+        if(S.mo>=need){ S.goal='chuangye'; S.mo-=need; pushLog('创业启动：投入 ¥'+need+' 启动资金，你的小公司开张了。'); toast('创业启动！投入 ¥'+need+'。','good'); }
+        else{ S.goal='work'; S.mo-=800; S.m=clamp(S.m-3,0,100); pushLog('资金不足，创业告吹，倒贴 ¥800 后你只能先找工作。'); toast('资金不足，创业告吹。','bad'); }
+      }else S.goal=g;
+    }
+    else if(f.indexOf('gk:')===0) S.gk=(S.gk||0)+parseInt(f.slice(3),10);
+  });
+  await handleSpecial(ev.id, i);
+  pushLog('【'+ev.t+'】'+o.la);
+  const box=$('event-box');
+  box.innerHTML='<div class="ev-phase">'+phaseLabel()+' · 第'+S.month+'个月</div>'+
+    '<div class="ev-title serif">'+ev.t+'</div>'+
+    '<div class="result-box"><div class="r-title">你的选择 · '+('ABCD'[i])+'</div>'+
+    '<div class="r-text">'+o.r+(zibao?'（心情低落，你有些自暴自弃，学习效果减半）':'')+'</div>'+
+    '<div class="eff-chips">'+effectChips(eff)+'</div></div>'+
+    '<div id="banner-box"></div>';
+  renderAttrs(); renderCourses();
+  if(checkDeath()) return;
+  await showInterludes();
+  const fl=pickFlash();
+  if(fl){
+    if(await applyFlash(fl)){ await sleep(900); return; }
+    await sleep(1500);
+  }
+  if(isExamMonth() && S.month!==46 && !S.extra) await runExam();
+  if(S.month===46){ await runExam(); await runFinalClear(); await showReport(); }
+  $('btn-next').classList.remove('hidden');
+  if(S.month!==46 && !S.extra) $('btn-again').classList.remove('hidden');
+}
+function doAgain(){
+  if(S.currentChoice===-1 || $('btn-again').classList.contains('hidden') || S.extra) return;
+  S.hm=clamp(S.hm-5,-100,100);
+  S.extra=true;
+  pushLog('你决定再做一件（心情 -5）。');
+  toast('再做一件 · 心情 -5','bad');
+  renderAttrs();
+  if(checkDeath()) return;
+  $('btn-again').classList.add('hidden');
+  renderEvent(pickEvent(true));
+}
+function nextMonth(){
+  S.month++;
+  if(S.month>48){ showEnd(); return; }
+  startMonth();
+}
+function startMonth(){
+  S.extra=false;
+  const idx=S.month-1, pos=idx%6, s=Math.floor(idx/6);
+  if(s!==S.semester){
+    S.semester=s; S.cheat=false;
+    S.study=Math.round(S.study*0.8);   /* 学习投入跨学期保留，每学期衰减 20% */
+    buildCourses(Math.min(s,7));
+  }
+  /* 每月收支：生活费（随绩点浮动）+ 固定开销（食堂与日常），净结余很薄，花钱稍不留神就会负债 */
+  const gpaBonus = S.gpa>=3.5?300 : S.gpa>=3.0?200 : S.gpa>=2.5?100 : 0;
+  let income=650+gpaBonus, expense=650;   /* 收入略降、开销略涨：天赋能救命，没天赋就紧巴 */
+  if(hasTalent('t_baitan')) expense-=80;
+  if(hasTalent('t_yueguang')) income+=250;
+  if(hasTalent('t_jizhang')) income=Math.round(income*1.05);
+  if(hasTalent('t_tianming')) income+=300;
+  if(hasTalent('t_xiaoxi') && Math.random()<0.15){ S.mo+=100; pushLog('小确幸：食堂门口捡到 ¥100。'); }
+  S.mo += income;
+  S.mo -= expense;
+  if(S.hm>55) S.hm=Math.min(100,S.hm+4);   /* 心情好的时候，日子越过越顺 */
+  renderHeader(); renderAttrs(); renderCourses(); renderGPA(); renderHonors();
+  renderEvent(pickEvent());
+}
+function applyEffects(e){
+  if(e.p) S.p=clamp(S.p+e.p,0,100);
+  if(e.i) S.i=clamp(S.i+e.i,0,100);
+  if(e.m) S.m=clamp(S.m+e.m,0,100);
+  if(e.hm) S.hm=clamp(S.hm+e.hm,-100,100);
+  else if(e.h||e.s) S.hm=clamp(S.hm+(e.h||0)-(e.s||0),-100,100);   /* 旧心情+压力合并为心情：原压力上升=心情下降 */
+  if(e.so) S.so=clamp(S.so+e.so,0,100);
+  if(e.mo) S.mo += e.mo;  /* 生活费允许为负，花钱不当就会负债 */
+  if(e.st) S.study=clamp(S.study+e.st,0,100);
+}
+function addHonor(h){
+  if(!S.honors.includes(h)){ S.honors.push(h); pushLog('获得荣誉：'+h); renderHonors(); }
+}
+
+/* ---------------- 特殊事件结算 ---------------- */
+async function handleSpecial(id,i){
+  if(id==='tice') resolveTice(i);
+  else if(id==='bujie') resolveBujie(i);
+  else if(id==='cet'||id==='cet2') resolveCet(i);
+}
+function resolveTice(i){
+  let score;
+  const tBonus=hasTalent('t_paobu')?5:0;   /* 晨跑达人：体测 +5 分 */
+  if(i===0) score=S.p+rand(5,12)+tBonus;
+  else if(i===1) score=S.p+rand(-5,8)+tBonus;
+  else if(i===2) score=45;
+  else score=S.p+rand(8,15)+tBonus;
+  score=clamp(Math.round(score),0,100);
+  if(i===3 && Math.random()<0.3){
+    S.detention++; S.m=clamp(S.m-4,0,100);
+    toast('体测代跑被识破，记过处分。','bad');
+  }else if(i===2){
+    S.p=clamp(S.p-1,0,100); S.hm=clamp(S.hm-5,-100,100);
+    toast('体测免测记不及格，需要补测。','bad');
+  }else if(score>=85){
+    addHonor('体测优秀');
+    toast('体测 '+score+' 分，优秀！','good');
+  }else if(score<60){
+    S.hm=clamp(S.hm-5,-100,100);
+    toast('体测 '+score+' 分，不及格，得补测了。','bad');
+  }else{
+    toast('体测 '+score+' 分，达标。');
+  }
+}
+function resolveBujie(i){
+  const pend=S.bujiePending.slice(); S.bujiePending=[];
+  const passed=[], failed=[];
+  let caught=false;
+  if(i===3 && Math.random()<0.5){
+    caught=true; S.detention++; S.m=clamp(S.m-6,0,100);
+    pushLog('补考代考被识破，记过处分。');
+  }
+  pend.forEach(c=>{
+    let prob=0;
+    if(!caught){
+      if(i===0) prob=clamp(0.35+S.i*0.004+S.study*0.002,0.05,0.95);
+      else if(i===1) prob=clamp(0.40+S.i*0.004+S.study*0.002,0.05,0.95);
+      else if(i===2) prob=clamp(0.10+S.i*0.003,0.03,0.8);
+      else prob=0.9;
+    }
+    if(Math.random()<prob){
+      c.score=60;
+      S.courseHist.push({name:c.name,type:c.type,credit:c.credit,score:60,gpa:1,sem:S.semester});
+      passed.push(c.name);
+    }else{
+      S.fails.push({name:c.name,sem:S.semester});
+      failed.push(c.name);
+    }
+  });
+  S.gpa=weightedGPA(S.courseHist);
+  const msgs=[];
+  if(passed.length) msgs.push('补考通过：'+passed.join('、'));
+  if(failed.length) msgs.push('补考未过，计入挂科：'+failed.join('、'));
+  if(caught) msgs.push('代考被识破，记过处分');
+  if(msgs.length) toast(msgs.join('；'), failed.length?'bad':'good');
+  renderGPA(); renderCourses();
+}
+function resolveCet(i){
+  const iq=S.i, st=S.study;
+  /* 已过四级：冲刺六级 */
+  if(S.cet4){
+    let p6;
+    if(i===0) p6=clamp(0.16+iq*0.004+st*0.002,0.05,0.8);
+    else if(i===1) p6=clamp(0.30+iq*0.005+st*0.002,0.10,0.9);
+    else if(i===2) p6=clamp(0.44+iq*0.005+st*0.002,0.15,0.95);
+    else p6=0.9;
+    if(i===3 && Math.random()<0.5){
+      S.detention++; S.m=clamp(S.m-6,0,100);
+      pushLog('六级代考被查，记过处分。');
+      toast('代考被查，成绩作废，记过处分。','bad');
+      return;
+    }
+    if(Math.random()<p6){ S.cet6=true; addHonor('大学英语六级证书'); toast('六级过了！','good'); }
+    else toast('六级差一点，下次再战。','bad');
+    return;
+  }
+  let p4;
+  if(i===0) p4=clamp(0.10+iq*0.004+st*0.002,0.03,0.8);
+  else if(i===1) p4=clamp(0.28+iq*0.005+st*0.002,0.08,0.9);
+  else if(i===2) p4=clamp(0.42+iq*0.005+st*0.002,0.12,0.95);
+  else p4=0.9;
+  if(i===3 && Math.random()<0.5){
+    S.detention++; S.m=clamp(S.m-6,0,100);
+    pushLog('四六级代考被查，记过处分。');
+    toast('代考被查，成绩作废，记过处分。','bad');
+    return;
+  }
+  if(Math.random()<p4){
+    S.cet4=true; addHonor('大学英语四级证书');
+    let msg='四级过了！';
+    if(iq>=72 && Math.random()<p4-0.1){ S.cet6=true; addHonor('大学英语六级证书'); msg+=' 六级也过了！'; }
+    toast(msg,'good');
+  }else{
+    toast('四级差一点没过，下次再战。','bad');
+  }
+}
+
+/* ---------------- 突发事件：只有结果，没有选择 ---------------- */
+function pickFlash(){
+  if(S.month===46) return null;
+  let prob=0.45;                      /* 近半数月份会突发 */
+  if(hasTalent('t_guangshe')) prob-=0.10;
+  if(Math.random()>prob) return null;
+  const y=Math.floor((S.month-1)/12)+1;
+  let cands=FLASH.filter(f=>f.id!==S.lastFlash && (!f.minY||y>=f.minY) && (!f.maxY||y<=f.maxY));
+  if(!cands.length) cands=FLASH.slice();
+  const f=cands[rand(0,cands.length-1)];
+  S.lastFlash=f.id;
+  return f;
+}
+async function applyFlash(fl){
+  const eff=Object.assign({}, fl.e||{});
+  let r=fl.r;
+  /* 锦鲤附体：20% 概率把最坏的一项变成好运 */
+  if(hasTalent('t_jinli') && !fl.id.startsWith('f6') && !fl.id.startsWith('f19') && !fl.id.startsWith('f20') &&
+     Math.random()<0.2 && Object.keys(eff).some(k=>eff[k]<0)){
+    const negs=Object.keys(eff).filter(k=>eff[k]<0);
+    const k=negs[rand(0,negs.length-1)];
+    eff[k]=Math.abs(eff[k]);
+    eff.h=(eff.h||0)+5;
+    r='锦鲤附体：'+r+'（运气好得不像话）';
+  }
+  if(fl.id==='f6'){
+    if(S.i>=70){ eff.h=4; eff.st=3; r='你对答如流，老师满意地点了点头。'; }
+    else { eff.s=7; eff.h=-3; r='你支支吾吾，在全班的目光里慢慢坐下。'; }
+  }else if(fl.id==='f19'){
+    if(S.goal==='kaoyan'){
+      if(S.i>=72 && S.gpa>=3.0){ eff.h=12; addHonor('考研初试过线'); r='你过线了！全家人的欢呼声从电话那头传来。'; }
+      else { eff.s=10; eff.h=-8; r='差了几分。你沉默了很久，然后开始查调剂信息。'; }
+    }else{
+      eff.h=3; eff.st=3; r='研友晒出了初试成绩，你看了看自己的复习资料，继续走自己的路。';
+    }
+  }else if(fl.id==='f20'){
+    if(S.p>=70){ eff.h=4; r='各项指标正常，你松了口气。'; }
+    else { eff.p=-3; eff.s=5; eff.h=-4; r='医生让你注意休息，你的心沉了一下。'; }
+  }
+  applyEffects(eff);
+  pushLog('【突发事件】'+fl.t+'：'+r);
+  const box=$('banner-box');
+  if(box){
+    box.insertAdjacentHTML('beforeend',
+      '<div class="flash-card">'+
+      '<div class="flash-tag">突发事件</div>'+
+      '<div class="flash-title">'+fl.t+'</div>'+
+      '<div class="flash-desc">'+fl.d+'</div>'+
+      '<div class="r-text">'+r+'</div>'+
+      '<div class="eff-chips">'+effectChips(eff)+'</div>'+
+      '</div>');
+  }
+  renderAttrs(); renderCourses();
+  return checkDeath();
+}
+
+/* ---------------- 考试 / 补考 / 清考 ---------------- */
+function isExamMonth(){ return ((S.month-1)%6)===3; }
+async function runExam(){
+  const sem=S.semester;
+  const dp=Math.round((S.major.diff-0.85)*25);
+  /* 学年难度系数：大一课程最宽松（现实中最不容易挂科），逐年收紧 */
+  const yr=Math.floor(sem/2), yb=[14,8,0,-4][yr]||0;
+  const talBonus=(hasTalent('t_guomuwang')?3:(hasTalent('t_tianfu')?2:0));
+  const guarantee=S.study>=70;   /* 学习投入 ≥70：期末必过 */
+  const results=S.courses.map(c=>{
+    let sc;
+    if(c.name==='毕业设计') sc=clamp(Math.round(S.i*0.5+S.study*0.3+rand(0,8)+14-dp+yb)+talBonus,0,100);
+    else if(c.name==='专业实习') sc=clamp(Math.round(S.p*0.2+S.i*0.25+S.study*0.2+rand(0,8)+32+Math.round(yb/2))+talBonus,0,100);
+    else if(c.type==='major') sc=clamp(Math.round(S.i*0.45+S.study*0.35+rand(0,8)+14-dp+yb)+talBonus,0,100);
+    else sc=clamp(Math.round(S.i*0.40+S.study*0.15+rand(0,8)+26+Math.round(yb/2))+talBonus,0,100);
+    if(guarantee) sc=Math.max(sc,62);
+    if(S.cheat && Math.random()<0.25){
+      sc=0; S.detention++;
+      pushLog('考试作弊被抓住，成绩记 0 分并受记过处分。');
+    }
+    c.score=sc; c.passed=sc>=60;
+    return c;
+  });
+  S.cheat=false;
+  S.courses.forEach(c=>{
+    S.courseHist.push({name:c.name,type:c.type,credit:c.credit,score:c.score,gpa:gpaOf(c.score),sem});
+  });
+  const semGPA=weightedGPA(S.courses);
+  S.gpaHist[sem]=semGPA;
+  S.gpa=weightedGPA(S.courseHist);
+  const newFails=S.courses.filter(c=>!c.passed);
+  newFails.forEach(c=>S.bujiePending.push({name:c.name,credit:c.credit,type:c.type}));
+  let sch='';
+  if([1,3,5].includes(sem)){
+    const yGPA=(S.gpaHist[sem-1]+semGPA)/2;
+    if(yGPA>=3.5){ S.mo+=2000; addHonor('一等奖学金'); sch='学年GPA '+yGPA.toFixed(2)+'，获一等奖学金 ¥2000'; }
+    else if(yGPA>=3.0){ S.mo+=1000; addHonor('二等奖学金'); sch='学年GPA '+yGPA.toFixed(2)+'，获二等奖学金 ¥1000'; }
+    else if(yGPA>=2.5){ S.mo+=500; addHonor('三等奖学金'); sch='学年GPA '+yGPA.toFixed(2)+'，获三等奖学金 ¥500'; }
+    else sch='学年GPA '+yGPA.toFixed(2)+'，未达奖学金标准';
+  }
+  renderGPA(); renderCourses(); renderAttrs();
+  const rows=results.map(c=>{
+    const g=c.score>=60?gpaOf(c.score):0;
+    return '<tr><td>'+c.name+'</td><td>'+(c.type==='major'?'专业课':'选修')+'</td><td>'+c.credit+'</td><td>'+c.score+'</td><td>'+g.toFixed(1)+'</td><td class="'+(c.passed?'ok':'no')+'">'+(c.passed?'通过':'挂科')+'</td></tr>';
+  }).join('');
+  await openModal(
+    '<h2>'+(sem===7?'毕业答辩成绩单':'期末考试 · 成绩单')+'</h2>'+
+    '<table class="grades"><tr><th>科目</th><th>类型</th><th>学分</th><th>成绩</th><th>绩点</th><th>状态</th></tr>'+rows+'</table>'+
+    '<div class="report-line">本学期GPA：<b>'+semGPA.toFixed(2)+'</b>　累计GPA：<b>'+S.gpa.toFixed(2)+'</b></div>'+
+    (sch?'<div class="report-line">'+sch+'</div>':'')+
+    (newFails.length?'<div class="report-line" style="color:#FECACA">'+(sem===7?'未通过科目将进入毕业清考：':'挂科科目将在下学期开学补考：')+newFails.map(c=>c.name).join('、')+'</div>':'')
+  );
+}
+async function runFinalClear(){
+  if(S.bujiePending.length){
+    S.bujiePending.forEach(c=>S.fails.push({name:c.name,sem:S.semester}));
+    S.bujiePending=[];
+  }
+  if(!S.fails.length) return;
+  const passed=[], failed=[];
+  S.fails.forEach(f=>{
+    if(Math.random()<clamp(0.30+S.i*0.005,0.05,0.9)) passed.push(f.name);
+    else failed.push(f);
+  });
+  S.fails=failed;
+  await openModal(
+    '<h2>毕业清考</h2>'+
+    '<p style="font-size:14px;color:#D7E0F2">毕业前最后一次清考机会：</p>'+
+    (passed.length?'<div class="report-line" style="color:#86EFAC">通过：'+passed.join('、')+'</div>':'')+
+    (failed.length?'<div class="report-line" style="color:#FECACA">未通过：'+failed.map(f=>f.name).join('、')+'（将影响毕业评定）</div>':'')
+  );
+}
+
+/* ---------------- 危险判定与插曲 ---------------- */
+function checkDeath(){
+  const dieT=hasTalent('t_tieda')?3:5;   /* 铁打的身体：猝死红线从体质 5 压到 3 */
+  if(S.p<=dieT){ gameOver('猝死','你倒在宿舍楼前，急救车鸣着笛开进校园……长期透支的体质，终究没有撑到毕业。'); return true; }
+  if(S.m<=3){ gameOver('犯罪','一念之差，你因偷窃或诈骗被警方带走。档案上那行字，盖过了四年所有的颜色。'); return true; }
+  if(S.hm<=0){ gameOver('崩溃','心情跌到谷底，你在医院醒来，决定休学，离开这片尧山下的校园。'); return true; }
+  if(S.fails.length>=6){ gameOver('退学','累计挂科超过六门，你收到了学校的劝退通知书。'); return true; }
+  if(S.mo<=-700){ gameOver('债务危机','校园贷的雪球越滚越大。催债的电话打到了辅导员那里，你在退学协议上签下了自己的名字。'); return true; }
+  return false;
+}
+async function showInterludes(){
+  const msgs=[];
+  if(S.mo<0){
+    /* 负债状态：所有属性大幅下降，心情大幅下降，被迫打零工还债 */
+    S.debt=true;
+    S.p=clamp(S.p-2,0,100); S.hm=clamp(S.hm-20,-100,100); S.so=clamp(S.so-5,0,100); S.i=clamp(S.i-3,0,100); S.m=clamp(S.m-2,0,100);
+    S.study=clamp(S.study-6,0,100);
+    S.mo += hasTalent('t_jianzhi') ? 375 : 250; /* 被迫打零工还债（兼职快手多赚一半），但仍可能资不抵债 */
+    msgs.push(['负债缠身：你被迫打零工还债，身心俱疲，所有属性大幅下滑、心情跌入低谷。','bad']);
+    if(S.mo<-600){
+      S.p=clamp(S.p-2,0,100); S.hm=clamp(S.hm-14,-100,100);
+      msgs.push(['债务雪球越滚越大，催债电话开始打到你手机上……','bad']);
+    }
+  }else if(S.mo<300){
+    msgs.push(['钱包快见底了，下个月要省着点花。','bad']);
+  }
+  if(S.p<=15 && Math.random()<0.7){
+    S.p=clamp(S.p-2,0,100); S.hm=clamp(S.hm-12,-100,100); S.mo-=350;
+    msgs.push(['你病倒了，在医院吊了一周水，花掉 350 元。','bad']);
+  }else if(S.p<=30 && Math.random()<0.5){
+    S.p=clamp(S.p-1,0,100); S.hm=clamp(S.hm-4,-100,100); S.mo-=120;
+    msgs.push(['换季流感找上你，校医院开了点药，花掉 120 元。','bad']);
+  }
+  if(S.m<=20){
+    S.m=clamp(S.m-2,0,100); S.so=clamp(S.so-4,0,100); S.hm=clamp(S.hm-3,-100,100);
+    msgs.push(['你最近做的事不太光彩，朋友开始疏远你。','bad']);
+  }
+  if(S.hm<=3){
+    S.hm=clamp(S.hm+15,-100,100); S.p=clamp(S.p-3,0,100);
+    msgs.push(['心情跌到谷底，你浑浑噩噩休整了一周才缓过来。','bad']);
+  }else if(S.hm<=10){
+    msgs.push(['心情低落，你有些自暴自弃，无法专心学业。','bad']);
+  }
+  if(S.fails.length>=3 && !S.warned){
+    S.warned=true; S.hm=clamp(S.hm-10,-100,100);
+    msgs.push(['学业预警：挂科已达 '+S.fails.length+' 门，辅导员找你谈话。','bad']);
+  }
+  for(const m of msgs){
+    showBanner(m[0],m[1]);
+    await sleep(1400);
+  }
+  renderAttrs();
+}
+function showBanner(msg,type){
+  const bb=$('banner-box');
+  if(!bb) return;
+  const d=document.createElement('div');
+  d.className='banner'+(type==='bad'?' bad':(type==='good'?' good':''));
+  d.textContent=msg;
+  bb.appendChild(d);
+}
+function toast(msg,type){
+  const root=$('toast-root');
+  const d=document.createElement('div');
+  d.className='toast'+(type==='bad'?' bad':(type==='good'?' good':''));
+  d.textContent=msg;
+  root.appendChild(d);
+  setTimeout(()=>{ d.classList.add('out'); setTimeout(()=>d.remove(),400); },2600);
+}
+
+/* ---------------- 弹窗 ---------------- */
+function openModal(html, fatal, btnLabel){
+  return new Promise(res=>{
+    modalOpen=true;
+    const label=btnLabel||(fatal?'重新开始':'知道了');
+    $('modal-root').innerHTML='<div class="overlay"><div class="modal">'+html+
+      '<div class="modal-actions"><button class="btn '+(fatal?'danger':'primary')+'" id="m-close">'+label+'</button></div></div></div>';
+    $('m-close').onclick=()=>{
+      $('modal-root').innerHTML='';
+      modalOpen=false;
+      if(fatal) resetGame();
+      res();
+    };
+  });
+}
+
+/* ---------------- 毕业评定 ---------------- */
+function computeGrade(){
+  const academic=S.gpa/5*100;
+  const honorPt=Math.min(30,S.honors.length*6);
+  const pen=S.fails.length*4+S.detention*15;
+  let total=Math.round(academic*0.5+S.p*0.1+S.m*0.15+(S.hm+S.so)/2*0.1+honorPt-pen);
+  total=clamp(total,0,100);
+  let grade;
+  if(total>=80 && S.fails.length===0) grade='S';
+  else if(total>=70) grade='A';
+  else if(total>=58) grade='B';
+  else if(total>=46) grade='C';
+  else grade='D';
+  if(hasTalent('t_tianming') && grade!=='S'){   /* 天命之子：毕业评级提升一档 */
+    const order=['A','B','C','D'];
+    const idx=order.indexOf(grade);
+    if(idx>0) grade=order[idx-1];
+    else if(idx===0) grade='S';
+  }
+  return {total,grade,academic,honorPt,pen,gpa:S.gpa};
+}
+function makeComment(){
+  const parts=[];
+  if(S.gpa>=3.5) parts.push('学业上你是问天楼自习区的常客，成绩单漂亮得可以贴墙。');
+  else if(S.gpa>=2.5) parts.push('学业中规中矩，偶有起伏，但也算平稳走完了四年。');
+  else parts.push('学业上你走得磕磕绊绊，挂科记录让毕业证险些蒙尘。');
+  if(S.p>=75) parts.push('四年里你身体倍儿棒，操场夜跑的身影是一道风景。');
+  else if(S.p<=40) parts.push('你的体质亮过红灯，医院和宿舍的往返成了家常便饭。');
+  if(S.m>=75) parts.push('你始终守着做人的底线，在诱惑面前没有走偏。');
+  else if(S.m<=40) parts.push('道德的天平上你多次摇摆，差一点就坠入深渊。');
+  if(S.love) parts.push('那段青涩的恋爱，成了你四年里最柔软的记忆。');
+  if(S.honors.length) parts.push('你拿下过'+S.honors.join('、')+'。');
+  if(S.detention) parts.push('档案里的处分记录，是你绕不过去的一道疤。');
+  return parts.join('');
+}
+/* ---------------- 毕业模拟考试（考研/考公/工作）+ 创业按钱评定 ---------------- */
+const GRAD_EXAM={
+  kaoyan:{
+    name:'研究生入学考试',pass:320,perScore:15,
+    base:()=>Math.round(S.i*1.8+S.study*1.0+S.gpa*25+S.honors.length*12),
+    groups:[
+      {name:'政治',count:2,pool:[
+        {q:'马克思主义哲学的直接理论来源是',o:['英国古典政治经济学','德国古典哲学','法国空想社会主义','古希腊自然哲学'],a:1},
+        {q:'新民主主义革命的三大法宝是',o:['统一战线、武装斗争、党的建设','实事求是、群众路线、独立自主','理论联系实际、密切联系群众、批评与自我批评','解放思想、实事求是、与时俱进'],a:0},
+        {q:'实践是检验真理的唯一标准，这主要是因为',o:['实践具有直接现实性','实践是认识的来源','实践是认识发展的动力','实践具有社会历史性'],a:0},
+        {q:'唯物辩证法的实质和核心是',o:['质量互变规律','否定之否定规律','对立统一规律','联系和发展的观点'],a:2}
+      ]},
+      {name:'英语',count:2,pool:[
+        {q:'The word "ubiquitous" most nearly means',o:['rare','omnipresent','unique','obsolete'],a:1},
+        {q:'Which is a synonym for "meticulous"?',o:['careless','thorough','quick','lazy'],a:1},
+        {q:'"Had I known earlier, I would have come." uses which mood?',o:['indicative','imperative','subjunctive','conditional'],a:2},
+        {q:'Choose the correct preposition: She is proficient ___ programming.',o:['in','at','on','with'],a:0}
+      ]},
+      {name:'数学/专业课',count:2,pool:[
+        {q:'∫x·eˣ dx =',o:['x·eˣ + C','(x-1)eˣ + C','(x+1)eˣ + C','eˣ/x + C'],a:1},
+        {q:'设 A 为 3 阶矩阵，r(A)=2，则 r(A*)=',o:['0','1','2','3'],a:1},
+        {q:'X~N(0,1)，则 P(|X|<1.96)≈',o:['0.90','0.95','0.99','0.975'],a:1},
+        {q:'级数 Σ(1/n²) 的和为',o:['π/6','π²/6','π²/4','1'],a:1}
+      ]}
+    ]
+  },
+  civil:{
+    name:'公务员录用考试',pass:130,perScore:12,
+    base:()=>Math.round(S.i*0.7+S.m*0.5+S.study*0.4+S.honors.length*5),
+    groups:[
+      {name:'行测',count:4,pool:[
+        {q:'甲乙从 A 到 B，甲 60km/h 比乙 50km/h 早到 1 小时，AB 距离为',o:['250km','300km','350km','400km'],a:1},
+        {q:'进水管 6h 注满水池，出水管 8h 放空，同时开需多久注满',o:['18h','20h','24h','28h'],a:2},
+        {q:'"如果下雨地面就湿"，现地面湿了，可推出',o:['一定下雨了','一定没下雨','无法确定是否下雨','地面不会干'],a:2},
+        {q:'某班 50 人男生占 60%，男均 175cm 女均 160cm，全班平均身高',o:['167cm','168cm','169cm','170cm'],a:2},
+        {q:'"锦上添花"的反义词是',o:['雪中送炭','雪上加霜','画蛇添足','落井下石'],a:1},
+        {q:'数列 2,6,12,20,30,?',o:['36','40','42','48'],a:2},
+        {q:'所有玫瑰都是花，有些花是红色的，可推出',o:['所有玫瑰都是红色','有些玫瑰是红色','有些玫瑰不是红色','无法确定玫瑰是否有红色'],a:3},
+        {q:'去年营收 1000 万，今年增长 20%，今年营收',o:['1100万','1200万','1250万','1500万'],a:1}
+      ]},
+      {name:'申论',count:2,pool:[
+        {q:'申论大作文最核心的要求是',o:['辞藻华丽','立意明确、结构完整、论证充分','字数越多越好','大量引用名言'],a:1},
+        {q:'归纳概括题的答题原则不包括',o:['全面','准确','加入个人主观评价','简明'],a:2}
+      ]}
+    ]
+  },
+  work:{
+    name:'校园招聘笔面试',pass:60,perScore:8,
+    base:()=>Math.round(S.i*0.3+S.so*0.3+S.gpa*5+S.honors.length*3),
+    groups:[
+      {name:'笔试',count:2,pool:[
+        {q:'以下哪项不是面向对象编程的基本特性',o:['封装','继承','多态','模块化'],a:3},
+        {q:'A>B, B>C, C>D，以下一定正确的是',o:['A>C 但 A 与 D 关系不确定','A>D','B>D 但 A 与 C 关系不确定','A>C 且 B>D'],a:1},
+        {q:'TCP 协议属于 OSI 模型的',o:['网络层','传输层','会话层','应用层'],a:1},
+        {q:'数列 2,6,12,20,30,? 的下一项是',o:['36','40','42','48'],a:2}
+      ]},
+      {name:'面试',count:2,pool:[
+        {q:'"请自我介绍"的最佳策略是',o:['从小学经历讲起','突出与岗位匹配的经历和能力','强调自己的缺点以显真诚','尽量简短只说姓名学校'],a:1},
+        {q:'被问"最大缺点"时，不合适的回答是',o:['说一个正在改进的真实缺点','说"我没有缺点"','说一个与岗位非核心相关的缺点','结合具体事例说明改进过程'],a:1},
+        {q:'"为什么选择我们公司"应侧重',o:['公司名气大','薪资待遇好','公司发展与个人职业规划契合','离家近'],a:2},
+        {q:'与同事发生冲突时，最佳做法是',o:['直接找领导评理','先沟通理解对方立场再寻求共识','冷战不说话','在群里公开争论'],a:1}
+      ]}
+    ]
+  }
+};
+async function runGraduationExam(){
+  const goal=S.goal||'work';
+  if(goal==='chuangye'){
+    const mo=S.mo;
+    let level,desc;
+    if(mo>=50000){ level='融资成功'; desc='公司账上充裕，拿到了种子轮融资。'; }
+    else if(mo>=20000){ level='小成'; desc='年营收稳定，小公司活了下来。'; }
+    else if(mo>=0){ level='维持'; desc='勉强维持经营，不赚不赔。'; }
+    else{ level='失败'; desc='资金链断裂，创业宣告失败。'; }
+    S.gradExam={type:'chuangye',score:mo,level,desc};
+    return;
+  }
+  const cfg=GRAD_EXAM[goal]||GRAD_EXAM.work;
+  const questions=[];
+  cfg.groups.forEach(g=>{
+    const pool=g.pool.slice();
+    for(let k=0;k<g.count;k++){
+      const ri=rand(0,pool.length-1);
+      questions.push(Object.assign({group:g.name},pool.splice(ri,1)[0]));
+    }
+  });
+  const answers={};
+  let answered=0;
+  return new Promise(res=>{
+    const render=()=>{
+      modalOpen=true;
+      $('modal-root').innerHTML='<div class="overlay"><div class="modal" style="max-width:640px">'+
+        '<h2>'+cfg.name+'</h2>'+
+        '<p style="font-size:13px;color:var(--dim);margin-bottom:10px">基础分由平时表现与属性决定，答对每题 +'+cfg.perScore+' 分。</p>'+
+        questions.map((q,i)=>'<div class="gaokao-q"><div class="gq-tag">'+(i+1)+' · '+q.group+'</div>'+
+          '<div class="gq-q">'+q.q+'</div>'+
+          '<div class="gq-opts">'+q.o.map((op,j)=>
+            '<button class="gq-opt'+(answers[i]===j?' sel':'')+'" data-geq="'+i+'" data-gej="'+j+'">'+
+            '<b>'+'ABCD'[j]+'</b>. '+op+'</button>').join('')+'</div></div>').join('')+
+        '<div style="text-align:center;margin-top:14px">已答 <span id="ge-cnt">0</span>/'+questions.length+
+        '<button id="ge-submit" class="btn primary" style="margin-left:14px" disabled>交卷</button></div></div></div>';
+      document.querySelectorAll('.gq-opt[data-geq]').forEach(b=>{
+        b.onclick=()=>{
+          const qi=parseInt(b.getAttribute('data-geq'));
+          const ji=parseInt(b.getAttribute('data-gej'));
+          if(answers[qi]===undefined) answered++;
+          answers[qi]=ji;
+          $('ge-cnt').textContent=answered;
+          $('ge-submit').disabled=answered<questions.length;
+          document.querySelectorAll('.gq-opt[data-geq="'+qi+'"]').forEach(x=>x.classList.remove('sel'));
+          b.classList.add('sel');
+        };
+      });
+      $('ge-submit').onclick=()=>{
+        let right=0;
+        questions.forEach((q,i)=>{ if(answers[i]===q.a) right++; });
+        const base=cfg.base();
+        let score=base+right*cfg.perScore;
+        if(goal==='kaoyan'){
+          if(hasTalent('t_tianfu')) score+=20;
+          if(hasTalent('t_guomuwang')) score+=15;
+          if(hasTalent('t_jingji')) score+=10;
+        }else if(goal==='civil'){
+          if(hasTalent('t_tianfu')) score+=15;
+          if(hasTalent('t_zizhili')) score+=10;
+        }else{
+          if(hasTalent('t_renyuan')) score+=15;
+          if(hasTalent('t_huiy')) score+=10;
+        }
+        const cap=goal==='kaoyan'?500:(goal==='civil'?200:100);
+        score=Math.min(cap,score);
+        S.gradExam={type:goal,score,right,total:questions.length,base};
+        const passed=score>=cfg.pass;
+        $('modal-root').innerHTML='<div class="overlay"><div class="modal" style="max-width:520px;text-align:center">'+
+          '<h2>'+cfg.name+' · 成绩</h2>'+
+          '<div style="font-size:36px;color:var(--gold);margin:10px 0">'+score+' 分</div>'+
+          '<div style="font-size:13px;color:var(--dim)">基础分 '+base+' + 答对 '+right+'/'+questions.length+' 题（+'+(right*cfg.perScore)+'）'+
+          (goal==='kaoyan'&&hasTalent('t_tianfu')?' + 天赋加成':'')+'</div>'+
+          '<div style="margin-top:14px;font-size:15px">'+(passed?'<span style="color:#86EFAC">✓ 过线（'+cfg.pass+' 分）</span>':'<span style="color:#FCA5A5">✗ 未过线（'+cfg.pass+' 分）</span>')+'</div>'+
+          '<div class="modal-actions"><button class="btn primary" id="ge-close">查看毕业评定</button></div></div></div>';
+        $('ge-close').onclick=()=>{ $('modal-root').innerHTML=''; modalOpen=false; res(); };
+      };
+    };
+    render();
+  });
+}
+
+/* ---------------- 毕业去向 ---------------- */
+const ENDING_SCHOOLS={
+  '工科':{top:['北京航空航天大学','哈尔滨工业大学','西北工业大学','电子科技大学'], mid:['南京航空航天大学','西安电子科技大学','重庆大学','广西大学'], low:['桂林电子科技大学','桂林航天工业学院','桂林理工大学']},
+  '经管':{top:['中南财经政法大学','西南财经大学','上海对外经贸大学'], mid:['广西大学','广东财经大学','广西财经学院'], low:['桂林航天工业学院','桂林理工大学']},
+  '文科':{top:['广东外语外贸大学','北京第二外国语学院','上海对外经贸大学'], mid:['广西大学','广西师范大学','南宁师范大学'], low:['桂林航天工业学院','桂林理工大学']},
+  '艺术':{top:['中国美术学院','江南大学','广州美术学院'], mid:['广西艺术学院','广西师范大学','桂林理工大学'], low:['桂林航天工业学院']}
+};
+const ENDING_FIRMS={
+  '工科':{top:['中国航天科技集团','中国航天科工集团','华为','中国商飞'], mid:['中航工业·成飞','大疆创新','比亚迪','上汽通用五菱'], low:['桂林深科技','柳州五菱','桂林福达股份']},
+  '经管':{top:['字节跳动','立信会计师事务所','招商银行'], mid:['京东物流','中国银行·桂林分行','广西投资集团'], low:['桂林银行','本地会计师事务所','中小物流企业']},
+  '文科':{top:['字节跳动','携程集团','广东外贸集团'], mid:['新东方','广西外贸集团','南宁跨境电商公司'], low:['本地外贸公司','教培机构','跨境电商小厂']},
+  '艺术':{top:['网易游戏·美术中心','腾讯·视觉设计','字节跳动·设计中心'], mid:['广州设计公司','深圳广告公司','本地文创公司'], low:['本地广告店','电商美工','自由接单']}
+};
+const ENDING_POSTS={
+  hkzz:'结构设计工程师', jx:'工艺工程师', jsj:'软件开发工程师', dz:'嵌入式软件工程师', zdh:'自动化控制工程师',
+  cw:'审计助理', sc:'市场专员', wl:'供应链专员', syyw:'外贸业务员', sj:'视觉设计师',
+  jd:'机电工程师', zzn:'智能制造工程师', dq:'电气工程师', fd:'发动机设计工程师', ai:'AI算法工程师',
+  bigdata:'数据分析师', kj:'会计', gs:'管理培训生', hy:'文案策划', sm:'数字媒体设计师'
+};
+const ENDING_CITIES={
+  '工科':['深圳','北京','西安','柳州','桂林'],
+  '经管':['南宁','桂林','广州','深圳'],
+  '文科':['广州','深圳','南宁','桂林'],
+  '艺术':['深圳','上海','杭州','广州']
+};
+function buildWorkEnding(tierOverride){
+  const type=S.major.type;
+  const g=S.gpa;
+  const examScore=S.gradExam&&S.gradExam.type==='work'?S.gradExam.score:0;
+  const tier=tierOverride||(examScore>=80?'top':(examScore>=60?'mid':'low'));
+  const firm=pick(ENDING_FIRMS[type][tier]);
+  const city=pick(ENDING_CITIES[type]);
+  const post=ENDING_POSTS[S.major.id]||'管培生';
+  let salary;
+  if(S.fails.length>0) salary=6+rand(-1,2);
+  else{
+    salary=6+S.honors.length*0.8+S.gpa*1.0+Math.max(0,(S.i-60))*0.05+examScore*0.05+rand(0,2);
+    if(type==='工科') salary*=1.1;
+    if(hasTalent('t_renyuan')) salary+=1.5;
+  }
+  salary=Math.max(6,Math.round(salary));
+  const lv=tier==='top'?'头部企业':(tier==='mid'?'优质企业':'普通企业');
+  return {line:'入职 <b>'+firm+'</b>（'+city+'） · '+post+' · 年薪约 <b>'+salary+' 万</b>', sub:lv+'，专业对口，未来可期。'};
+}
+function computeEnding(){
+  const goal=S.goal||'work';
+  const type=S.major.type;
+  const ex=S.gradExam||{};
+  /* 考研 */
+  if(goal==='kaoyan'){
+    const sc=ex.score||0;
+    if(sc>=400){
+      const school=pick(ENDING_SCHOOLS[type].top);
+      S.ending={line:'考研上岸：<b>'+school+'</b> · 工学硕士（'+S.major.name+'方向）', sub:sc+' 分的高分，你敲开了顶尖学府的门。'};
+      return;
+    }
+    if(sc>=360){
+      const school=pick(ENDING_SCHOOLS[type].mid);
+      const post=type==='工科'?'工学硕士':(type==='经管'?'管理学硕士':(type==='文科'?'文学硕士':'设计学硕士'));
+      S.ending={line:'考研上岸：<b>'+school+'</b> · '+post, sub:sc+' 分，稳扎稳打，你去了心仪的学校。'};
+      return;
+    }
+    if(sc>=320){
+      const school=pick(ENDING_SCHOOLS[type].low);
+      S.ending={line:'考研上岸：<b>'+school+'</b> · 专硕', sub:sc+' 分压线过线，调剂上岸也是上岸。'};
+      return;
+    }
+    const iqLine=hasTalent('t_tianfu')?68:70;
+    if(S.i>=iqLine && Math.random()<0.3){
+      S.ending={line:'二战上岸：<b>'+pick(ENDING_SCHOOLS[type].low)+'</b> · 专硕', sub:'第一年差了几分，第二年你咬着牙回来了。'};
+      return;
+    }
+    S.goal='work';
+    const w=buildWorkEnding();
+    S.ending={line:'考研失利（'+sc+' 分），转就业：'+w.line, sub:w.sub+'你收好落榜的通知书，一头扎进了求职季。'};
+    return;
+  }
+  /* 考公 */
+  if(goal==='civil'){
+    const sc=ex.score||0;
+    if(sc>=150){
+      S.ending={line:'考公上岸：<b>广西区直机关</b> · 综合管理岗', sub:sc+' 分高分上岸，你端上了令人羡慕的"铁饭碗"。'};
+      return;
+    }
+    if(sc>=140){
+      const region=pick(['南宁市市场监督管理局','南宁海关','桂林市税务局']);
+      const post=type==='工科'?'行政执法岗（技术保障）':(type==='经管'?'税务征管岗':'综合管理岗');
+      S.ending={line:'考公上岸：<b>'+region+'</b> · '+post, sub:sc+' 分，市直岗位，稳定且有发展空间。'};
+      return;
+    }
+    if(sc>=130){
+      S.ending={line:'考公上岸：<b>'+pick(['桂林区县机关','乡镇政府','县级税务局'])+'</b> · 综合管理岗', sub:sc+' 分压线进面，基层也是广阔天地。'};
+      return;
+    }
+    S.goal='work';
+    const w2=buildWorkEnding();
+    S.ending={line:'考公未上岸（'+sc+' 分），转就业：'+w2.line, sub:w2.sub+'"铁饭碗"没端上，你决定边工作边准备省考。'};
+    return;
+  }
+  /* 创业：按钱打分 */
+  if(goal==='chuangye'){
+    const level=ex.level||'维持';
+    const mo=ex.score||0;
+    if(level==='融资成功'){
+      S.ending={line:'创业成功：<b>桂林智造科技有限公司</b> · 拿到种子轮融资 · 估值破千万', sub:'毕业时账上还有 ¥'+mo+'，从宿舍里的一个想法到一间有窗的办公室。'};
+    }else if(level==='小成'){
+      S.ending={line:'创业小成：<b>你的自主创业公司</b> · 年营收约 '+rand(30,80)+' 万', sub:'毕业时账上 ¥'+mo+'，小公司活下来了，日子紧巴巴但自由。'};
+    }else if(level==='维持'){
+      S.ending={line:'创业维持：<b>个人工作室</b> · 不赚不赔，勉强糊口', sub:'毕业时账上 ¥'+mo+'，你还在坚持，但前路未卜。'};
+    }else{
+      S.goal='work';
+      const w3=buildWorkEnding('low');
+      S.ending={line:'创业失败（负债 ¥'+Math.abs(mo)+'），回职场：'+w3.line, sub:w3.sub+'创业这一课，交了不少学费。'};
+    }
+    return;
+  }
+  /* 就业（含默认） */
+  S.ending=buildWorkEnding();
+}
+function reportHTML(rep){
+  if(!S.ending) computeEnding();
+  return '<div class="grade-hero">'+
+    (S.talents&&S.talents.length?'<div class="talent-line" style="margin:0 auto 8px;max-width:420px;text-align:left">✦ 觉醒天赋：'+S.talents.map(t=>'<b style="color:'+TALENT_QUALITY[t.q].color+'">'+t.name+'</b>（'+TALENT_QUALITY[t.q].name+'）').join(' + ')+'</div>':'')+
+    '<div class="grade-letter grade-'+rep.grade+'">'+rep.grade+'</div>'+
+    '<div class="grade-note">综合评定 '+rep.total+' 分 · 累计GPA '+rep.gpa.toFixed(2)+'</div></div>'+
+    '<div class="bd-row"><span class="bd-label">学业</span><div class="bd-bar"><div class="bd-fill" style="width:'+Math.round(rep.academic)+'%"></div></div><span>'+Math.round(rep.academic)+'</span></div>'+
+    '<div class="bd-row"><span class="bd-label">体质</span><div class="bd-bar"><div class="bd-fill" style="width:'+S.p+'%;background:var(--p)"></div></div><span>'+S.p+'</span></div>'+
+    '<div class="bd-row"><span class="bd-label">道德</span><div class="bd-bar"><div class="bd-fill" style="width:'+S.m+'%;background:var(--m)"></div></div><span>'+S.m+'</span></div>'+
+    '<div class="bd-row"><span class="bd-label">心社</span><div class="bd-bar"><div class="bd-fill" style="width:'+Math.round((S.hm+S.so)/2)+'%;background:var(--h)"></div></div><span>'+Math.round((S.hm+S.so)/2)+'</span></div>'+
+    '<div class="bd-row"><span class="bd-label">荣誉</span><div class="bd-bar"><div class="bd-fill" style="width:'+Math.min(100,Math.round(rep.honorPt/30*100))+'%;background:var(--gold)"></div></div><span>'+S.honors.length+'项</span></div>'+
+    (rep.pen?'<div class="bd-row"><span class="bd-label">扣罚</span><div class="bd-bar"><div class="bd-fill" style="width:'+Math.min(100,rep.pen)+'%;background:var(--bad)"></div></div><span>-'+rep.pen+'</span></div>':'')+
+    '<div class="grade-remark">'+makeComment()+'</div>'+
+    (S.gradExam?'<div style="margin:10px 0;font-size:13.5px;color:#BFD4FF">'+
+      (S.gradExam.type==='chuangye'?'创业资金评定：毕业时账上 <b style="color:var(--gold)">¥'+S.gradExam.score+'</b> · '+S.gradExam.level:
+       '毕业考试：<b style="color:var(--gold)">'+S.gradExam.score+' 分</b>（基础 '+S.gradExam.base+' + 答对 '+S.gradExam.right+'/'+S.gradExam.total+' 题）')+
+      '</div>':'')+
+    '<div class="grade-outcome">毕业去向：'+S.ending.line+'<div class="ending-sub">'+S.ending.sub+'</div></div>'+
+    (S.honors.length?'<h3 style="margin-top:14px">荣誉档案</h3><div class="honor-item" style="border:none">'+S.honors.join(' · ')+'</div>':'')+
+    (S.fails.length?'<div style="margin-top:8px;font-size:12.5px;color:#FCA5A5">挂科记录：'+S.fails.map(f=>f.name).join('、')+'</div>':'')+
+    '<div class="stats-grid">'+
+    '<div>生涯月数 <b>48 / 48</b></div><div>总荣誉 <b>'+S.honors.length+'</b> 项</div>'+
+    '<div>处分 <b>'+S.detention+'</b> 次</div><div>挂科 <b>'+S.fails.length+'</b> 门</div></div>';
+}
+function saveBest(rep){
+  try{
+    const best=JSON.parse(localStorage.getItem('guihang_best')||'null');
+    if(!best || rep.total>best.total){
+      localStorage.setItem('guihang_best',JSON.stringify({total:rep.total,grade:rep.grade,name:S.name,major:S.major.name,gpa:S.gpa}));
+    }
+  }catch(e){}
+}
+function readBest(){
+  try{ return JSON.parse(localStorage.getItem('guihang_best')||'null'); }catch(e){ return null; }
+}
+function bestLine(){
+  const b=readBest();
+  return b?('评级 '+b.grade+' · '+b.total+' 分 · '+b.name+'（'+b.major+'）'):'暂无记录';
+}
+
+/* ---------------- 成就系统 ---------------- */
+const ACHIEVEMENTS=[
+  {id:'ach_graduate', name:'完整四年', desc:'完成一场完整的大学生涯，顺利毕业', rare:false, cond:(s,r,reason)=>reason==='毕业'},
+  {id:'ach_fail1', name:'挂科初体验', desc:'挂科 1 门以上（不挂科的大学不完整）', rare:false, cond:s=>s.fails.length>=1},
+  {id:'ach_fail3', name:'挂科达人', desc:'累计挂科 3 门以上', rare:false, cond:s=>s.fails.length>=3},
+  {id:'ach_nofail', name:'全科通过', desc:'毕业时零挂科记录', rare:false, cond:s=>s.fails.length===0},
+  {id:'ach_driver', name:'持证上路', desc:'拿到机动车驾驶证', rare:false, cond:s=>s.honors.includes('机动车驾驶证')},
+  {id:'ach_love', name:'怦然心动', desc:'谈过一段校园恋爱', rare:false, cond:s=>s.love},
+  {id:'ach_cet4', name:'四级过关', desc:'通过大学英语四级', rare:false, cond:s=>s.cet4},
+  {id:'ach_cet6', name:'六级通关', desc:'通过大学英语六级', rare:false, cond:s=>s.cet6},
+  {id:'ach_scholar', name:'奖学金得主', desc:'拿过一次奖学金', rare:false, cond:s=>s.honors.includes('奖学金')},
+  {id:'ach_tice', name:'体测达人', desc:'体测成绩达到优秀', rare:false, cond:s=>s.honors.includes('体测优秀')},
+  {id:'ach_rich', name:'小金库', desc:'毕业时存款超过 3000 元', rare:false, cond:s=>s.mo>=3000},
+  {id:'ach_debt', name:'负债前行', desc:'大学生涯中出现过负债', rare:false, cond:s=>s.debt},
+  {id:'ach_detention', name:'背过处分', desc:'受过一次记过处分', rare:false, cond:s=>s.detention>0},
+  {id:'ach_A', name:'优秀毕业生', desc:'毕业评定达到 A 级', rare:false, cond:(s,r)=>r&&r.grade==='A'},
+  {id:'ach_S', name:'桂航之光', desc:'毕业评定达到 S 级', rare:true, cond:(s,r)=>r&&r.grade==='S'},
+  {id:'ach_tuixue', name:'劝退彩蛋', desc:'累计挂科 6 门，被学校劝退', rare:true, cond:(s,r,reason)=>reason==='退学'},
+  {id:'ach_cusi', name:'猝死彩蛋', desc:'体质透支，倒在了毕业前', rare:true, cond:(s,r,reason)=>reason==='猝死'},
+  {id:'ach_fanzui', name:'犯罪彩蛋', desc:'道德崩塌，一念之差锒铛入狱', rare:true, cond:(s,r,reason)=>reason==='犯罪'},
+  {id:'ach_bengkui', name:'崩溃彩蛋', desc:'压力爆表，精神崩溃休学', rare:true, cond:(s,r,reason)=>reason==='崩溃'},
+  {id:'ach_zhaiwu', name:'债务危机', desc:'欠债超千元，被校园贷压垮', rare:true, cond:(s,r,reason)=>reason==='债务危机'},
+  {id:'ach_kaoyan', name:'考研上岸', desc:'考上研究生，继续深造', rare:true, cond:s=>s.ending&&s.ending.line.indexOf('上岸')>=0&&s.goal==='kaoyan'},
+  {id:'ach_gongkao', name:'端上铁饭碗', desc:'考公上岸', rare:true, cond:s=>s.ending&&s.ending.line.indexOf('考公上岸')>=0},
+  {id:'ach_chuangye', name:'白手起家', desc:'创业成功，公司拿到融资或稳定经营', rare:true, cond:s=>s.ending&&(s.ending.line.indexOf('创业成功')>=0||s.ending.line.indexOf('创业小成')>=0)},
+  {id:'ach_honor6', name:'荣誉大满贯', desc:'四年获得 6 项以上荣誉', rare:true, cond:s=>s.honors.length>=6},
+  {id:'ach_luobang', name:'名落孙山', desc:'高考落榜，与大学失之交臂', rare:true, cond:(s,r,reason)=>reason==='落榜'},
+  {id:'ach_gaokao750', name:'高考满分', desc:'模拟高考拿下 750 分', rare:true, cond:()=>gkScore>=750},
+  {id:'ach_gaokao700', name:'高考状元', desc:'模拟高考 700 分以上', rare:true, cond:()=>gkScore>=700},
+  {id:'ach_gaofen', name:'高分考生', desc:'模拟高考 600 分以上', rare:false, cond:()=>gkScore>=600},
+  {id:'ach_zhongju', name:'金榜题名', desc:'第一志愿直接录取', rare:false, cond:()=>gkAdmitMode==='第一志愿录取'},
+  {id:'ach_tiaoxi', name:'调剂专业户', desc:'被调剂录取，主打一个随遇而安', rare:false, cond:()=>gkAdmitMode==='调剂录取'},
+  {id:'ach_wuli', name:'纯理战士', desc:'选科：物理+化学+生物', rare:false, cond:()=>selSubject&&selSubject.p&&selSubject.c==='chem'&&selSubject.b==='bio'},
+  {id:'ach_wenshi', name:'纯文书生', desc:'选科：历史+政治+地理', rare:false, cond:()=>selSubject&&!selSubject.p&&selSubject.c==='pol'&&selSubject.b==='geo'}
+];
+function readAch(){
+  try{ return JSON.parse(localStorage.getItem('guihang_ach')||'{}'); }catch(e){ return {}; }
+}
+function checkAchievements(reason, rep){
+  const all=readAch();
+  const unlocked=[];
+  ACHIEVEMENTS.forEach(a=>{
+    if(all[a.id]) return;
+    try{ if(a.cond(S,rep,reason)){ all[a.id]=true; unlocked.push(a); } }catch(e){}
+  });
+  if(unlocked.length){
+    try{ localStorage.setItem('guihang_ach',JSON.stringify(all)); }catch(e){}
+    unlocked.forEach((a,i)=>setTimeout(()=>toast('成就解锁：'+a.name+(a.rare?'（稀有）':''),'good'),700+i*350));
+  }
+  return unlocked;
+}
+function showAch(){
+  const all=readAch();
+  const normal=ACHIEVEMENTS.filter(a=>!a.rare), rare=ACHIEVEMENTS.filter(a=>a.rare);
+  const nGot=normal.filter(a=>all[a.id]).length, rGot=rare.filter(a=>all[a.id]).length;
+  const html='<div class="ach-title">成就 · '+(nGot+rGot)+' / '+ACHIEVEMENTS.length+'</div>'+
+    '<div class="ach-count">普通 '+nGot+'/'+normal.length+' · 稀有 '+rGot+'/'+rare.length+'</div>'+
+    ACHIEVEMENTS.map(a=>{
+      const gotIt=!!all[a.id];
+      return '<div class="ach-item'+(gotIt?' got':' locked')+(a.rare?' rare':'')+'">'+
+        '<div class="ach-name">'+(gotIt?a.name:'???')+(a.rare?'<span class="ach-star">★</span>':'')+'</div>'+
+        '<div class="ach-desc">'+(gotIt?a.desc:(a.rare?'？？？（隐藏条件）':a.desc))+'</div></div>';
+    }).join('')+
+    '<div class="ach-foot">稀有成就多藏在彩蛋结局里，想集齐就大胆尝试各种活法。</div>';
+  openModal(html);
+}
+
+/* ---------------- 存档系统 ---------------- */
+function saveSave(opts){
+  try{
+    let list=[];
+    try{ list=JSON.parse(localStorage.getItem('guihang_saves')||'[]'); }catch(e){}
+    if(!Array.isArray(list)) list=[];
+    const d=new Date(), pad=n=>('0'+n).slice(-2);
+    const rec={
+      id:Date.now(),
+      ts:d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+' '+pad(d.getHours())+':'+pad(d.getMinutes()),
+      name:S.name, major:S.major.name, type:S.major.type,
+      reason:opts.reason, grade:opts.grade,
+      total:opts.rep?opts.rep.total:null,
+      gpa:S.gpa, fails:S.fails.length, honors:S.honors.length,
+      talent:S.talents&&S.talents.length?S.talents.map(t=>t.name).join(' + '):null, talentQ:S.talents&&S.talents.length?S.talents[0].q:null,
+      html:opts.html
+    };
+    list.unshift(rec);
+    if(list.length>20) list=list.slice(0,20);
+    localStorage.setItem('guihang_saves',JSON.stringify(list));
+  }catch(e){}
+}
+function readSaves(){
+  try{ const l=JSON.parse(localStorage.getItem('guihang_saves')||'[]'); return Array.isArray(l)?l:[]; }catch(e){ return []; }
+}
+function showSaves(){
+  const list=readSaves();
+  if(!list.length){
+    openModal('<div class="ach-title">我的存档</div>'+
+      '<div class="death-desc">暂无存档记录。完成一局游戏（顺利毕业或任何结局）后，评价页会自动存入这里。</div>');
+    return;
+  }
+  const html='<div class="ach-title">我的存档（'+list.length+' / 20）</div>'+
+    list.map((r,i)=>
+      '<div class="save-item">'+
+        '<div class="save-main"><b>'+r.name+'</b> · '+r.major+' '+(r.talent?'<span class="save-grade ok" style="color:'+TALENT_QUALITY[r.talentQ].color+'">'+r.talent+'</span>':'')+' <span class="save-grade '+(r.grade==='未毕业'?'no':'ok')+'">'+(r.grade==='未毕业'?'未毕业':r.grade+' 级')+'</span></div>'+
+        '<div class="save-sub">'+r.reason+(r.total!==null?' · '+r.total+' 分':'')+' · GPA '+r.gpa.toFixed(2)+' · 挂科 '+r.fails+' · '+r.ts+'</div>'+
+        '<div class="save-actions">'+
+        '<button class="btn" onclick="showSaveDetail('+i+')">查看评价页</button>'+
+        '<button class="btn" onclick="delSave('+i+')">删除</button></div>'+
+      '</div>').join('')+
+    '<div class="ach-foot">最多保留 20 条，新存档会顶掉最旧的。</div>';
+  openModal(html);
+}
+function showSaveDetail(idx){
+  const list=readSaves();
+  if(!list[idx]) return;
+  openModal(list[idx].html);
+}
+function delSave(idx){
+  try{
+    const list=readSaves();
+    list.splice(idx,1);
+    localStorage.setItem('guihang_saves',JSON.stringify(list));
+  }catch(e){}
+  showSaves();
+}
+function refreshStartStats(){
+  const sc=$('save-count'); if(sc) sc.textContent=readSaves().length;
+  const ac=$('ach-count'); if(ac) ac.textContent=Object.keys(readAch()).length+'/'+ACHIEVEMENTS.length;
+}
+async function showReport(){
+  await runGraduationExam();
+  const rep=computeGrade();
+  lastReport=rep;
+  saveBest(rep);
+  const html=reportHTML(rep);
+  saveSave({reason:'毕业', grade:rep.grade, rep, html});
+  checkAchievements('毕业', rep);
+  await openModal(html, false, '走向毕业后的夏天');
+}
+async function gameOver(reason, desc){
+  const html=
+    '<div class="death-title">'+reason+'</div>'+
+    '<div class="death-desc">'+desc+'</div>'+
+    '<div class="stats-grid">'+
+    '<div>累计GPA <b>'+S.gpa.toFixed(2)+'</b></div><div>挂科 <b>'+S.fails.length+'</b> 门</div>'+
+    '<div>荣誉 <b>'+S.honors.length+'</b> 项</div><div>生涯月数 <b>'+S.month+' / 48</b></div></div>'+
+    '<div style="text-align:center;margin-top:14px;color:var(--dim)">评分：未毕业</div>';
+  saveSave({reason, grade:'未毕业', html});
+  checkAchievements(reason, null);
+  await openModal(html, true);
+}
+function showEnd(){
+  const rep=lastReport||computeGrade();
+  $('screen-game').classList.add('hidden');
+  $('screen-end').classList.remove('hidden');
+  $('end-card').innerHTML=reportHTML(rep)+
+    '<div class="best-line">历史最佳：<b>'+bestLine()+'</b></div>'+
+    '<div class="end-actions">'+
+    '<button class="btn primary big" onclick="resetGame()">再来一局</button>'+
+    '<button class="btn big" onclick="resetGame()">重新填报志愿</button></div>';
+  window.scrollTo(0,0);
+}
+
+/* ---------------- 模拟高考（入学前 3+1+2 选科 → 答题 → 出分 → 志愿） ---------------- */
+const GAOKAO_QUESTIONS={
+  chinese:[
+    {q:'下列词语中加点字的注音全都正确的一项是',o:['桎梏(gào)','龋齿(qǔ)','皈依(fǎn)','狙击(zǔ)'],a:1},
+    {q:'下列词语中没有错别字的一项是',o:['既往不究','谈笑风声','金榜题名','走头无路'],a:2},
+    {q:'下列各句中加点成语使用恰当的一项是',o:['他的演讲振聋发聩，令人昏昏欲睡','这部小说情节跌宕起伏，引人入胜','他做事总是首当其冲，从不推诿','两人默契配合，真是狼狈为奸'],a:1},
+    {q:'下列各句中没有语病的一项是',o:['通过这次活动，使我明白了团结的重要性','能否刻苦钻研是提高学习成绩的关键','他的写作水平明显改进了','我们要养成爱读书的好习惯'],a:3},
+    {q:'"此情可待成追忆，只是当时已惘然"出自',o:['李商隐《锦瑟》','杜牧《阿房宫赋》','白居易《长恨歌》','杜甫《登高》'],a:0},
+    {q:'下列关于《史记》的表述，不正确的是',o:['作者是西汉史学家司马迁','是我国第一部纪传体通史','记载了从夏朝到汉武帝时期的历史','被鲁迅誉为"史家之绝唱，无韵之离骚"'],a:2},
+    {q:'下列各句中"其"字用法与其他三项不同的是',o:['其皆出于此乎','吾其还也','其孰能讥之乎','臣从其计'],a:3},
+    {q:'下列诗人中属于"盛唐山水田园诗派"的是',o:['王昌龄','王维','李白','岑参'],a:1},
+    {q:'"元曲四大家"不包括',o:['关汉卿','马致远','王实甫','白朴'],a:2},
+    {q:'下列关于《红楼梦》的表述，正确的是',o:['金陵十二钗正册包括林黛玉、薛宝钗、晴雯等','贾府的"四春"是元春、迎春、探春、惜春','贾宝玉最终考取了功名','林黛玉的判词是"可叹停机德"'],a:1}
+  ],
+  math:[
+    {q:'集合 A={x|x²-3x+2=0}，B={x|0<x<3}，则 A∩B=',o:['{1}','{1,2}','{2}','∅'],a:1},
+    {q:'复数 z=(1+i)/(1-i)，则 |z|=',o:['0','1','√2','2'],a:1},
+    {q:'函数 f(x)=ln(x-1) 的定义域为',o:['(1,+∞)','[1,+∞)','(-∞,1)','R'],a:0},
+    {q:'sin75°cos15°+cos75°sin15°=',o:['0','1/2','1','√3/2'],a:2},
+    {q:'向量 a=(1,2)，b=(x,-1)，若 a⊥b，则 x=',o:['-2','2','1/2','-1/2'],a:1},
+    {q:'等差数列 {an} 中，a1=2，a3+a5=10，则 a7=',o:['6','7','8','9'],a:2},
+    {q:'从 1,2,3,4,5 中任取 2 个不同的数，两数之和为偶数的概率是',o:['1/5','2/5','3/5','4/5'],a:1},
+    {q:'棱长为 2 的正方体，其外接球的表面积为',o:['4π','8π','12π','16π'],a:2},
+    {q:'函数 f(x)=x³-3x 在 x=1 处的切线方程为',o:['y=-2','y=0','y=2x-4','y=-2x'],a:0},
+    {q:'椭圆 x²/9+y²/4=1 的离心率为',o:['√5/3','2/3','√5/2','3/5'],a:0}
+  ],
+  english:[
+    {q:'By the time he arrived, the meeting ___ for ten minutes.',o:['has lasted','had lasted','lasted','was lasting'],a:1},
+    {q:'It is suggested that he ___ the job as soon as possible.',o:['takes','took','take','has taken'],a:2},
+    {q:'The book ___ I bought yesterday is very interesting.',o:['who','what','it','that'],a:3},
+    {q:'___ from the top of the mountain, the city looks beautiful.',o:['Seeing','Seen','To see','See'],a:1},
+    {q:'Not until he came back ___ the truth.',o:['I knew','did I know','I did know','knew I'],a:1},
+    {q:'I would rather you ___ tomorrow than today.',o:['come','came','will come','have come'],a:1},
+    {q:'The number of students in this school ___ increasing.',o:['is','are','were','have been'],a:0},
+    {q:'Hardly ___ the station when the train left.',o:['I reached','did I reach','had I reached','I had reached'],a:2},
+    {q:'It was in the park ___ I met her for the first time.',o:['where','that','which','when'],a:1},
+    {q:'The manager demanded that the work ___ before Friday.',o:['is finished','be finished','was finished','will be finished'],a:1}
+  ],
+  physics:[
+    {q:'一物体做匀加速直线运动，初速度 2m/s，加速度 1m/s²，3s 后速度为',o:['3m/s','4m/s','5m/s','6m/s'],a:2},
+    {q:'质量 2kg 的物体在水平面上受 10N 水平拉力，动摩擦因数 0.2，g=10，加速度为',o:['2m/s²','3m/s²','4m/s²','5m/s²'],a:1},
+    {q:'关于动量和动能，下列说法正确的是',o:['动量变化，动能一定变化','动能变化，动量一定变化','动量和动能都是矢量','动量和动能都与参考系无关'],a:1},
+    {q:'一质点做匀速圆周运动，半径 r，线速度 v，向心加速度为',o:['v/r','v²/r','vr','v²r'],a:1},
+    {q:'真空中两个点电荷相距 r 时库仑力为 F，若距离变为 2r，库仑力为',o:['F/4','F/2','2F','4F'],a:0},
+    {q:'闭合电路中电源电动势 E、内阻 r、外电阻 R，则路端电压为',o:['E','Er/(R+r)','ER/(R+r)','E+Ir'],a:2},
+    {q:'关于电磁感应，下列说法正确的是',o:['只要导体在磁场中运动就有感应电流','感应电流的磁场总是阻碍原磁通量的变化','感应电动势与磁通量成正比','楞次定律只适用于匀强磁场'],a:1},
+    {q:'一束光从空气以 45° 入射角射入水中（水折射率 4/3），折射角约为',o:['约32°','约45°','约60°','约90°'],a:0},
+    {q:'关于热力学第二定律，下列说法正确的是',o:['热量可以自发从低温物体传到高温物体','第二类永动机不可能制成','内能可以全部转化为机械能而不引起其他变化','孤立系统的熵总是减小的'],a:1},
+    {q:'一弹簧振子做简谐运动，周期为 T，从平衡位置运动到最大位移处的时间为',o:['T/4','T/2','T','2T'],a:0}
+  ],
+  history:[
+    {q:'下列关于西周分封制的表述，正确的是',o:['分封对象仅限于王族','诸侯在封国内没有世袭统治权','分封制加强了周天子对地方的统治','分封制下诸侯不需要向周天子纳贡'],a:2},
+    {q:'秦朝"焚书坑儒"的根本目的是',o:['发展文化教育','加强思想控制，巩固统一','打击儒家学者','推广法家思想'],a:1},
+    {q:'唐朝三省六部制中，负责执行政令的是',o:['中书省','门下省','尚书省','吏部'],a:2},
+    {q:'明朝废除丞相制度的皇帝是',o:['明成祖','明太祖','明神宗','明宣宗'],a:1},
+    {q:'中国近代史上第一个不平等条约是',o:['《南京条约》','《北京条约》','《马关条约》','《辛丑条约》'],a:0},
+    {q:'辛亥革命的历史功绩不包括',o:['推翻了清王朝统治','结束了两千多年的君主专制制度','使民主共和观念深入人心','彻底完成了反帝反封建的革命任务'],a:3},
+    {q:'新文化运动的核心内容是',o:['民主与科学','自由与平等','博爱与法治','独立与富强'],a:0},
+    {q:'古希腊雅典民主政治的鼎盛时期是',o:['梭伦时期','克里斯提尼时期','伯利克里时期','亚历山大时期'],a:2},
+    {q:'工业革命首先发生在英国的根本原因是',o:['海外市场广阔','资本主义制度的确立和发展','煤铁资源丰富','劳动力充足'],a:1},
+    {q:'第二次世界大战后，冷战开始的标志是',o:['丘吉尔铁幕演说','杜鲁门主义出台','马歇尔计划实施','北约成立'],a:1}
+  ],
+  chemistry:[
+    {q:'下列物质中属于电解质的是',o:['蔗糖','氯化钠','酒精','铜'],a:1},
+    {q:'下列离子方程式书写正确的是',o:['铁与稀盐酸：2Fe+6H⁺=2Fe³⁺+3H₂↑','碳酸钙与稀盐酸：CO₃²⁻+2H⁺=CO₂↑+H₂O','氢氧化钡与稀硫酸：Ba²⁺+OH⁻+H⁺+SO₄²⁻=BaSO₄↓+H₂O','铜与硝酸银溶液：Cu+2Ag⁺=Cu²⁺+2Ag'],a:3},
+    {q:'下列反应中，水只作氧化剂的是',o:['2Na+2H₂O=2NaOH+H₂↑','2F₂+2H₂O=4HF+O₂','CaO+H₂O=Ca(OH)₂','2H₂O=2H₂↑+O₂↑'],a:0},
+    {q:'元素周期表中，同周期元素从左到右，下列说法正确的是',o:['原子半径逐渐增大','金属性逐渐增强','非金属性逐渐增强','最高正价逐渐减小'],a:2},
+    {q:'下列物质中含有共价键的离子化合物是',o:['NaCl','NaOH','HCl','H₂O'],a:1},
+    {q:'对于反应 2SO₂+O₂⇌2SO₃，下列措施能增大反应速率的是',o:['降低温度','减小反应物浓度','加入催化剂','减小压强'],a:2},
+    {q:'原电池中，负极发生的反应类型是',o:['还原反应','氧化反应','中和反应','复分解反应'],a:1},
+    {q:'下列有机物中属于烃的是',o:['甲烷','乙醇','乙酸','葡萄糖'],a:0},
+    {q:'下列实验操作正确的是',o:['用嘴吹灭酒精灯','稀释浓硫酸时将水倒入浓硫酸中','闻气体时用手在瓶口轻轻扇动','用托盘天平称量时左盘放砝码'],a:2},
+    {q:'常温下，pH=3 的盐酸与 pH=11 的 NaOH 溶液等体积混合，溶液 pH 为',o:['3','7','11','14'],a:1}
+  ],
+  politics:[
+    {q:'商品的两个基本属性是',o:['价值和价格','使用价值和价值','交换价值和价值','使用价值和价格'],a:1},
+    {q:'我国社会主义初级阶段的基本经济制度是',o:['单一公有制','私有制为主体','公有制为主体、多种所有制经济共同发展','完全市场经济'],a:2},
+    {q:'人民代表大会制度的组织和活动原则是',o:['三权分立','民主集中制','君主立宪','联邦制'],a:1},
+    {q:'我国处理民族关系的基本原则是',o:['民族区域自治','民族平等、民族团结、各民族共同繁荣','大杂居小聚居','尊重民族习惯'],a:1},
+    {q:'哲学的基本问题是',o:['物质和意识的辩证关系问题','思维和存在的关系问题','世界是否可知的问题','世界本原是物质还是精神的问题'],a:1},
+    {q:'下列属于规律的是',o:['水往低处流','四季更替','价值规律','日出东方'],a:2},
+    {q:'实践是认识的基础，下列说法不正确的是',o:['实践是认识的来源','实践是认识发展的动力','实践是检验认识真理性的唯一标准','认识决定实践'],a:3},
+    {q:'矛盾的两个基本属性是',o:['普遍性和特殊性','同一性和斗争性','主要矛盾和次要矛盾','内因和外因'],a:1},
+    {q:'我国外交政策的基本立场是',o:['和平共处五项原则','独立自主','维护世界和平','促进共同发展'],a:1},
+    {q:'文化创新的根本途径是',o:['继承传统','面向世界','立足于社会实践','博采众长'],a:2}
+  ],
+  biology:[
+    {q:'下列关于细胞的叙述，正确的是',o:['所有细胞都有细胞核','细胞是生物体结构和功能的基本单位','病毒是单细胞生物','植物细胞都有叶绿体'],a:1},
+    {q:'有氧呼吸的主要场所是',o:['细胞质基质','线粒体','叶绿体','核糖体'],a:1},
+    {q:'孟德尔遗传定律的实质是',o:['子代出现性状分离','等位基因随同源染色体分离而分离','雌雄配子随机结合','基因在染色体上呈线性排列'],a:1},
+    {q:'DNA 分子双螺旋结构中，碱基配对原则是',o:['A-G，T-C','A-T，G-C','A-C，G-T','任意配对'],a:1},
+    {q:'下列关于基因突变的说法，正确的是',o:['基因突变一定导致生物性状改变','基因突变是生物变异的根本来源','基因突变只发生在细胞分裂间期','基因突变对生物体都是有害的'],a:1},
+    {q:'人体神经调节的基本方式是',o:['兴奋传导','反射','突触传递','激素调节'],a:1},
+    {q:'生态系统的能量流动特点是',o:['循环往复','单向流动、逐级递减','双向流动','逐级递增'],a:1},
+    {q:'下列属于免疫活性物质的是',o:['抗原','抗体','红细胞','神经递质'],a:1},
+    {q:'种群最基本的数量特征是',o:['出生率和死亡率','年龄组成','种群密度','性别比例'],a:2},
+    {q:'下列关于酶的叙述，正确的是',o:['酶的化学本质都是蛋白质','酶在高温和低温下都会失活','酶具有高效性和专一性','酶只能在细胞内起作用'],a:2}
+  ],
+  geography:[
+    {q:'地球自转产生的地理现象是',o:['昼夜长短变化','四季更替','昼夜交替','正午太阳高度变化'],a:2},
+    {q:'下列气候类型中，夏季炎热干燥、冬季温和多雨的是',o:['热带雨林气候','地中海气候','温带季风气候','温带海洋性气候'],a:1},
+    {q:'世界上面积最大的大洋是',o:['大西洋','印度洋','北冰洋','太平洋'],a:3},
+    {q:'下列地貌中，由流水侵蚀作用形成的是',o:['三角洲','峡谷','沙丘','冲积扇'],a:1},
+    {q:'我国人口分布的基本特点是',o:['西多东少','东多西少','南多北少','均匀分布'],a:1},
+    {q:'城市化的主要标志是',o:['城市面积扩大','城市人口增加','城市人口占总人口比重上升','城市数量增多'],a:2},
+    {q:'下列农业地域类型中，以种植业为主、商品率高的是',o:['季风水田农业','商品谷物农业','大牧场放牧业','乳畜业'],a:1},
+    {q:'炼铝工业的区位选择主导因素是',o:['原料指向型','市场指向型','动力指向型','技术指向型'],a:2},
+    {q:'下列关于可持续发展的说法，正确的是',o:['只追求经济增长','停止开发自然资源','既满足当代人需求，又不损害后代人满足其需求的能力','先污染后治理'],a:2},
+    {q:'我国西北地区荒漠化的主要人为原因是',o:['气候干旱','过度放牧和过度开垦','沙尘暴频发','河流稀少'],a:1}
+  ]
+};
+const GAOKAO_SUBJ_NAME={chinese:'语文',math:'数学',english:'英语',physics:'物理',history:'历史',chemistry:'化学',politics:'政治',biology:'生物',geography:'地理'};
+let selSubject=null;   /* {p:true(物理)|false(历史), c:'chem'|'pol', b:'bio'|'geo'} */
+let gkScore=0, gkAnswers={}, gkAdmitMode='', gkQuestionOrder=[], gkPicked={};
+
+function selHas(id){ return selTalents.some(t=>t.id===id || (t.fx&&t.fx.indexOf(id)>-1)); }
+function catName(){ return selSubject&&selSubject.p?'物理类':'历史类'; }
+function benkeLine(){ return selSubject&&selSubject.p?400:430; }
+function catMajors(){ return MAJORS.filter(m=>m.cat===(selSubject&&selSubject.p?'wl':'ls')); }
+
+function showSubjectPick(){
+  $('talent-box').classList.add('hidden');
+  $('subject-box').classList.remove('hidden');
+  window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});
+}
+function pickSubj(el){
+  const g=el.getAttribute('data-g'), v=el.getAttribute('data-v');
+  document.querySelectorAll('.subj-btn[data-g="'+g+'"]').forEach(b=>b.classList.remove('sel'));
+  el.classList.add('sel');
+  if(!selSubject) selSubject={};
+  if(g==='p') selSubject.p=(v==='wuli');
+  if(g==='c') selSubject.c=v;
+  if(g==='b') selSubject.b=v;
+  const ok=selSubject&&selSubject.p!==undefined&&selSubject.c&&selSubject.b;
+  $('btn-subject').disabled=!ok;
+  $('subject-picked').textContent=ok?(selSubject.p?'物理':'历史')+' + '+GAOKAO_SUBJ_NAME[selSubject.c==='chem'?'chemistry':'politics']+' + '+GAOKAO_SUBJ_NAME[selSubject.b==='bio'?'biology':'geography']:'未选完';
+}
+function confirmSubject(){
+  if(!selSubject||selSubject.p===undefined||!selSubject.c||!selSubject.b) return;
+  $('subject-box').classList.add('hidden');
+  $('gaokao-box').classList.remove('hidden');
+  renderGaokao();
+  window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});
+}
+function showGaokao(){ renderGaokao(); }
+function renderGaokao(){
+  /* 按选科拼 6 门科目，每科从题库随机抽 3 题 = 18 题 */
+  const subs=['chinese','math','english', selSubject.p?'physics':'history', selSubject.c==='chem'?'chemistry':'politics', selSubject.b==='bio'?'biology':'geography'];
+  gkQuestionOrder=subs;
+  gkAnswers={};
+  gkPicked={};
+  $('gaokao-subj-line').innerHTML='你的考试科目：'+subs.map(s=>GAOKAO_SUBJ_NAME[s]).join(' · ')+'。每科从题库随机抽 3 题，答对一题 +25 分（基础分 300）。';
+  let idx=0;
+  $('gaokao-qlist').innerHTML=subs.map(sub=>{
+    const pool=GAOKAO_QUESTIONS[sub].slice();
+    const picked=[];
+    for(let k=0;k<3;k++){
+      const ri=rand(0,pool.length-1);
+      picked.push(pool.splice(ri,1)[0]);
+    }
+    gkPicked[sub]=picked;
+    return picked.map(q=>{
+      const n=idx++;
+      return '<div class="gaokao-q"><div class="gq-tag">'+(n+1)+' · '+GAOKAO_SUBJ_NAME[sub]+'</div>'+
+        '<div class="gq-q">'+q.q+'</div>'+
+        '<div class="gq-opts">'+q.o.map((op,i)=>
+          '<button class="gq-opt" data-q="'+n+'" data-i="'+i+'" onclick="pickAnswer(this)">'+
+          '<b>'+'ABCD'[i]+'</b>. '+op+'</button>').join('')+'</div></div>';
+    }).join('');
+  }).join('');
+  $('gaokao-picked').textContent='已答 0 / 18';
+  $('btn-gaokao').disabled=true;
+}
+function pickAnswer(el){
+  const n=el.getAttribute('data-q');
+  document.querySelectorAll('.gq-opt[data-q="'+n+'"]').forEach(b=>b.classList.remove('sel'));
+  el.classList.add('sel');
+  gkAnswers[n]=parseInt(el.getAttribute('data-i'),10);
+  const cnt=Object.keys(gkAnswers).length;
+  $('gaokao-picked').textContent='已答 '+cnt+' / 18';
+  $('btn-gaokao').disabled=cnt<18;
+}
+function submitGaokao(){
+  let right=0;
+  gkQuestionOrder.forEach((sub,si)=>{
+    for(let j=0;j<3;j++){
+      const i=si*3+j;
+      if(gkAnswers[i]!==undefined && gkPicked[sub][j].a===gkAnswers[i]) right++;
+    }
+  });
+  let sc=300+right*25;
+  if(selHas('t_tianfu')) sc+=15;
+  if(selHas('t_guomuwang')) sc+=10;
+  if(selHas('t_tianming')) sc+=10;
+  if(selHas('t_jinli')) sc+=10;
+  gkScore=Math.min(750,sc);
+  checkAchievements('高考', null);
+  $('gaokao-box').classList.add('hidden');
+  const line=benkeLine();
+  if(gkScore<line){
+    showLuobang();
+  }else{
+    $('volunteer-box').classList.remove('hidden');
+    $('vol-cat').textContent=catName();
+    renderVolunteers();
+    showScoreBox(false);
+    $('btn-start-row').classList.remove('hidden');
+    window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});
+  }
+}
+function skipGaokao(){
+  gkScore=520;
+  gkAdmitMode='保送';
+  checkAchievements('高考', null);
+  $('gaokao-box').classList.add('hidden');
+  $('volunteer-box').classList.remove('hidden');
+  $('vol-cat').textContent=catName();
+  renderVolunteers();
+  showScoreBox(false);
+  $('btn-start-row').classList.remove('hidden');
+  window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});
+}
+function showScoreBox(low){
+  const box=$('score-box');
+  box.classList.remove('hidden');
+  box.classList.toggle('low',low);
+  const line=benkeLine();
+  const baosong=gkAdmitMode==='保送';
+  box.innerHTML='<div class="admit-line">'+(baosong?'<b style="color:var(--gold)">保送生</b> · 高考成绩：':'你的高考成绩：')+'<b style="color:var(--gold)">'+gkScore+'</b> 分 · '+catName()+
+    ' <span style="color:var(--dim);font-size:12px">（'+catName()+'本科线 '+line+' 分）</span></div>'+
+    (low?'<div style="font-size:13px;color:#FCA5A5;margin-top:8px">未达本科线，无缘大学……</div>':'<div style="font-size:12.5px;color:var(--dim);margin-top:8px">'+(baosong?'你凭借优异的平时表现获得了桂航保送资格，仍可选择心仪专业。':'请从可报考专业中填报 3 个志愿。')+'</div>');
+  window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});
+}
+function showLuobang(){
+  showScoreBox(true);
+  $('volunteer-box').classList.add('hidden');
+  $('btn-start-row').classList.add('hidden');
+  doLuobang('名落孙山','高考 '+gkScore+' 分，未达到'+catName()+'本科线（'+benkeLine()+' 分）。录取通知书与你擦肩而过，你望着尧山的方向，把"桂航"两个字默默收进心里。');
+}
+
+/* ---------------- 开始 / 志愿填报 / 重置 ---------------- */
+const VOL_TYPES=['工科','经管','文科','艺术'];
+function renderVolunteers(){
+  /* 按选科大类过滤可报考的 type 与专业 */
+  const allow=catMajors();
+  const types=VOL_TYPES.filter(t=>allow.some(m=>m.type===t));
+  [1,2,3].forEach(n=>{
+    const t=$('t'+n);
+    t.innerHTML='<option value="">大类</option>'+types.map(x=>'<option>'+x+'</option>').join('');
+    $('v'+n).innerHTML='<option value="">— 请选择专业 —</option>';
+  });
+  [1,2,3].forEach(n=>{
+    $('t'+n).onchange=()=>{ $('v'+n).value=''; rebuildVolunteerOptions(); };
+    $('v'+n).onchange=rebuildVolunteerOptions;
+  });
+  rebuildVolunteerOptions();
+}
+function rebuildVolunteerOptions(){
+  const rows=[1,2,3];
+  const picked=rows.map(n=>$('v'+n).value).filter(Boolean);
+  rows.forEach(n=>{
+    const t=$('t'+n).value, cur=$('v'+n).value;
+    const opts=catMajors().filter(m=>m.type===t && (!picked.includes(m.id)||m.id===cur))
+      .map(m=>'<option value="'+m.id+'"'+(m.id===cur?' selected':'')+'>'+m.name+'（预估线 '+m.line+' 分）</option>').join('');
+    $('v'+n).innerHTML='<option value="">— 请选择专业 —</option>'+opts;
+    $('v'+n).value=cur||'';
+  });
+  $('admit-box').classList.add('hidden');
+  $('admit-box').innerHTML='';
+  $('btn-start').disabled=!($('v1').value&&$('v2').value&&$('v3').value);
+}
+function doLuobang(title, desc){
+  const name=$('inp-name').value.trim()||'同学';
+  S={name:name, major:{name:'——',type:''}, gpa:0, fails:[], honors:[], talents:selTalents.slice(), month:0};
+  S.admit={score:gkScore, mode:'落榜', name:'无'};
+  const html='<div class="death-title">'+title+'</div>'+
+    '<div class="death-desc">'+desc+'</div>'+
+    '<div style="text-align:center;margin-top:14px;color:var(--dim)">评分：未录取</div>';
+  saveSave({reason:'落榜', grade:'未录取', html});
+  checkAchievements('落榜', null);
+  S=null;
+  const box=$('admit-box');
+  box.classList.remove('hidden');
+  box.classList.add('luobang');
+  box.innerHTML='<div class="admit-line" style="color:#FCA5A5">高考 <b>'+gkScore+'</b> 分 · '+catName()+'（本科线 '+benkeLine()+' 分）</div>'+
+    '<div style="margin:10px 0 4px;font-size:15px">'+title+'</div>'+
+    '<div style="font-size:12.5px;color:var(--dim);margin-bottom:12px">'+desc+'</div>'+
+    '<button class="btn primary big" onclick="resetGame()">复读再来 · 重新开始</button>';
+  window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});
+}
+function submitVolunteer(){
+  const v1=$('v1').value, v2=$('v2').value, v3=$('v3').value;
+  if(!v1||!v2||!v3) return;
+  const score=gkScore;
+  const m1=MAJORS.find(m=>m.id===v1), m2=MAJORS.find(m=>m.id===v2), m3=MAJORS.find(m=>m.id===v3);
+  let admit, mode;
+  if(score>=m1.line){ admit=m1; mode='第一志愿录取'; }
+  else if(score>=m2.line){ admit=m2; mode='第二志愿录取'; }
+  else if(score>=m3.line){ admit=m3; mode='第三志愿录取'; }
+  else{
+    const cands=catMajors().filter(m=>![v1,v2,v3].includes(m.id) && m.line<=score);
+    if(!cands.length){
+      doLuobang('调剂失败 · 落榜','三个志愿全部未达线，大类内可调剂的专业也都够不着录取线。你与桂航擦肩而过，只能回高中复读。');
+      return;
+    }
+    admit=cands[rand(0,cands.length-1)];
+    mode='调剂录取';
+  }
+  gkAdmitMode=mode;
+  selMajor=admit.id;
+  admitInfo={score:score, mode:mode, name:admit.name};
+  checkAchievements('录取', null);
+  const box=$('admit-box');
+  box.classList.remove('hidden');
+  box.classList.remove('luobang');
+  box.innerHTML='<div class="admit-line">高考 <b style="color:var(--gold)">'+score+'</b> 分 → '+mode+'：<b style="color:#fff">'+admit.name+'</b>'+
+    (mode==='调剂录取'?'<div style="font-size:12.5px;color:#FCA5A5;margin-top:6px">三个志愿均未达线，你被调剂到'+admit.name+'。</div>':'')+
+    '</div>'+
+    '<span class="admit-mode">'+admit.type+' · 课程难度'+(admit.diff>=1.1?'较高':(admit.diff>=1.0?'中等':'较低'))+'</span>'+
+    '<div class="admit-confirm"><button class="btn primary big" onclick="startGame()">确认入学 · 开始大学生活</button>'+
+    '<div style="margin-top:8px"><button class="btn" style="font-size:12.5px;padding:6px 14px" onclick="resetVolunteers()">修改志愿</button></div></div>';
+  $('btn-start').disabled=true;
+  $('btn-start-row').classList.add('hidden');
+  window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});
+}
+function resetVolunteers(){
+  selMajor=null; admitInfo=null;
+  $('admit-box').classList.add('hidden');
+  $('admit-box').innerHTML='';
+  $('score-box').classList.remove('hidden');
+  $('volunteer-box').classList.remove('hidden');
+  $('btn-start-row').classList.remove('hidden');
+  renderVolunteers();
+}
+let selTalents=[], talentCandidates=[], refreshLeft=3, goldLeft=1;
+const QUAL_ORDER={orange:1,purple:2,blue:3,green:4,white:5};
+function drawTalentGrid(){
+  const grid=$('talent-grid');
+  grid.innerHTML=talentCandidates.map(t=>{
+    const q=TALENT_QUALITY[t.q];
+    const sel=selTalents.some(x=>x.id===t.id);
+    return '<div class="tcard'+(sel?' sel':'')+'" data-id="'+t.id+'" onclick="toggleTalentCard(this,\''+t.id+'\')">'+
+      '<span class="tq" style="background:'+q.color+'">'+q.name+'</span>'+
+      '<span class="tname">'+t.name+'</span>'+
+      '<span class="tdesc">'+t.d+'</span></div>';
+  }).join('');
+  $('btn-talent').disabled=selTalents.length!==3;
+  $('talent-picked').textContent='已选 '+selTalents.length+' / 3';
+  $('btn-refresh-n').textContent='换一批（普通 '+refreshLeft+'）';
+  $('btn-refresh-n').disabled=refreshLeft<=0;
+  $('btn-refresh-g').textContent='金色刷新（'+goldLeft+'）· 必出紫/橙';
+  $('btn-refresh-g').disabled=goldLeft<=0;
+}
+function drawNewCands(gold){
+  let cands;
+  if(gold){
+    /* 金色刷新：必出紫色以上（紫/橙） */
+    const highs=TALENTS.filter(t=>t.q==='purple'||t.q==='orange');
+    cands=[highs[rand(0,highs.length-1)]];
+    const rest=TALENTS.filter(t=>!cands.some(x=>x.id===t.id));
+    for(let i=rest.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); const tmp=rest[i]; rest[i]=rest[j]; rest[j]=tmp; }
+    cands=cands.concat(rest.slice(0,9));
+  }else{
+    const pool=TALENTS.slice();
+    for(let i=pool.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); const tmp=pool[i]; pool[i]=pool[j]; pool[j]=tmp; }
+    cands=pool.slice(0,10);
+    if(!cands.some(t=>t.q==='blue'||t.q==='purple'||t.q==='orange')){
+      const highs=TALENTS.filter(t=>t.q==='blue'||t.q==='purple'||t.q==='orange');
+      cands[0]=highs[rand(0,highs.length-1)];
+      const seen={}; cands=cands.filter(t=>seen[t.id]?false:(seen[t.id]=1,true));
+    }
+  }
+  cands.sort((a,b)=>QUAL_ORDER[a.q]-QUAL_ORDER[b.q]);
+  talentCandidates=cands;
+  selTalents=selTalents.filter(t=>cands.some(c=>c.id===t.id));
+  drawTalentGrid();
+}
+function showTalentPick(){
+  refreshLeft=3; goldLeft=1; selTalents=[];
+  selSubject=null; gkScore=0; gkAnswers={}; gkAdmitMode=''; gkQuestionOrder=[]; gkPicked={};
+  $('subject-box').classList.add('hidden');
+  $('gaokao-box').classList.add('hidden');
+  $('score-box').classList.add('hidden');
+  $('volunteer-box').classList.add('hidden');
+  $('admit-box').classList.add('hidden');
+  $('admit-box').innerHTML='';
+  $('btn-start-row').classList.add('hidden');
+  $('talent-box').classList.remove('hidden');
+  drawNewCands(false);
+}
+function toggleTalentCard(el,id){
+  const t=TALENTS.find(x=>x.id===id);
+  if(selTalents.some(x=>x.id===id)) selTalents=selTalents.filter(x=>x.id!==id);
+  else{
+    if(selTalents.length>=3){ toast('最多选择 3 个天赋','bad'); return; }
+    selTalents.push(t);
+  }
+  drawTalentGrid();
+}
+function refreshNormal(){ if(refreshLeft>0){ refreshLeft--; drawNewCands(false); } }
+function refreshGold(){ if(goldLeft>0){ goldLeft--; drawNewCands(true); toast('金色刷新：本轮必出紫/橙！','good'); } }
+function hasTalent(id){ return !!S && Array.isArray(S.talents) && S.talents.some(t=>t.id===id || (t.fx&&t.fx.indexOf(id)>-1)); }
+function applyTalentInit(){
+  if(!S.talents||!S.talents.length) return;
+  if(hasTalent('t_paobu')) S.p+=3;
+  if(hasTalent('t_nightowl')) S.p-=1;
+  if(hasTalent('t_guomuwang')) S.i+=4;
+  if(hasTalent('t_tieda')) S.p+=5;
+  if(hasTalent('t_fugui')) S.mo+=3000;
+  if(hasTalent('t_liaojie')) S.so+=3;
+  if(hasTalent('t_tianfu')) S.i+=6;
+  if(hasTalent('t_tianming')){ S.p+=3; S.i+=3; S.m+=3; S.hm+=3; S.so+=3; }
+  if(hasTalent('t_renyuan')) S.so+=2;
+  pushLog('觉醒天赋：'+S.talents.map(t=>t.name+'（'+TALENT_QUALITY[t.q].name+'）').join(' + '));
+  toast('觉醒天赋：'+S.talents.map(t=>t.name).join(' + '),'good');
+}
+function startGame(){
+  if(!selMajor) return;
+  beginGame();
+}
+function beginGame(){
+  if(selTalents.length!==3) return;
+  const name=$('inp-name').value.trim();
+  const major=MAJORS.find(m=>m.id===selMajor);
+  S=newState(name,major);
+  S.talents=selTalents.slice();
+  $('log-list').innerHTML='';
+  if(admitInfo){
+    S.admit=admitInfo;
+    pushLog('高考 '+admitInfo.score+' 分 · '+admitInfo.mode+'：'+admitInfo.name);
+  }
+  applyTalentInit();
+  buildCourses(0);
+  $('screen-start').classList.add('hidden');
+  $('screen-end').classList.add('hidden');
+  $('screen-game').classList.remove('hidden');
+  startMonth();
+  window.scrollTo(0,0);
+}
+function resetGame(){
+  S=null; lastReport=null;
+  $('screen-game').classList.add('hidden');
+  $('screen-end').classList.add('hidden');
+  $('screen-start').classList.remove('hidden');
+  $('modal-root').innerHTML='';
+  $('log-list').innerHTML='';
+  $('inp-name').value='';
+  resetVolunteers();
+  showTalentPick();
+  refreshStartStats();
+  window.scrollTo(0,0);
+}
+
+/* ---------------- 键盘 / 星空 / 初始化 ---------------- */
+document.addEventListener('keydown',e=>{
+  if(modalOpen) return;
+  if($('screen-game').classList.contains('hidden')) return;
+  const k=e.key.toUpperCase();
+  if(['A','B','C','D'].includes(k)){
+    const btn=document.querySelector('#opt-list .opt[data-k="'+k+'"]');
+    if(btn) btn.click();
+  }
+  if(e.key==='Enter'){
+    const nb=$('btn-next');
+    if(nb && !nb.classList.contains('hidden')) nb.click();
+  }
+});
+function makeStars(){
+  const box=$('stars');
+  const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  for(let i=0;i<130;i++){
+    const s=document.createElement('span');
+    s.style.cssText='position:absolute;left:'+(Math.random()*100).toFixed(2)+'%;top:'+(Math.random()*100).toFixed(2)+'%;width:'+(Math.random()*2+1).toFixed(1)+'px;height:'+(Math.random()*2+1).toFixed(1)+'px;border-radius:50%;background:#fff;opacity:'+(Math.random()*0.7+0.1).toFixed(2)+';';
+    if(!reduced){
+      s.style.animation='twinkle '+(Math.random()*4+2).toFixed(1)+'s infinite';
+      s.style.animationDelay=(Math.random()*4).toFixed(1)+'s';
+    }
+    box.appendChild(s);
+  }
+}
+window.addEventListener('DOMContentLoaded',()=>{
+  makeStars();
+  showTalentPick();
+  refreshStartStats();
+  $('btn-start').onclick=submitVolunteer;
+  $('btn-talent').onclick=showSubjectPick;
+  $('btn-subject').onclick=confirmSubject;
+  $('btn-gaokao').onclick=submitGaokao;
+  $('btn-baosong').onclick=skipGaokao;
+  $('btn-next').onclick=nextMonth;
+  $('btn-again').onclick=doAgain;
+  $('inp-name').addEventListener('keydown',e=>{ if(e.key==='Enter'&&selMajor) startGame(); });
+});
+</script>
+</body>
+</html>
